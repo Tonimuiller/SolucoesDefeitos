@@ -19,7 +19,7 @@ namespace SolucoesDefeitos.Model
 
         public string RepairSteps { get; set; }
 
-        public ICollection<Product> Products { get; set; }
+        public ICollection<AnomalyProductSpecification> ProductSpecifications { get; set; }
 
         public ICollection<Attachment> Attachments { get; set; }
     }

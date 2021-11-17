@@ -17,5 +17,10 @@ namespace SolucoesDefeitos.Model
 
         public AttachmentCategory Category { get; set; }
 
+        public int AnomalyId { get; set; }
+
+        public Anomaly Anomaly { get; set; }
+
+        public string Storage { get; set; }
     }
 }
