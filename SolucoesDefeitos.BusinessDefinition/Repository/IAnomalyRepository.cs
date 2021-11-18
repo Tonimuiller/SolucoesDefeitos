@@ -1,0 +1,8 @@
+﻿using SolucoesDefeitos.Model;
+
+namespace SolucoesDefeitos.BusinessDefinition.Repository
+{
+    public interface IAnomalyRepository: IRepository<Anomaly>
+    {
+    }
+}
