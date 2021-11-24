@@ -2,6 +2,8 @@
 using SolucoesDefeitos.BusinessDefinition;
 using SolucoesDefeitos.DataAccess.Database;
 using SolucoesDefeitos.DataAccess.EntityDml;
+using SolucoesDefeitos.Model.Contracts;
+using SolucoesDefeitos.Provider;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -13,19 +15,27 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
     public abstract class DapperUnitOfWork<TDatabase> : IUnitOfWork
         where TDatabase : IDatabase
     {
+        private readonly IDateTimeProvider dateTimeProvider;
         private readonly TDatabase database;
         private IDbTransaction dbTransaction;
 
         public DapperUnitOfWork(
+            IDateTimeProvider dateTimeProvider,
             TDatabase database
             )
         {
+            this.dateTimeProvider = dateTimeProvider;
             this.database = database;
         }
 
         public virtual async Task<T> AddAsync<T>(T entity) where T : class
         {
             var entityDml = GetEntityDml<T>();
+            if (entity is ICreationDate)
+            {
+                (entity as ICreationDate).CreationDate = this.dateTimeProvider.CurrentDateTime;
+            }
+
             var _ = await ExecuteAsync(entityDml.Insert, entity);
             return entity;
         }
@@ -88,6 +98,11 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
         public virtual async Task UpdateAsync<T>(T entity) where T : class
         {
             var entityDml = GetEntityDml<T>();
+            if (entity is IUpdateDate)
+            {
+                (entity as IUpdateDate).UpdateDate = this.dateTimeProvider.CurrentDateTime;
+            }
+
             await ExecuteAsync(entityDml.Update, entity);
         }
 

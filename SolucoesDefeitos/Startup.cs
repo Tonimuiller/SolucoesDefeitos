@@ -1,20 +1,20 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.Extensions.PlatformAbstractions;
+using Microsoft.OpenApi.Models;
+using System.IO;
 
 namespace SolucoesDefeitos
 {
     public class Startup
     {
+        private const string SwaggerApiVersion = "v1";
+        private const string SwaggerApiTitle = "Soluções e Defeitos Api";
+        private const string SwaggerApiRouteName = "Soluções e Defeitos Api v1";
+        private const string SwaggerApiRoute = "v1/swagger.json";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -26,6 +26,19 @@ namespace SolucoesDefeitos
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddSwaggerGen(options => 
+            {
+                options.SwaggerDoc(SwaggerApiVersion, new OpenApiInfo { Title = SwaggerApiTitle, Version = SwaggerApiVersion });
+                string caminhoAplicacao =
+                    PlatformServices.Default.Application.ApplicationBasePath;
+                string nomeAplicacao =
+                    PlatformServices.Default.Application.ApplicationName;
+                string caminhoXmlDoc =
+                    Path.Combine(caminhoAplicacao, $"{nomeAplicacao}.xml");
+
+                options.IncludeXmlComments(caminhoXmlDoc);
+            });
+            services.ConfigureApplicationDependencies();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -45,6 +58,13 @@ namespace SolucoesDefeitos
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+            });
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(options => 
+            {
+                options.SwaggerEndpoint(SwaggerApiRoute, SwaggerApiRouteName);
             });
         }
     }
