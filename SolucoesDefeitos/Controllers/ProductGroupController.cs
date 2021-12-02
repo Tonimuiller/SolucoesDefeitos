@@ -76,30 +76,13 @@ namespace SolucoesDefeitos.Controllers
                 return BadRequest(ModelState);
             }
 
-            var productGroup = await this.productGroupService.GetByKeyAsync(new { updatedProductGroup.ProductGroupId });
-            if (productGroup == null)
+            var response = await this.productGroupService.UpdateAsync(updatedProductGroup);
+            if (!response.Success)
             {
-                return NotFound();
+                return BadRequest(response);
             }
 
-            productGroup.Description = updatedProductGroup.Description;
-            productGroup.Enabled = updatedProductGroup.Enabled;
-            productGroup.FatherProductGroupId = updatedProductGroup.FatherProductGroupId;
-            productGroup.Subgroups = updatedProductGroup.Subgroups;
-
-            try
-            {
-                await this.productGroupService.BeginTransactionAsync();
-                await this.productGroupService.UpdateAsync(productGroup);
-                await this.productGroupService.CommitAsync();
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                await this.productGroupService.RollbackTransactionAsync();
-                return BadRequest(ex.Message);
-            }
-            
+            return Ok(response);
         }
 
         /// <summary>

@@ -1,11 +1,10 @@
 ﻿using SolucoesDefeitos.Model;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.BusinessDefinition.Repository
 {
     public interface IProductGroupRepository: IRepository<ProductGroup>
     {
+        Task LoadSubgroupsAsync(ProductGroup productGroup);
     }
 }

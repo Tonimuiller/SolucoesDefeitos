@@ -47,6 +47,11 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
                 return;
             }
 
+            if (database.DbConnection.State != ConnectionState.Open)
+            {
+                database.DbConnection.Open();
+            }
+
             dbTransaction = database.DbConnection.BeginTransaction();
         }
 
@@ -82,6 +87,13 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
             var connection = database.DbConnection;
             var entityDml = this.GetEntityDml<T>();
             return await connection.QueryAsync<T>(entityDml.Select, transaction: dbTransaction);
+        }
+
+        public virtual async Task<IEnumerable<T>> GetAllAsync<T>(string sqlCommand, object parameters)
+            where T: class
+        {
+            var connection = database.DbConnection;
+            return await connection.QueryAsync<T>(sqlCommand, parameters, dbTransaction);
         }
 
         public virtual void RollbackTransaction()

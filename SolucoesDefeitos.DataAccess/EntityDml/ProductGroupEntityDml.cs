@@ -50,5 +50,10 @@ namespace SolucoesDefeitos.DataAccess.EntityDml
             $@"{this.Select} 
             WHERE 
                 `productgroup`.`productgroupid` = @productgroupid";
+        
+        public string SelectByFatherProductGroupId =>
+            $@"{this.Select}
+            WHERE
+                `productgroup`.`fatherproductgroupid` = @productgroupid";
     }
 }

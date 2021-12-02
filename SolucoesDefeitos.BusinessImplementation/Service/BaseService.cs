@@ -30,7 +30,7 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             await this.repository.CommitTransactionAsync();
         }
 
-        public async Task DeleteAsync(TModel entity)
+        public virtual async Task DeleteAsync(TModel entity)
         {
             await this.repository.DeleteAsync(entity);
         }
@@ -50,7 +50,7 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             await this.repository.RoolbackTransactionAsync();
         }
 
-        public async Task UpdateAsync(TModel entity)
+        public virtual async Task UpdateAsync(TModel entity)
         {
             await this.repository.UpdateAsync(entity);
         }

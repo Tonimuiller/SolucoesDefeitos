@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SolucoesDefeitos.Model\SolucoesDefeitos.Model.csproj" />
+    <ProjectReference Include="..\SolucoesDefeitos.Dto\SolucoesDefeitos.Dto.csproj" />
   </ItemGroup>
 
 </Project>

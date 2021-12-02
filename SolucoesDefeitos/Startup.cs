@@ -12,8 +12,8 @@ namespace SolucoesDefeitos
     public class Startup
     {
         private const string SwaggerApiVersion = "v1";
-        private const string SwaggerApiTitle = "Soluções e Defeitos Api";
-        private const string SwaggerApiRouteName = "Soluções e Defeitos Api v1";
+        private const string SwaggerApiTitle = "SoluÃ§Ãµes e Defeitos Api";
+        private const string SwaggerApiRouteName = "SoluÃ§Ãµes e Defeitos Api v1";
         private const string SwaggerApiRoute = "v1/swagger.json";
         public Startup(IConfiguration configuration)
         {

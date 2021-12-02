@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SolucoesDefeitos.BusinessDefinition\SolucoesDefeitos.BusinessDefinition.csproj" />
+    <ProjectReference Include="..\SolucoesDefeitos.Dto\SolucoesDefeitos.Dto.csproj"/>
   </ItemGroup>
 
 </Project>
