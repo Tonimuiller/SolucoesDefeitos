@@ -11,6 +11,11 @@ namespace SolucoesDefeitos.Dto
             this.content = content;
         }
 
+        public ResponseDto(params string[] errors)
+            :base(false, errors)
+        {
+        }
+
         public T Content => content;
     }
 }

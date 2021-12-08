@@ -1,5 +1,7 @@
 ﻿using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.BusinessDefinition.Service;
+using SolucoesDefeitos.Dto;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,9 +17,17 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             this.repository = repository;
         }
 
-        public virtual async Task<TModel> AddAsync(TModel entity)
+        public virtual async Task<ResponseDto<TModel>> AddAsync(TModel entity)
         {
-            return await this.repository.AddAsync(entity);
+            try
+            {
+                await this.repository.AddAsync(entity);
+                return new ResponseDto<TModel>(true, entity);
+            }
+            catch(Exception ex)
+            {
+                return new ResponseDto<TModel>(ex.Message);
+            }
         }
 
         public async Task BeginTransactionAsync()

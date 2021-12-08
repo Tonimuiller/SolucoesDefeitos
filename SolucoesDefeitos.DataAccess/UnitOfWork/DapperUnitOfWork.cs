@@ -6,8 +6,10 @@ using SolucoesDefeitos.Model.Contracts;
 using SolucoesDefeitos.Provider;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.DataAccess.UnitOfWork
@@ -30,13 +32,12 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
 
         public virtual async Task<T> AddAsync<T>(T entity) where T : class
         {
-            var entityDml = GetEntityDml<T>();
-            if (entity is ICreationDate)
-            {
-                (entity as ICreationDate).CreationDate = this.dateTimeProvider.CurrentDateTime;
-            }
+            this.SetEntityCreationDate<T>(entity);
+            var database = this.database.DbConnection;
+            var insertSqlCommand = this.GetEntityInsertSqlCommand<T>();
+            var entityId = await database.ExecuteScalarAsync<int>(insertSqlCommand, entity);
+            this.AssignEntityKeyValue<T>(entity, entityId);
 
-            var _ = await ExecuteAsync(entityDml.Insert, entity);
             return entity;
         }
 
@@ -110,11 +111,7 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
         public virtual async Task UpdateAsync<T>(T entity) where T : class
         {
             var entityDml = GetEntityDml<T>();
-            if (entity is IUpdateDate)
-            {
-                (entity as IUpdateDate).UpdateDate = this.dateTimeProvider.CurrentDateTime;
-            }
-
+            this.SetEntityUpdateDate<T>(entity);
             await ExecuteAsync(entityDml.Update, entity);
         }
 
@@ -152,6 +149,58 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
             }
 
             return entityDml.FirstOrDefault();
+        }
+
+        private void SetEntityCreationDate<TModel>(TModel entity)
+            where TModel: class
+        {
+            if (entity is ICreationDate)
+            {
+                (entity as ICreationDate).CreationDate = this.dateTimeProvider.CurrentDateTime;
+            }
+        }
+
+        private string GetEntityInsertSqlCommand<TModel>()
+            where TModel:class
+        {
+            var entityDml = GetEntityDml<TModel>();
+            var sqlBuilder = new StringBuilder(entityDml.Insert);
+            if (sqlBuilder.ToString().Trim().Last() != ';')
+            {
+                sqlBuilder.Append(";");
+            }
+
+            sqlBuilder.Append(" SELECT LAST_INSERT_ID();");
+            return sqlBuilder.ToString();
+        }
+
+        private void SetEntityUpdateDate<TModel>(TModel entity)
+            where TModel: class
+        {
+            if (entity is IUpdateDate)
+            {
+                (entity as IUpdateDate).UpdateDate = this.dateTimeProvider.CurrentDateTime;
+            }
+        }
+
+        private void AssignEntityKeyValue<TModel>(TModel entity, int keyValue)
+            where TModel: class
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            var entityType = entity.GetType();
+            var properties = entityType.GetProperties();
+            var keyProperties = properties.Where(p => p.GetCustomAttributes(typeof(KeyAttribute), false).Any());
+            if (keyProperties.Count() != 1)
+            {
+                throw new InvalidOperationException($"Invalid entity '{entityType.Name}' key configuration.");
+            }
+
+            var keyProperty = keyProperties.FirstOrDefault();
+            keyProperty.SetValue(entity, keyValue);
         }
     }
 }

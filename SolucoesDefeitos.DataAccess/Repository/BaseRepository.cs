@@ -1,5 +1,6 @@
 ﻿using SolucoesDefeitos.BusinessDefinition;
 using SolucoesDefeitos.BusinessDefinition.Repository;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -59,7 +60,5 @@ namespace SolucoesDefeitos.DataAccess.Repository
         }
 
         protected TUnitOfWork UnitOfWork { get => this.unitOfWork; }
-
-
     }
 }

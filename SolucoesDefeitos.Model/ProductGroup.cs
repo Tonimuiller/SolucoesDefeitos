@@ -9,6 +9,7 @@ namespace SolucoesDefeitos.Model
         IEnabled,
         IUpdateDate
     {
+        [Key]
         public int ProductGroupId { get; set; }
 
         [Required]

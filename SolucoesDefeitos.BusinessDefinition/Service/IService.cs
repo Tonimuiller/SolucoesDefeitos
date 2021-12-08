@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using SolucoesDefeitos.Dto;
 
 namespace SolucoesDefeitos.BusinessDefinition.Service
 {
@@ -12,7 +13,7 @@ namespace SolucoesDefeitos.BusinessDefinition.Service
 
         Task CommitAsync();
 
-        Task<TModel> AddAsync(TModel entity);
+        Task<ResponseDto<TModel>> AddAsync(TModel entity);
 
         Task UpdateAsync(TModel entity);
 

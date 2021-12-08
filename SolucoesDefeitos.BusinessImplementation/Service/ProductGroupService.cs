@@ -21,6 +21,33 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             this.productGroupRepository = productGroupRepository;
         }
 
+        new public async Task<ResponseDto<ProductGroup>> AddAsync(ProductGroup newProductGroup)
+        {
+            if (newProductGroup == null)
+            {
+                throw new ArgumentNullException(nameof(newProductGroup));
+            }
+
+            try
+            {
+                await this.BeginTransactionAsync();
+                await base.AddAsync(newProductGroup);
+                if (newProductGroup.Subgroups != null && newProductGroup.Subgroups.Any())
+                {
+                    this.FillSubGroupsFatherProductGroupId(newProductGroup.ProductGroupId, newProductGroup.Subgroups);
+                    await this.ProcessProductSubgroupCreationAsync(newProductGroup.Subgroups);
+                }
+
+                await this.CommitAsync();
+                return new ResponseDto<ProductGroup>(true, newProductGroup);
+            }
+            catch (Exception ex)
+            {
+                await this.RollbackTransactionAsync();
+                return new ResponseDto<ProductGroup>(ex.Message);
+            }
+        }
+
         new public async Task<ResponseDto> UpdateAsync(ProductGroup updatedProductGroup)
         {
             if (updatedProductGroup == null)
@@ -50,6 +77,14 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             {
                 await this.RollbackTransactionAsync();
                 return new ResponseDto(false, $"Ocorreu um erro ao atualizar o grupo de produtos: {ex.Message}");
+            }
+        }
+
+        private void FillSubGroupsFatherProductGroupId(int FatherProductGroupId, ICollection<ProductGroup> subGroups)
+        {
+            foreach(var subGroup in subGroups)
+            {
+                subGroup.FatherProductGroupId = FatherProductGroupId;
             }
         }
 
@@ -83,10 +118,10 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
         {
             foreach(var createdProductSubgroup in createdProductSubgroups)
             {
-                var storedProductSubgroup = await this.AddAsync(createdProductSubgroup);
-                createdProductSubgroup.ProductGroupId = storedProductSubgroup.ProductGroupId;
+                await base.AddAsync(createdProductSubgroup);
                 if (createdProductSubgroup.Subgroups != null)
                 {
+                    this.FillSubGroupsFatherProductGroupId(createdProductSubgroup.ProductGroupId, createdProductSubgroup.Subgroups);
                     await this.ProcessProductSubgroupCreationAsync(createdProductSubgroup.Subgroups);
                 }
             }
