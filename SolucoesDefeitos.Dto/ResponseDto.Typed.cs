@@ -1,11 +1,10 @@
 namespace SolucoesDefeitos.Dto
 {
     public class ResponseDto<T> : ResponseDto
-        where T : class
     {
         private readonly T content;
 
-        public ResponseDto(bool success, T content = null, params string[] errors) 
+        public ResponseDto(bool success, T content, params string[] errors) 
             : base(success, errors)
         {
             this.content = content;

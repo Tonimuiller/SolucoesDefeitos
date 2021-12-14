@@ -1,8 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using SolucoesDefeitos.DataAccess.EntityDml;
+using SolucoesDefeitos.Dto;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.DataAccess.Database
 {
@@ -36,6 +38,16 @@ namespace SolucoesDefeitos.DataAccess.Database
                 dbConnection = new MySqlConnection(configuration.GetConnectionString("database"));
                 return dbConnection;
             }
+        }
+
+        public Task<ResponseDto<int>> ExecuteAsync(string command, object entity)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public DataTable GetSchema(string collectionName)
+        {
+            throw new System.NotImplementedException();
         }
     }
 }
