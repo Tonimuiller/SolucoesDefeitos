@@ -15,7 +15,7 @@ namespace SolucoesDefeitos.DataAccess.ConsoleTest
             using var host = CreateHostBuilder(args).Build();
             var configuration = host.Services.GetService(typeof(IConfiguration)) as IConfiguration;
             var database = new SolucaoDefeitoMySqlDatabase(configuration);
-            var solucaoDefeitoUnitOfWork = new SolucaoDefeitoUnitOfWork(database);
+            var solucaoDefeitoUnitOfWork = new SolucaoDefeitoUnitOfWork(null, database);
             var productGroupRepository = new ProductGroupRepository(solucaoDefeitoUnitOfWork);
             var productGroups = await productGroupRepository.GetAllAsync();
             foreach(var productGroup in productGroups)

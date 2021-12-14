@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SolucoesDefeitos.BusinessDefinition\SolucoesDefeitos.BusinessDefinition.csproj" />
-    <ProjectReference Include="..\SolucoesDefeitos.BusinessImplementation\SolucoesDefeitos.BusinessImplementation.csproj" />
     <ProjectReference Include="..\SolucoesDefeitos.Provider\SolucoesDefeitos.Provider.csproj" />
   </ItemGroup>
 

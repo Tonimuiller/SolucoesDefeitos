@@ -2,6 +2,7 @@
 using SolucoesDefeitos.BusinessDefinition.Service;
 using SolucoesDefeitos.Model;
 using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.Controllers
@@ -98,7 +99,7 @@ namespace SolucoesDefeitos.Controllers
             {
                 return NotFound();
             }
-
+            
             await this.productGroupService.DeleteAsync(productGroup);
             return Ok();
         }
