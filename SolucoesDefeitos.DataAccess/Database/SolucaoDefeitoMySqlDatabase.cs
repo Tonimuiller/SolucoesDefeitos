@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using SolucoesDefeitos.DataAccess.EntityDml;
-using SolucoesDefeitos.Dto;
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.DataAccess.Database
@@ -12,6 +14,7 @@ namespace SolucoesDefeitos.DataAccess.Database
     {
         private readonly IConfiguration configuration;
         private IDbConnection dbConnection;
+        private IDbTransaction dbTransaction;
 
         public SolucaoDefeitoMySqlDatabase(IConfiguration configuration)
         {
@@ -24,6 +27,49 @@ namespace SolucoesDefeitos.DataAccess.Database
             {
                 yield return new ProductGroupEntityDml();
             }
+        }
+
+        public DataTable GetSchema(string collectionName)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public void BeginTransaction()
+        {
+            if (this.dbTransaction != null)
+            {
+                return;
+            }
+
+            if (this.DbConnection.State != ConnectionState.Open)
+            {
+                this.DbConnection.Open();
+            }
+
+            dbTransaction = this.DbConnection.BeginTransaction();
+        }
+
+        public Task CommitAsync()
+        {
+            if (this.dbTransaction == null)
+            {
+                return Task.FromResult(0);
+            }
+
+            dbTransaction.Commit();
+            ClearTransaction();
+            return Task.FromResult(0);
+        }
+
+        public void Rollback()
+        {
+            if (dbTransaction == null)
+            {
+                return;
+            }
+
+            dbTransaction.Rollback();
+            ClearTransaction();
         }
 
         public IDbConnection DbConnection
@@ -40,14 +86,52 @@ namespace SolucoesDefeitos.DataAccess.Database
             }
         }
 
-        public Task<ResponseDto<int>> ExecuteAsync(string command, object entity)
+        public IDbTransaction DbTransaction => this.dbTransaction;
+
+        public int ForeignKeyRelationshipViolationErrorCode => 1451;
+
+        public virtual IEntityDml GetEntityDml<TModel>()
+            where TModel : class
         {
-            throw new System.NotImplementedException();
+            var modelType = typeof(TModel);
+            var entityDml = this.EntitiesDmls
+                .Where(e => e.Type == modelType);
+            if (!entityDml.Any())
+            {
+                throw new InvalidOperationException($"Couldn't find entity dml definition for model {modelType.Name}");
+            }
+
+            if (entityDml.Count() > 1)
+            {
+                throw new InvalidOperationException($"More than one entity dml definition for model {modelType.Name}");
+            }
+
+            return entityDml.FirstOrDefault();
+        }
+        
+        public string GetEntityInsertSqlCommand<TModel>()
+            where TModel : class
+        {
+            var entityDml = this.GetEntityDml<TModel>();
+            var sqlBuilder = new StringBuilder(entityDml.Insert);
+            if (sqlBuilder.ToString().Trim().Last() != ';')
+            {
+                sqlBuilder.Append(";");
+            }
+
+            sqlBuilder.Append(" SELECT LAST_INSERT_ID();");
+            return sqlBuilder.ToString();
         }
 
-        public DataTable GetSchema(string collectionName)
+        protected virtual void ClearTransaction()
         {
-            throw new System.NotImplementedException();
+            if (this.dbTransaction == null)
+            {
+                return;
+            }
+
+            this.dbTransaction.Dispose();
+            this.dbTransaction = null;
         }
     }
 }

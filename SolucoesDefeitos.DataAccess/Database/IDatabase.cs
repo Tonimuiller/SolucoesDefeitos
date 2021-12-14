@@ -1,6 +1,4 @@
 ﻿using SolucoesDefeitos.DataAccess.EntityDml;
-using SolucoesDefeitos.Dto;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
@@ -13,8 +11,18 @@ namespace SolucoesDefeitos.DataAccess.Database
 
         DataTable GetSchema(string collectionName);
 
-        Task<ResponseDto<int>> ExecuteAsync(string command, object entity);
+        void BeginTransaction();
 
-        // Task<ResponseDto<int>> ExecuteEscalarAsync(s)
+        Task CommitAsync();
+
+        void Rollback();
+        IEntityDml GetEntityDml<TModel>() where TModel : class;
+        string GetEntityInsertSqlCommand<TModel>() where TModel : class;
+
+        public IDbConnection DbConnection { get; }
+
+        public IDbTransaction DbTransaction { get; }
+
+        public int ForeignKeyRelationshipViolationErrorCode { get; }
     }
 }

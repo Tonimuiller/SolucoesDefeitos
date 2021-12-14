@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SolucoesDefeitos.BusinessDefinition.Service;
 using SolucoesDefeitos.Model;
-using System;
-using System.Net;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.Controllers
