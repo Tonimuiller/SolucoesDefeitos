@@ -31,7 +31,7 @@ namespace SolucoesDefeitos.DataAccess.EntityDml
             @"DELETE FROM 
                 `solucaodefeito`.`manufacturer`
             WHERE 
-                @manufacturerid;";
+                `manufacturerid` = @manufacturerid;";
 
         public string Select =>
             @"SELECT 

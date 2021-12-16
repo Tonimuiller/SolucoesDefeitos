@@ -1,6 +1,7 @@
 ﻿using SolucoesDefeitos.Model.Contracts;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace SolucoesDefeitos.Model
 {
@@ -8,6 +9,7 @@ namespace SolucoesDefeitos.Model
         IEnabled,
         IUpdateDate
     {
+        [Key]
         public int ManufacturerId { get; set; }
         
         public DateTime CreationDate { get; set; }
