@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SolucoesDefeitos.BusinessDefinition.Service;
+using SolucoesDefeitos.DataAccess.Exception;
+using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
+using System;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.Controllers
@@ -98,8 +102,21 @@ namespace SolucoesDefeitos.Controllers
                 return NotFound();
             }
             
-            await this.productGroupService.DeleteAsync(productGroup);
-            return Ok();
+            try
+            {
+                await this.productGroupService.DeleteAsync(productGroup);
+                return Ok(new ResponseDto(true));
+            }
+            catch (RecordDependencyBreakException)
+            {
+                var response = new ResponseDto(false, "Não é possível excluir o registro pois possuí relacionamentos.");
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                var response = new ResponseDto(false, ex.Message);
+                return StatusCode((int)HttpStatusCode.InternalServerError, response);
+            }
         }
     }
 }

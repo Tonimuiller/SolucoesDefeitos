@@ -1,6 +1,7 @@
 ﻿using MySql.Data.MySqlClient;
 using SolucoesDefeitos.BusinessDefinition;
 using SolucoesDefeitos.DataAccess.Database;
+using SolucoesDefeitos.DataAccess.Exception;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Provider;
 using System.Threading.Tasks;
@@ -25,10 +26,7 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
             }
             catch (MySqlException mysqlEx)
             {
-                if (mysqlEx.Number == this.Database.ForeignKeyRelationshipViolationErrorCode)
-                {
-                    return new ResponseDto(false, "Can't delete record due to foreign key relationship violation.");
-                }
+                this.HandleIfForeignKeyRelationshipViolationException(mysqlEx.Number);
             }
             catch
             {
@@ -36,6 +34,14 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
             }
 
             return new ResponseDto(false, "Delete not executed.");
+        }
+
+        private void HandleIfForeignKeyRelationshipViolationException(int errorNumber)
+        {
+            if (errorNumber == this.Database.ForeignKeyRelationshipViolationErrorCode)
+            {
+                throw new RecordDependencyBreakException();
+            }
         }
     }
 }
