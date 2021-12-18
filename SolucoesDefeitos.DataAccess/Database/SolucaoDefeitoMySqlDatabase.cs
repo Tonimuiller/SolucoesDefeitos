@@ -25,6 +25,7 @@ namespace SolucoesDefeitos.DataAccess.Database
         {
             get
             {
+                yield return new ProductEntityDml();
                 yield return new ProductGroupEntityDml();
                 yield return new ManufacturerEntityDml();
             }

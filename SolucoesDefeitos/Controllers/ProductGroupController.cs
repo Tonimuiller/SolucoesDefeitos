@@ -4,6 +4,7 @@ using SolucoesDefeitos.DataAccess.Exception;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -34,7 +35,7 @@ namespace SolucoesDefeitos.Controllers
                 return NotFound();
             }
 
-            return Ok(productGroup);
+            return Ok(new ResponseDto<ProductGroup>(true, productGroup));
         }
 
         /// <summary>
@@ -45,7 +46,7 @@ namespace SolucoesDefeitos.Controllers
         public async Task<IActionResult> GetListAsync()
         {
             var productGroups = await this.productGroupService.GetAllAsync();
-            return Ok(productGroups);
+            return Ok(new ResponseDto<IEnumerable<ProductGroup>>(true, productGroups));
         }
 
         /// <summary>
@@ -61,8 +62,8 @@ namespace SolucoesDefeitos.Controllers
                 return BadRequest(ModelState);
             }
 
-            var newProductGroup = await this.productGroupService.AddAsync(productGroup);
-            return Ok(newProductGroup);
+            var newProductGroupResponse = await this.productGroupService.AddAsync(productGroup);
+            return Ok(newProductGroupResponse);
         }
 
         /// <summary>

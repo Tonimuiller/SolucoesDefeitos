@@ -1,5 +1,6 @@
 ﻿using SolucoesDefeitos.Model.Contracts;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace SolucoesDefeitos.Model
 {
@@ -7,6 +8,7 @@ namespace SolucoesDefeitos.Model
         IEnabled,
         IUpdateDate
     {
+        [Key]
         public int ProductId { get; set; }
         
         public DateTime CreationDate { get; set; }
@@ -23,6 +25,7 @@ namespace SolucoesDefeitos.Model
 
         public virtual ProductGroup ProductGroup { get; set; }
 
+        [Required]
         public string Name { get; set; }
 
         public string Code { get; set; }
