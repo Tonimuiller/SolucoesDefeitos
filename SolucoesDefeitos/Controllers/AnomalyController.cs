@@ -4,6 +4,7 @@ using SolucoesDefeitos.Controllers.Extension;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -11,18 +12,18 @@ namespace SolucoesDefeitos.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductController : ControllerBase
+    public class AnomalyController : ControllerBase
     {
-        private readonly IProductService productService;
+        private readonly IAnomalyService anomalyService;
 
-        public ProductController(
-            IProductService productService)
+        public AnomalyController(
+            IAnomalyService anomalyService)
         {
-            this.productService = productService;
+            this.anomalyService = anomalyService;
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostAsync([FromBody] Product newProduct)
+        public async Task<IActionResult> PostAsync([FromBody] Anomaly newAnomaly)
         {
             if (!ModelState.IsValid)
             {
@@ -31,32 +32,32 @@ namespace SolucoesDefeitos.Controllers
 
             try
             {
-                var newProductResponse = await this.productService.AddAsync(newProduct);
-                return Created(string.Empty, newProductResponse);
+                var newAnomalyResponse = await this.anomalyService.AddAsync(newAnomaly);
+                return Created(string.Empty, newAnomalyResponse);
             }
-            catch (Exception ex)
+            catch(Exception ex)
             {
                 return this.InternalServerError(new ResponseDto(false, ex.Message));
             }
         }
 
-        [HttpPut, Route("{productId}")]
-        public async Task<IActionResult> PutAsync([FromRoute] int productId, [FromBody] Product updatedProduct)
+        [HttpPut, Route("{anomalyId}")]
+        public async Task<IActionResult> PutAsync([FromRoute] int anomalyId, [FromBody] Anomaly updatedAnomaly)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var product = await this.productService.GetByKeyAsync(new { productId });
-            if (product == null)
-            {
-                NotFound();
-            }
-
             try
             {
-                await this.productService.UpdateAsync(updatedProduct);
+                var anomaly = await this.anomalyService.GetByKeyAsync(new { anomalyId });
+                if (anomaly == null)
+                {
+                    return NotFound();
+                }
+
+                await this.anomalyService.UpdateAsync(updatedAnomaly);
                 return Ok(new ResponseDto(true));
             }
             catch (Exception ex)
@@ -65,18 +66,18 @@ namespace SolucoesDefeitos.Controllers
             }
         }
 
-        [HttpGet, Route("{productId}")]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] int productId)
+        [HttpGet, Route("{anomalyId}")]
+        public async Task<IActionResult> GetByIdAsync([FromRoute] int anomalyId)
         {
             try
             {
-                var product = await this.productService.GetByKeyAsync(new { productId });
-                if (product == null)
+                var anomaly = await this.anomalyService.GetByKeyAsync(new { anomalyId });
+                if (anomaly == null)
                 {
                     return NotFound();
                 }
 
-                return Ok(new ResponseDto<Product>(true, product));
+                return Ok(new ResponseDto<Anomaly>(true, anomaly));
             }
             catch (Exception ex)
             {
@@ -89,8 +90,8 @@ namespace SolucoesDefeitos.Controllers
         {
             try
             {
-                var products = await this.productService.GetAllAsync();
-                return Ok(new ResponseDto<IEnumerable<Product>>(true, products));
+                var anomalies = await this.anomalyService.GetAllAsync();
+                return Ok(new ResponseDto<IEnumerable<Anomaly>>(true, anomalies));
             }
             catch (Exception ex)
             {
@@ -98,19 +99,19 @@ namespace SolucoesDefeitos.Controllers
             }
         }
 
-        [HttpDelete, Route("{productId}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int productId)
+        [HttpDelete, Route("{anomalyId}")]
+        public async Task<IActionResult> DeleteAsync([FromRoute] int anomalyId)
         {
             try
             {
-                var product = await this.productService.GetByKeyAsync(new { productId });
-                if (product == null)
+                var anomaly = await this.anomalyService.GetByKeyAsync(new { anomalyId });
+                if (anomaly == null)
                 {
                     return NotFound();
                 }
 
-                await this.productService.DeleteAsync(product);
-                return Ok(new ResponseDto(true));
+                await this.anomalyService.DeleteAsync(anomaly);
+                return Ok();
             }
             catch (Exception ex)
             {

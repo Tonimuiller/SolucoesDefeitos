@@ -16,7 +16,9 @@ namespace SolucoesDefeitos.DataAccess.Database
         Task CommitAsync();
 
         void Rollback();
+
         IEntityDml GetEntityDml<TModel>() where TModel : class;
+
         string GetEntityInsertSqlCommand<TModel>() where TModel : class;
 
         public IDbConnection DbConnection { get; }

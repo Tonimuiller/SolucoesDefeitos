@@ -2,6 +2,7 @@
 using MySql.Data.MySqlClient;
 using SolucoesDefeitos.BusinessDefinition;
 using SolucoesDefeitos.DataAccess.Database;
+using SolucoesDefeitos.DataAccess.EntityDml;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model.Contracts;
 using SolucoesDefeitos.Provider;
@@ -47,7 +48,7 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
         public virtual async Task<ResponseDto> DeleteAsync<T>(T entity) where T : class
         {
             var entityDml = this.database.GetEntityDml<T>();
-            var _ = await ExecuteAsync(entityDml.Delete, entity);
+            var _ = await ExecuteRawAsync(entityDml.Delete, entity);
             return new ResponseDto(true);
         }
 
@@ -67,11 +68,17 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
             return await connection.QueryAsync<T>(entityDml.Select, transaction: database.DbTransaction);
         }
 
-        public virtual async Task<IEnumerable<T>> GetAllAsync<T>(string sqlCommand, object parameters)
+        public virtual async Task<IEnumerable<T>> QueryRawAsync<T>(string query, object parameters)
             where T: class
         {
             var connection = database.DbConnection;
-            return await connection.QueryAsync<T>(sqlCommand, parameters, database.DbTransaction);
+            return await connection.QueryAsync<T>(query, parameters, database.DbTransaction);
+        }
+
+        public virtual async Task<int> ExecuteRawAsync(string command, object entity)
+        {
+            var connection = database.DbConnection;
+            return await connection.ExecuteAsync(command, entity, database.DbTransaction);
         }
 
         public virtual void RollbackTransaction() => this.database.Rollback();
@@ -80,16 +87,10 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
         {
             var entityDml = this.database.GetEntityDml<T>();
             this.SetEntityUpdateDate<T>(entity);
-            await ExecuteAsync(entityDml.Update, entity);
+            await ExecuteRawAsync(entityDml.Update, entity);
         }
 
         protected TDatabase Database { get => this.database; }
-
-        protected virtual async Task<int> ExecuteAsync(string command, object entity)
-        {
-            var connection = database.DbConnection;
-            return await connection.ExecuteAsync(command, entity, database.DbTransaction);
-        }
 
         private void SetEntityCreationDate<TModel>(TModel entity)
             where TModel: class

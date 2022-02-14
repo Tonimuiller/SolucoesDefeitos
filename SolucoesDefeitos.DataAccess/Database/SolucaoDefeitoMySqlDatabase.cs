@@ -13,8 +13,8 @@ namespace SolucoesDefeitos.DataAccess.Database
     public class SolucaoDefeitoMySqlDatabase : IDatabase
     {
         private readonly IConfiguration configuration;
-        private IDbConnection dbConnection;
-        private IDbTransaction dbTransaction;
+        private static IDbConnection dbConnection;
+        private static IDbTransaction dbTransaction;
 
         public SolucaoDefeitoMySqlDatabase(IConfiguration configuration)
         {
@@ -28,6 +28,8 @@ namespace SolucoesDefeitos.DataAccess.Database
                 yield return new ProductEntityDml();
                 yield return new ProductGroupEntityDml();
                 yield return new ManufacturerEntityDml();
+                yield return new AnomalyEntityDml();
+                yield return new AnomalyProductSpecificationEntityDml();
             }
         }
 
@@ -38,7 +40,7 @@ namespace SolucoesDefeitos.DataAccess.Database
 
         public void BeginTransaction()
         {
-            if (this.dbTransaction != null)
+            if (dbTransaction != null)
             {
                 return;
             }
@@ -53,7 +55,7 @@ namespace SolucoesDefeitos.DataAccess.Database
 
         public Task CommitAsync()
         {
-            if (this.dbTransaction == null)
+            if (dbTransaction == null)
             {
                 return Task.FromResult(0);
             }
@@ -88,7 +90,7 @@ namespace SolucoesDefeitos.DataAccess.Database
             }
         }
 
-        public IDbTransaction DbTransaction => this.dbTransaction;
+        public IDbTransaction DbTransaction => dbTransaction;
 
         public int ForeignKeyRelationshipViolationErrorCode => 1451;
 
@@ -127,13 +129,13 @@ namespace SolucoesDefeitos.DataAccess.Database
 
         protected virtual void ClearTransaction()
         {
-            if (this.dbTransaction == null)
+            if (dbTransaction == null)
             {
                 return;
             }
 
-            this.dbTransaction.Dispose();
-            this.dbTransaction = null;
+            dbTransaction.Dispose();
+            dbTransaction = null;
         }
     }
 }

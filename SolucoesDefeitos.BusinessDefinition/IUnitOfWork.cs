@@ -23,5 +23,10 @@ namespace SolucoesDefeitos.BusinessDefinition
 
         Task<IEnumerable<T>> GetAllAsync<T>()
             where T : class;
+
+        Task<IEnumerable<T>> QueryRawAsync<T>(string query, object parameters)
+            where T : class;
+
+        Task<int> ExecuteRawAsync(string command, object entity);
     }
 }

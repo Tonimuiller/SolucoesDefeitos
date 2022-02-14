@@ -36,6 +36,12 @@ namespace SolucoesDefeitos.DataAccess.EntityDml
             WHERE 
                 `anomalyproductspecification`.`anomalyproductspecificationid` = @anomalyproductspecificationid";
 
+        public string DeleteByAnomalyProductSpecificationIds =>
+            @"DELETE FROM 
+                `solucaodefeito`.`anomalyproductspecification`
+            WHERE 
+                `anomalyproductspecification`.`anomalyproductspecificationid` in (@anomalyProductSpecificationIds)";
+
         public string Select =>
             @"SELECT 
                 `anomalyproductspecification`.`anomalyproductspecificationid`,
@@ -51,5 +57,13 @@ namespace SolucoesDefeitos.DataAccess.EntityDml
             $@"{this.Select}
             WHERE
                 `anomalyproductspecification`.`anomalyproductspecificationid` = @anomalyproductspecificationid";
+
+        public string SelectByAnomalyId =>
+            @"SELECT
+                `anomalyproductspecification`.`anomalyproductspecificationid`
+            FROM
+                `solucaodefeito`.`anomalyproductspecification`
+            WHERE
+                `anomalyproductspecification`.`anomalyid` = @anomalyid";
     }
 }

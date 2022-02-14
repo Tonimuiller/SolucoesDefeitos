@@ -1,11 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using SolucoesDefeitos.BusinessDefinition.Repository;
+﻿using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.DataAccess.Database;
 using SolucoesDefeitos.DataAccess.EntityDml;
 using SolucoesDefeitos.DataAccess.UnitOfWork;
 using SolucoesDefeitos.Model;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.DataAccess.Repository
 {
@@ -14,8 +13,11 @@ namespace SolucoesDefeitos.DataAccess.Repository
         IRepository<ProductGroup>,
         IProductGroupRepository
     {
+        private readonly ProductGroupEntityDml entityDml;
+
         public ProductGroupRepository(DapperUnitOfWork<SolucaoDefeitoMySqlDatabase> unitOfWork) : base(unitOfWork)
         {
+            this.entityDml = new ProductGroupEntityDml();
         }
 
         public async Task LoadSubgroupsAsync(ProductGroup productGroup)
@@ -25,8 +27,7 @@ namespace SolucoesDefeitos.DataAccess.Repository
                 return;
             }
 
-            var entityDml = new ProductGroupEntityDml();
-            var subGroups = await this.UnitOfWork.GetAllAsync<ProductGroup>(entityDml.SelectByFatherProductGroupId, new { productGroup.ProductGroupId });
+            var subGroups = await this.QueryRawAsync(this.entityDml.SelectByFatherProductGroupId, new { productGroup.ProductGroupId });
             productGroup.Subgroups = subGroups.ToList();
         }
     }
