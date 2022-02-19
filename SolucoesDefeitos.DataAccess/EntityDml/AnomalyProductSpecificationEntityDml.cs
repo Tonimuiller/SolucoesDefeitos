@@ -40,7 +40,7 @@ namespace SolucoesDefeitos.DataAccess.EntityDml
             @"DELETE FROM 
                 `solucaodefeito`.`anomalyproductspecification`
             WHERE 
-                `anomalyproductspecification`.`anomalyproductspecificationid` in (@anomalyProductSpecificationIds)";
+                `anomalyproductspecification`.`anomalyproductspecificationid` in @anomalyProductSpecificationIds";
 
         public string Select =>
             @"SELECT 

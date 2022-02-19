@@ -44,10 +44,15 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
                 throw new ArgumentException(nameof(anomalyProductSpecifications));
             }
 
+            await this.UpdateAnomalyProductSpecificationsInAnomaly(anomalyProductSpecifications);
+            await this.AddNewAnomalyProductSpecificationsInAnomaly(parentAnomalyId, anomalyProductSpecifications);
+            await this.DeleteAnomalyProductSpecificationsInAnomaly(parentAnomalyId, anomalyProductSpecifications);            
+        }
+
+        private async Task UpdateAnomalyProductSpecificationsInAnomaly(ICollection<AnomalyProductSpecification> anomalyProductSpecifications)
+        {
             var updatedAnomalyProductsSpecifications = anomalyProductSpecifications.Where(p => p.AnomalyProductSpecificationId > 0);
-            var newAnomalyProductsSpecifications = anomalyProductSpecifications.Where(p => p.AnomalyProductSpecificationId == NewRecordId);
-            var existentAnomalyProductsSpecificationIds = await this.anomalyProductSpecificationRepository.GetAnomalyProductSpecificationIdsByAnomalyIdAsync(parentAnomalyId);
-            foreach(var updatedAnomalyProductSpecification in updatedAnomalyProductsSpecifications)
+            foreach (var updatedAnomalyProductSpecification in updatedAnomalyProductsSpecifications)
             {
                 var storedAnomalyProductSpecification = await this.GetByKeyAsync(updatedAnomalyProductSpecification);
                 if (storedAnomalyProductSpecification == null)
@@ -59,17 +64,22 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
                 storedAnomalyProductSpecification.ProductId = updatedAnomalyProductSpecification.ProductId;
                 await this.UpdateAsync(storedAnomalyProductSpecification);
             }
+        }
 
-            foreach(var newAnomalyProductSpecification in newAnomalyProductsSpecifications)
-            {
-                newAnomalyProductSpecification.AnomalyId = parentAnomalyId;
-            }
+        private async Task AddNewAnomalyProductSpecificationsInAnomaly(int parentAnomalyId, ICollection<AnomalyProductSpecification> anomalyProductSpecifications)
+        {
+            var newAnomalyProductsSpecifications = anomalyProductSpecifications
+                .Where(p => p.AnomalyProductSpecificationId == NewRecordId)
+                .ToList();
+            newAnomalyProductsSpecifications.ForEach(newAnomalyProductSpecification => newAnomalyProductSpecification.AnomalyId = parentAnomalyId);
+            await this.AddCollectionAsync(newAnomalyProductsSpecifications);
+        }
 
-            await this.AddCollectionAsync(newAnomalyProductsSpecifications.ToList());
-
+        private async Task DeleteAnomalyProductSpecificationsInAnomaly(int parentAnomalyId, ICollection<AnomalyProductSpecification> anomalyProductSpecifications)
+        {
             var anomalyProductSpecificationIds = anomalyProductSpecifications
                 .Select(anomalyProductSpecification => anomalyProductSpecification.AnomalyProductSpecificationId);
-
+            var existentAnomalyProductsSpecificationIds = await this.anomalyProductSpecificationRepository.GetAnomalyProductSpecificationIdsByAnomalyIdAsync(parentAnomalyId);
             var deletedAnomalyProductsSpecificationIds = existentAnomalyProductsSpecificationIds
                 .Where(anomalyProductSpecificationId => !anomalyProductSpecificationIds.Contains(anomalyProductSpecificationId));
             await this.anomalyProductSpecificationRepository.DeleteAsync(deletedAnomalyProductsSpecificationIds.ToArray());
