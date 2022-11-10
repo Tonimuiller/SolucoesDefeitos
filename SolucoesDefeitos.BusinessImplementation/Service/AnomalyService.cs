@@ -14,12 +14,19 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
         IAnomalyService
     {
         private readonly IAnomalyProductSpecificationService anomalyProductSpecificationService;
+        private readonly IAnomalyProductSpecificationRepository anomalyProductSpecificationRepository;
+        private readonly IAttachmentRepository attachmentRepository;
 
         public AnomalyService(
             IRepository<Anomaly> repository,
-            IAnomalyProductSpecificationService anomalyProductSpecificationService) : base(repository)
+            IAnomalyProductSpecificationService anomalyProductSpecificationService,
+            IAnomalyProductSpecificationRepository anomalyProductSpecificationRepository,
+            IAttachmentRepository attachmentRepository
+            ) : base(repository)
         {
             this.anomalyProductSpecificationService = anomalyProductSpecificationService;
+            this.anomalyProductSpecificationRepository = anomalyProductSpecificationRepository;
+            this.attachmentRepository = attachmentRepository;
         }
 
         public override async Task<ResponseDto<Anomaly>> AddAsync(Anomaly entity)
@@ -68,6 +75,18 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
                 await this.RollbackTransactionAsync();
                 throw;
             }
+        }
+
+        public async Task<IEnumerable<Anomaly>> GetAllEagerLoadAsync()
+        {
+            var anomalies = await this.GetAllAsync();
+            foreach(var anomaly in anomalies)
+            {
+                anomaly.ProductSpecifications = (await this.anomalyProductSpecificationRepository.GetProductsSpecificationsByAnomalyId(anomaly.AnomalyId)).ToList();
+                anomaly.Attachments = (await this.attachmentRepository.GetAttachmentsByAnomalyId(anomaly.AnomalyId)).ToList();
+            }
+
+            return anomalies;
         }
 
         private async Task SaveNewAnomalyProductSpecifications(Anomaly anomaly)

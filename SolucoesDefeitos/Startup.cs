@@ -29,12 +29,12 @@ namespace SolucoesDefeitos
             services.AddSwaggerGen(options => 
             {
                 options.SwaggerDoc(SwaggerApiVersion, new OpenApiInfo { Title = SwaggerApiTitle, Version = SwaggerApiVersion });
-                string caminhoAplicacao =
+                string appPath =
                     PlatformServices.Default.Application.ApplicationBasePath;
-                string nomeAplicacao =
+                string appName =
                     PlatformServices.Default.Application.ApplicationName;
                 string caminhoXmlDoc =
-                    Path.Combine(caminhoAplicacao, $"{nomeAplicacao}.xml");
+                    Path.Combine(appPath, $"{appName}.xml");
 
                 options.IncludeXmlComments(caminhoXmlDoc);
             });
@@ -52,6 +52,8 @@ namespace SolucoesDefeitos
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors((cors) => cors.AllowAnyMethod().AllowAnyOrigin().AllowAnyHeader());
 
             app.UseAuthorization();
 

@@ -90,7 +90,7 @@ namespace SolucoesDefeitos.Controllers
         {
             try
             {
-                var anomalies = await this.anomalyService.GetAllAsync();
+                var anomalies = await this.anomalyService.GetAllEagerLoadAsync();
                 return Ok(new ResponseDto<IEnumerable<Anomaly>>(true, anomalies));
             }
             catch (Exception ex)

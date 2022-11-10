@@ -55,5 +55,10 @@ namespace SolucoesDefeitos.DataAccess.EntityDml
             $@"{this.Select}
             WHERE
                 `attachment`.`attachmentid` = @attachmentid";
+
+        public string SelectByAnomalyId =>
+            $@"{this.Select}
+            WHERE
+                `attachment`.`anomalyid` = @anomalyid";
     }
 }

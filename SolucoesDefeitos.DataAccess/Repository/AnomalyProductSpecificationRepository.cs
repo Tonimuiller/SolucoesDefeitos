@@ -30,10 +30,15 @@ namespace SolucoesDefeitos.DataAccess.Repository
 
         public async Task<IEnumerable<int>> GetAnomalyProductSpecificationIdsByAnomalyIdAsync(int anomalyId)
         {
-            var anomalyproductSpecifications = await this.QueryRawAsync(this.entityDml.SelectByAnomalyId, new { anomalyId });
+            var anomalyproductSpecifications = await this.GetProductsSpecificationsByAnomalyId(anomalyId);
 
             return anomalyproductSpecifications
                 .Select(a => a.AnomalyProductSpecificationId);
         }
-     }
+
+        public async Task<IEnumerable<AnomalyProductSpecification>> GetProductsSpecificationsByAnomalyId(int anomalyId)
+        {
+            return await this.QueryRawAsync(this.entityDml.SelectByAnomalyId, new { anomalyId });
+        }
+    }
 }
