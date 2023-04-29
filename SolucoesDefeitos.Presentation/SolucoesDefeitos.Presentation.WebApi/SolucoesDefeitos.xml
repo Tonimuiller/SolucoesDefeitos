@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SolucoesDefeitos</name>
+    </assembly>
+    <members>
+        <member name="M:SolucoesDefeitos.Controllers.ProductGroupController.GetAsync(System.Int32)">
+            <summary>
+            Get product group by id
+            </summary>
+            <param name="id">Product id to fetch</param>
+            <returns></returns>
+        </member>
+        <member name="M:SolucoesDefeitos.Controllers.ProductGroupController.GetListAsync">
+            <summary>
+            Get all available product groups
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SolucoesDefeitos.Controllers.ProductGroupController.PostAsync(SolucoesDefeitos.Model.ProductGroup)">
+            <summary>
+            Create a new product group
+            </summary>
+            <param name="productGroup">New product group to be created</param>
+            <returns></returns>
+        </member>
+        <member name="M:SolucoesDefeitos.Controllers.ProductGroupController.PutAsync(System.Int32,SolucoesDefeitos.Model.ProductGroup)">
+            <summary>
+            Apply changes to an existing product group
+            </summary>
+            <param name="id">Changing Product group identifier </param>
+            <param name="updatedProductGroup">Changes to be applied into the product group</param>
+            <returns></returns>
+        </member>
+        <member name="M:SolucoesDefeitos.Controllers.ProductGroupController.DeleteAsync(System.Int32)">
+            <summary>
+            Delete an existing product group
+            </summary>
+            <param name="id">Identifier of the product group to delete</param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\SolucoesDefeitos.BusinessDefinition\SolucoesDefeitos.BusinessDefinition.csproj" />
+    <ProjectReference Include="..\..\SolucoesDefeitos.BusinessImplementation\SolucoesDefeitos.BusinessImplementation.csproj" />
+    <ProjectReference Include="..\..\SolucoesDefeitos.DataAccess\SolucoesDefeitos.DataAccess.csproj" />
+    <ProjectReference Include="..\..\SolucoesDefeitos.Dto\SolucoesDefeitos.Dto.csproj" />
+    <ProjectReference Include="..\..\SolucoesDefeitos.Identity\SolucoesDefeitos.Identity.csproj" />
+    <ProjectReference Include="..\..\SolucoesDefeitos.Model\SolucoesDefeitos.Model.csproj" />
+    <ProjectReference Include="..\..\SolucoesDefeitos.Provider\SolucoesDefeitos.Provider.csproj" />
+  </ItemGroup>
+
+</Project>

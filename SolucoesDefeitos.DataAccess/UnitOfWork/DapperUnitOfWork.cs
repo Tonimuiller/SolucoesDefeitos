@@ -57,7 +57,7 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
         {
             var connection = database.DbConnection;
             var entityDml = this.database.GetEntityDml<T>();
-            return await connection.QueryFirstOrDefaultAsync<T>(entityDml.SelectByKey, key, database.DbTransaction);
+            return await connection.QueryFirstOrDefaultAsync<T>(entityDml.SelectByKey, key, transaction: database.DbTransaction);
         }
 
         public virtual async Task<IEnumerable<T>> GetAllAsync<T>()
