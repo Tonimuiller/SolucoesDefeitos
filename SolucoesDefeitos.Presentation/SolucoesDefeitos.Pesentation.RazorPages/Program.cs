@@ -1,3 +1,5 @@
+using SolucoesDefeitos.Pesentation.RazorPages.Api;
+
 namespace SolucoesDefeitos.Pesentation.RazorPages
 {
     public class Program
@@ -29,6 +31,8 @@ namespace SolucoesDefeitos.Pesentation.RazorPages
             app.UseAuthorization();
 
             app.MapRazorPages();
+
+            app.MapApiGroups();
 
             app.Run();
         }
