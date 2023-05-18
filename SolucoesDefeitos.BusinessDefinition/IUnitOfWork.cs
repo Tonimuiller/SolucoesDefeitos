@@ -1,5 +1,6 @@
 ﻿using SolucoesDefeitos.Dto;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.BusinessDefinition
@@ -24,9 +25,11 @@ namespace SolucoesDefeitos.BusinessDefinition
         Task<IEnumerable<T>> GetAllAsync<T>()
             where T : class;
 
-        Task<IEnumerable<T>> QueryRawAsync<T>(string query, object parameters)
+        Task<IEnumerable<T>> QueryRawAsync<T>(string query, object parameters, CancellationToken cancellationToken)
             where T : class;
 
         Task<int> ExecuteRawAsync(string command, object entity);
+
+        Task<TResult> QuerySingleRawAsync<TResult>(string query, object parameters, CancellationToken cancellationToken);
     }
 }

@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.DataAccess.UnitOfWork
@@ -68,11 +69,19 @@ namespace SolucoesDefeitos.DataAccess.UnitOfWork
             return await connection.QueryAsync<T>(entityDml.Select, transaction: database.DbTransaction);
         }
 
-        public virtual async Task<IEnumerable<T>> QueryRawAsync<T>(string query, object parameters)
+        public virtual async Task<IEnumerable<T>> QueryRawAsync<T>(string query, object parameters, CancellationToken cancellationToken)
             where T: class
         {
             var connection = database.DbConnection;
-            return await connection.QueryAsync<T>(query, parameters, database.DbTransaction);
+            var commandDefinition = new CommandDefinition(query, parameters, database.DbTransaction, cancellationToken: cancellationToken);
+            return await connection.QueryAsync<T>(commandDefinition);
+        }
+
+        public virtual async Task<TResult> QuerySingleRawAsync<TResult>(string query, object parameters, CancellationToken cancellationToken)
+        {
+            var connection = database.DbConnection;
+            var commandDefinition = new CommandDefinition(query, parameters, database.DbTransaction, cancellationToken: cancellationToken);
+            return await connection.QuerySingleOrDefaultAsync<TResult>(commandDefinition);
         }
 
         public virtual async Task<int> ExecuteRawAsync(string command, object entity)

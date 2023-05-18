@@ -5,6 +5,7 @@ using SolucoesDefeitos.DataAccess.UnitOfWork;
 using SolucoesDefeitos.Model;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.DataAccess.Repository
@@ -38,7 +39,7 @@ namespace SolucoesDefeitos.DataAccess.Repository
 
         public async Task<IEnumerable<AnomalyProductSpecification>> GetProductsSpecificationsByAnomalyId(int anomalyId)
         {
-            return await this.QueryRawAsync(this.entityDml.SelectByAnomalyId, new { anomalyId });
+            return await this.QueryRawAsync(this.entityDml.SelectByAnomalyId, new { anomalyId }, CancellationToken.None);
         }
     }
 }

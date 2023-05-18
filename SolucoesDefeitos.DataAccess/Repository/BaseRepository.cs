@@ -1,6 +1,7 @@
 ﻿using SolucoesDefeitos.BusinessDefinition;
 using SolucoesDefeitos.BusinessDefinition.Repository;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.DataAccess.Repository
@@ -58,9 +59,14 @@ namespace SolucoesDefeitos.DataAccess.Repository
             await this.unitOfWork.UpdateAsync(entity);
         }
 
-        protected async Task<IEnumerable<TModel>> QueryRawAsync(string query, object parameters)
+        protected async Task<IEnumerable<TModel>> QueryRawAsync(string query, object parameters, CancellationToken cancellationToken)
         {
-            return await this.unitOfWork.QueryRawAsync<TModel>(query, parameters);
+            return await this.unitOfWork.QueryRawAsync<TModel>(query, parameters, cancellationToken);
+        }
+
+        protected async Task<TResult> QuerySingleRawAsync<TResult>(string query, object parameters, CancellationToken cancellationToken)
+        {
+            return await this.unitOfWork.QuerySingleRawAsync<TResult>(query, parameters, cancellationToken);
         }
 
         protected async Task<int> ExecuteRawAsync(string command, object entity)

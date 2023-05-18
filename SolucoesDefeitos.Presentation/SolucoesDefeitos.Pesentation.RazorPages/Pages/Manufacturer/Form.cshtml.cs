@@ -26,6 +26,10 @@ public class FormModel : PageModel
                 return Redirect("./List");
             }
         }
+        else
+        {
+            Manufacturer = new Model.Manufacturer { Enabled = true };
+        }
 
         return Page();
     }

@@ -4,6 +4,7 @@ using SolucoesDefeitos.DataAccess.EntityDml;
 using SolucoesDefeitos.DataAccess.UnitOfWork;
 using SolucoesDefeitos.Model;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.DataAccess.Repository
@@ -22,7 +23,7 @@ namespace SolucoesDefeitos.DataAccess.Repository
 
         public async Task<IEnumerable<Attachment>> GetAttachmentsByAnomalyId(int anomalyId)
         {
-            return await this.QueryRawAsync(this.entityDml.SelectByAnomalyId, new { anomalyId });
+            return await this.QueryRawAsync(this.entityDml.SelectByAnomalyId, new { anomalyId }, CancellationToken.None);
         }
     }
 }

@@ -20,10 +20,9 @@ public class ListModel : PageModel
     public string? ManufacturerNameFilter { get; set; }
     public ListViewModel<Model.Manufacturer>? ViewModel { get; set; }
 
-    public async Task OnGetAsync(string manufacturerNameFilter)
+    public async Task OnGetAsync(CancellationToken cancellationToken, int pageIndex = 1, int pageSize = 10, string? manufacturerNameFilter = null)
     {
         ManufacturerNameFilter = manufacturerNameFilter;
-        ViewModel = new ListViewModel<Model.Manufacturer>();
-        ViewModel.Data = await _manufacturerService.GetAllAsync();
+        ViewModel =  await _manufacturerService.FilterAsync(cancellationToken, manufacturerNameFilter, pageIndex, pageSize);
     }
 }

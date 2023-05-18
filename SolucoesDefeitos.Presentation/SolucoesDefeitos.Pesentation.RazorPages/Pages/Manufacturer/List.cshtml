@@ -69,11 +69,15 @@ else if (TempData["Success"] != null)
     <ul class="pagination">
         @if(Model.ViewModel.CurrentPage > 1)
         {
-            <li class="page-item"><a class="page-link" href="/Manufacturer/List?page=@(Model.ViewModel.CurrentPage-1)">Anterior</a></li>
+            <li class="page-item"><a class="page-link" href="/Manufacturer/List?pageIndex=@(Model.ViewModel.CurrentPage-1)&pageSize=@(Model.ViewModel.PageSize)&manufacturerNameFilter=@(Model.ManufacturerNameFilter)">Anterior</a></li>
         }
-        @for(var pagina = 1; pagina <= Model.ViewModel.TotalPages; pagina++)
+        @for (var page = 1; page <= Model.ViewModel.TotalPages; page++)
         {
-            <li class="page-item"><a class="page-link" href="/"></a></li>
+            <li class="page-item @((Model.ViewModel.CurrentPage == page) ? "active" : string.Empty)"><a class="page-link" href="/Manufacturer/List?pageIndex=@(page)&pageSize=@(Model.ViewModel.PageSize)&manufacturerNameFilter=@(Model.ManufacturerNameFilter)">@(page)</a></li>
+        }
+        @if (Model.ViewModel.CurrentPage < Model.ViewModel.TotalPages)
+        {
+            <li class="page-item"><a class="page-link" href="/Manufacturer/List?pageIndex=@(Model.ViewModel.CurrentPage + 1)&pageSize=@(Model.ViewModel.PageSize)&manufacturerNameFilter=@(Model.ManufacturerNameFilter)">Próxima</a></li>
         }
     </ul>
 </nav>

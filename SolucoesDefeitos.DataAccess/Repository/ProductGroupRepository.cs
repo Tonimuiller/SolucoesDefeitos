@@ -4,6 +4,7 @@ using SolucoesDefeitos.DataAccess.EntityDml;
 using SolucoesDefeitos.DataAccess.UnitOfWork;
 using SolucoesDefeitos.Model;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.DataAccess.Repository
@@ -27,7 +28,7 @@ namespace SolucoesDefeitos.DataAccess.Repository
                 return;
             }
 
-            var subGroups = await this.QueryRawAsync(this.entityDml.SelectByFatherProductGroupId, new { productGroup.ProductGroupId });
+            var subGroups = await this.QueryRawAsync(this.entityDml.SelectByFatherProductGroupId, new { productGroup.ProductGroupId }, CancellationToken.None);
             productGroup.Subgroups = subGroups.ToList();
         }
     }
