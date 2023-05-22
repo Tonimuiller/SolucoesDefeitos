@@ -5,6 +5,7 @@ using SolucoesDefeitos.Dto.Anomaly;
 using SolucoesDefeitos.Model;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.BusinessImplementation.Service
@@ -16,17 +17,19 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
         private readonly IAnomalyProductSpecificationService anomalyProductSpecificationService;
         private readonly IAnomalyProductSpecificationRepository anomalyProductSpecificationRepository;
         private readonly IAttachmentRepository attachmentRepository;
+        private readonly IAnomalyRepository _anomalyRepository;
 
         public AnomalyService(
             IRepository<Anomaly> repository,
             IAnomalyProductSpecificationService anomalyProductSpecificationService,
             IAnomalyProductSpecificationRepository anomalyProductSpecificationRepository,
-            IAttachmentRepository attachmentRepository
-            ) : base(repository)
+            IAttachmentRepository attachmentRepository,
+            IAnomalyRepository anomalyRepository) : base(repository)
         {
             this.anomalyProductSpecificationService = anomalyProductSpecificationService;
             this.anomalyProductSpecificationRepository = anomalyProductSpecificationRepository;
             this.attachmentRepository = attachmentRepository;
+            _anomalyRepository = anomalyRepository;
         }
 
         public override async Task<ResponseDto<Anomaly>> AddAsync(Anomaly entity)
@@ -87,6 +90,11 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             }
 
             return anomalies;
+        }
+
+        public async Task<ListViewModel<Anomaly>> FilterAsync(CancellationToken cancellationToken, int page = 1, int pageSize = 10)
+        {
+            return await _anomalyRepository.FilterAsync(cancellationToken, page, pageSize);
         }
 
         private async Task SaveNewAnomalyProductSpecifications(Anomaly anomaly)

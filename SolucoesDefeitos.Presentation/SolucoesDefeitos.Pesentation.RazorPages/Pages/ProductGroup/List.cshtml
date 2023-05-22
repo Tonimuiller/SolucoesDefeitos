@@ -84,15 +84,15 @@ else if (TempData["Success"] != null)
                 <ul class="pagination">
                     @if (Model.ViewModel.CurrentPage > 1)
                     {
-                        <li class="page-item"><a class="page-link" href="/Manufacturer/List?pageIndex=@(Model.ViewModel.CurrentPage-1)&pageSize=@(Model.ViewModel.PageSize)&productGroupDescriptionFilter=@(Model.ProductGroupDescriptionFilter)">Anterior</a></li>
+                        <li class="page-item"><a class="page-link" href="/ProductGroup/List?pageIndex=@(Model.ViewModel.CurrentPage-1)&pageSize=@(Model.ViewModel.PageSize)&productGroupDescriptionFilter=@(Model.ProductGroupDescriptionFilter)">Anterior</a></li>
                     }
                     @for (var page = 1; page <= Model.ViewModel.TotalPages; page++)
                     {
-                        <li class="page-item @((Model.ViewModel.CurrentPage == page) ? "active" : string.Empty)"><a class="page-link" href="/Manufacturer/List?pageIndex=@(page)&pageSize=@(Model.ViewModel.PageSize)&productGroupDescriptionFilter=@(Model.ProductGroupDescriptionFilter)">@(page)</a></li>
+                        <li class="page-item @((Model.ViewModel.CurrentPage == page) ? "active" : string.Empty)"><a class="page-link" href="/ProductGroup/List?pageIndex=@(page)&pageSize=@(Model.ViewModel.PageSize)&productGroupDescriptionFilter=@(Model.ProductGroupDescriptionFilter)">@(page)</a></li>
                     }
                     @if (Model.ViewModel.CurrentPage < Model.ViewModel.TotalPages)
                     {
-                        <li class="page-item"><a class="page-link" href="/Manufacturer/List?pageIndex=@(Model.ViewModel.CurrentPage + 1)&pageSize=@(Model.ViewModel.PageSize)&productGroupDescriptionFilter=@(Model.ProductGroupDescriptionFilter)">Próxima</a></li>
+                        <li class="page-item"><a class="page-link" href="/ProductGroup/List?pageIndex=@(Model.ViewModel.CurrentPage + 1)&pageSize=@(Model.ViewModel.PageSize)&productGroupDescriptionFilter=@(Model.ProductGroupDescriptionFilter)">Próxima</a></li>
                     }
                 </ul>
             </nav>
