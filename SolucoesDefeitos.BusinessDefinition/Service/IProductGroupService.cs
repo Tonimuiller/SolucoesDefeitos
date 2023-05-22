@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
 
@@ -8,5 +9,6 @@ namespace SolucoesDefeitos.BusinessDefinition.Service
     {
         new Task<ResponseDto<ProductGroup>> AddAsync(ProductGroup newProductGroup);
         new Task<ResponseDto> UpdateAsync(ProductGroup updatedProductGroup);
+        Task<ListViewModel<ProductGroup>> FilterAsync(CancellationToken cancellationToken, string description = null, int page = 1, int pageSize = 10);
     }
 }

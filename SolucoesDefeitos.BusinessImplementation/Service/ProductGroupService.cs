@@ -5,6 +5,7 @@ using SolucoesDefeitos.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.BusinessImplementation.Service
@@ -78,6 +79,11 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
                 await this.RollbackTransactionAsync();
                 return new ResponseDto(false, $"Ocorreu um erro ao atualizar o grupo de produtos: {ex.Message}");
             }
+        }
+
+        public async Task<ListViewModel<ProductGroup>> FilterAsync(CancellationToken cancellationToken, string description = null, int page = 1, int pageSize = 10)
+        {
+            return await productGroupRepository.FilterAsync(cancellationToken, description, page, pageSize);
         }
 
         private void FillSubGroupsFatherProductGroupId(int FatherProductGroupId, ICollection<ProductGroup> subGroups)

@@ -2,3 +2,104 @@
 @model SolucoesDefeitos.Pesentation.RazorPages.Pages.ProductGroup.ListModel
 @{
 }
+
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
+        <div>
+            @(TempData["Error"])
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+else if (TempData["Success"] != null)
+{
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill" /></svg>
+        <div>
+            @(TempData["Success"])
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<h2>Grupos de Produtos</h2>
+<div>
+    <a class="btn btn-primary" asp-page="./Form">Novo</a>
+</div>
+<form asp-page="./List" method="get">
+    <div>
+        <p>
+            Filtar por descrição:
+            <input type="text" name="ProductGroupDescriptionFilter" value="@Model.ProductGroupDescriptionFilter" />
+            <input type="hidden" name="pageIndex" value="@Model.ViewModel.CurrentPage" />
+            <input type="submit" value="Filtrar" class="btn btn-primary" /> |
+            <a asp-page="./List">Limpar filtro</a>
+        </p>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col" class="options-column">Ações</th>
+                <th scope="col">Descrição</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var productGroup in Model.ViewModel.Data)
+            {
+                <tr>
+                    <th scope="row">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                Opções
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-page="./Form" asp-route-productGroupId="@productGroup.ProductGroupId">Alterar</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="list.deleteRecord(@productGroup.ProductGroupId)">Excluir</a></li>
+                            </ul>
+                        </div>
+                    </th>
+                    <td>@productGroup.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-between">
+        <div class="d-flex p-2">
+            <label for="slPageSize" class="form-label">Tamanho da página</label>
+            <div class="ms-2">
+                <select class="form-select form-select-sm" id="slPageSize" style="width: 65px;" onchange="this.form.submit()" name="PageSize">
+                    <!option value="10" @(Model.ViewModel.PageSize == 10 ? "selected" : string.Empty)>10</!option>
+                    <!option value="20" @(Model.ViewModel.PageSize == 20 ? "selected" : string.Empty)>20</!option>
+                    <!option value="30" @(Model.ViewModel.PageSize == 30 ? "selected" : string.Empty)>30</!option>
+                    <!option value="40" @(Model.ViewModel.PageSize == 40 ? "selected" : string.Empty)>40</!option>
+                    <!option value="50" @(Model.ViewModel.PageSize == 50 ? "selected" : string.Empty)>50</!option>
+                </select>
+            </div>
+        </div>
+        <div class="p-2">
+            <nav>
+                <ul class="pagination">
+                    @if (Model.ViewModel.CurrentPage > 1)
+                    {
+                        <li class="page-item"><a class="page-link" href="/Manufacturer/List?pageIndex=@(Model.ViewModel.CurrentPage-1)&pageSize=@(Model.ViewModel.PageSize)&productGroupDescriptionFilter=@(Model.ProductGroupDescriptionFilter)">Anterior</a></li>
+                    }
+                    @for (var page = 1; page <= Model.ViewModel.TotalPages; page++)
+                    {
+                        <li class="page-item @((Model.ViewModel.CurrentPage == page) ? "active" : string.Empty)"><a class="page-link" href="/Manufacturer/List?pageIndex=@(page)&pageSize=@(Model.ViewModel.PageSize)&productGroupDescriptionFilter=@(Model.ProductGroupDescriptionFilter)">@(page)</a></li>
+                    }
+                    @if (Model.ViewModel.CurrentPage < Model.ViewModel.TotalPages)
+                    {
+                        <li class="page-item"><a class="page-link" href="/Manufacturer/List?pageIndex=@(Model.ViewModel.CurrentPage + 1)&pageSize=@(Model.ViewModel.PageSize)&productGroupDescriptionFilter=@(Model.ProductGroupDescriptionFilter)">Próxima</a></li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script type="text/javascript" src="~/js/pages/productGroup/list.js" asp-append-version="true"></script>
+}
