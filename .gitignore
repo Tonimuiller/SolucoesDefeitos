@@ -2,5 +2,4 @@ obj
 .vs
 bin
 .vscode
-wwwroot/lib
 /SolucoesDefeitos.Presentation/SolucoesDefeitos.Pesentation.RazorPages/wwwroot/lib
