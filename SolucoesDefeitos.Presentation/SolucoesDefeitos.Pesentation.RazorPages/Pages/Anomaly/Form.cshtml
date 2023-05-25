@@ -1,0 +1,46 @@
+﻿@page
+@model SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.FormModel
+@{
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
+        <div>
+            @(TempData["Error"])
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+else if (TempData["Success"] != null)
+{
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill" /></svg>
+        <div>
+            @(TempData["Success"])
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<h2>Cadastro de Solução e Defeito</h2>
+<form method="post">
+    <input type="hidden" name="Anomaly.AnomalyId" value="@Model.Anomaly?.AnomalyId"/>
+    <div class="mb-3">
+        <label class="form-label" for="txtSummary">Título/Resumo</label>
+        <input type="text" class="form-control" id="txtSummary" name="Anomaly.Summary" value="@Model.Anomaly?.Summary"/>
+    </div>
+    <div class="mb-3">
+        <label for="txtDescription">Descrição detalhada</label>
+        <textarea class="form-control disable-resize" id="txtDescription" name="Anomaly.Description" rows="3">@Model.Anomaly?.Description</textarea>
+    </div>
+    <div class="mb-3">
+        <label for="txtRepairSteps">Solução(Descrição)</label>
+        <textarea class="form-control disable-resize" id="txtRepairSteps" name="Anomaly.RepairSteps" rows="3">@Model.Anomaly?.RepairSteps</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a href="./List" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    <script type="text/javascript" src="~/js/pages/anomaly/form.js" asp-append-version="true"></script>
+}

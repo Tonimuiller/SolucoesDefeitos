@@ -20,3 +20,7 @@ body {
 .options-column {
     width: 10vh
 }
+
+.disable-resize {
+    resize: none;
+}
