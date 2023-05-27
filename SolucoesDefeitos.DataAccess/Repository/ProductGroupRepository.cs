@@ -23,9 +23,9 @@ namespace SolucoesDefeitos.DataAccess.Repository
             this.entityDml = new ProductGroupEntityDml();
         }
 
-        public async Task<ListViewModel<ProductGroup>> FilterAsync(CancellationToken cancellationToken, string description = null, int page = 1, int pageSize = 20)
+        public async Task<PagedData<ProductGroup>> FilterAsync(CancellationToken cancellationToken, string description = null, int page = 1, int pageSize = 20)
         {
-            var listViewModel = new ListViewModel<ProductGroup>();
+            var listViewModel = new PagedData<ProductGroup>();
             listViewModel.CurrentPage = page;
             listViewModel.PageSize = pageSize;
             var skip = (page - 1) * pageSize;

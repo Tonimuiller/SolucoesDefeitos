@@ -9,6 +9,6 @@ namespace SolucoesDefeitos.BusinessDefinition.Repository
     {
         Task LoadSubgroupsAsync(ProductGroup productGroup);
 
-        Task<ListViewModel<ProductGroup>> FilterAsync(CancellationToken cancellationToken, string description = null, int page = 1, int pageSize = 20);
+        Task<PagedData<ProductGroup>> FilterAsync(CancellationToken cancellationToken, string description = null, int page = 1, int pageSize = 20);
     }
 }

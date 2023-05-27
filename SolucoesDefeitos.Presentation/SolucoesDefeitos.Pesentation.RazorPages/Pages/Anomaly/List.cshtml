@@ -1,8 +1,11 @@
 ﻿@page
 @using Microsoft.AspNetCore.Html;
+@using SolucoesDefeitos.Pesentation.RazorPages.Components.DisplayTempDataMessage;
 @model SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.ListModel
 @{
 }
+
+@await Component.InvokeAsync(nameof(DisplayTempDataMessage))
 
 <h2>Banco de Soluções e Defeitos</h2>
 <div class="mb-1">

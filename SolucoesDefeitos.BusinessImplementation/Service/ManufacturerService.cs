@@ -22,7 +22,7 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             _manufacturerRepository = manufacturerRepository;
         }
 
-        public async Task<ListViewModel<Manufacturer>> FilterAsync(CancellationToken cancellationToken, string name = null, int page = 1, int pageSize = 10)
+        public async Task<PagedData<Manufacturer>> FilterAsync(CancellationToken cancellationToken, string name = null, int page = 1, int pageSize = 10)
         {
             return await _manufacturerRepository.FilterAsync(cancellationToken, name, page, pageSize);
         }

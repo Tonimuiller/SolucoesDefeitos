@@ -1,0 +1,108 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model SolucoesDefeitos.Pesentation.RazorPages.Components.Pager.Model.PagerModel
+@{
+
+}
+
+@functions {
+    string GetHrefForPage(int pageIndex)
+    {
+        var href = $"{Model.Path}?pageIndex={pageIndex}&pageSize={Model.PageSize}";
+        if (Model.AdditionalParameters?.Any(a => !string.IsNullOrEmpty(a.Item2)) ?? false)
+        {
+            href += string.Join("&", Model.AdditionalParameters.Where(a => !string.IsNullOrEmpty(a.Item2)).Select(p => $"{p.Item1}=${p.Item2}"));
+        }
+
+        return href;
+    }
+}
+
+<div class="d-flex justify-content-between">
+    <div class="d-flex p-2">
+        <label for="slPageSize" class="form-label">Tamanho da página</label>
+        <div class="ms-2">
+            <select class="form-select form-select-sm" id="slPageSize" style="width: 65px;" onchange="this.form.submit()" name="PageSize">
+                <!option value="10" @(Model.PageSize == 10 ? "selected" : string.Empty)>10</!option>
+                <!option value="20" @(Model.PageSize == 20 ? "selected" : string.Empty)>20</!option>
+                <!option value="30" @(Model.PageSize == 30 ? "selected" : string.Empty)>30</!option>
+                <!option value="40" @(Model.PageSize == 40 ? "selected" : string.Empty)>40</!option>
+                <!option value="50" @(Model.PageSize == 50 ? "selected" : string.Empty)>50</!option>
+            </select>
+        </div>
+    </div>
+    <div class="p-2">
+        <nav>
+            <ul class="pagination">
+                @if (Model.CurrentPage > 1)
+                {
+                    <li class="page-item"><a class="page-link" href="@GetHrefForPage(Model.CurrentPage-1)">Anterior</a></li>
+                }
+
+                @if (Model.SplitPaging)
+                {
+                    int page = default;
+                    for (page = 1; page <= Model.PagingGroupSize; page++)
+                    {
+                        <li class="page-item @((Model.CurrentPage == page) ? "active" : string.Empty)"><a class="page-link" href="@GetHrefForPage(page)">@(page)</a></li>
+                    }
+
+                    if ((Model.CurrentPage - 1) > (Model.PagingGroupSize + 1))
+                    {
+                        <li class="page-item">...</li>
+                        if ((Model.TotalPages - (Model.PagingGroupSize + 1)) > Model.CurrentPage)
+                        {
+                            for (page = Model.CurrentPage - 1; page <= Model.CurrentPage + 1; page++)
+                            {
+                                <li class="page-item @((Model.CurrentPage == page) ? "active" : string.Empty)"><a class="page-link" href="@GetHrefForPage(page)">@(page)</a></li>
+                            }
+                            <li class="page-item">...</li>
+                            for (page = Model.TotalPages - (Model.PagingGroupSize - 1); page <= Model.TotalPages; page++)
+                            {
+                                <li class="page-item @((Model.CurrentPage == page) ? "active" : string.Empty)"><a class="page-link" href="@GetHrefForPage(page)">@(page)</a></li>
+                            }
+                        }
+                        else
+                        {
+                            page = Math.Min(
+                            Model.TotalPages - (Model.PagingGroupSize - 1),
+                            Model.CurrentPage - 1
+                            );
+                            for (; page <= Model.TotalPages; page++)
+                            {
+                                <li class="page-item @((Model.CurrentPage == page) ? "active" : string.Empty)"><a class="page-link" href="@GetHrefForPage(page)">@(page)</a></li>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int firstGroupEnd = Model.CurrentPage + 1;
+                        for (; page <= firstGroupEnd; page++)
+                        {
+                            <li class="page-item @((Model.CurrentPage == page) ? "active" : string.Empty)"><a class="page-link" href="@GetHrefForPage(page)">@(page)</a></li>
+                        }
+
+                        <li class="page-item">...</li>
+                        for (page = Model.TotalPages - (Model.PagingGroupSize - 1); page <= Model.TotalPages; page++)
+                        {
+                            <li class="page-item @((Model.CurrentPage == page) ? "active" : string.Empty)"><a class="page-link" href="@GetHrefForPage(page)">@(page)</a></li>
+                        }
+                    }
+                }
+                else
+                {
+                    for (var page = 1; page <= Model.TotalPages; page++)
+                    {
+                        <li class="page-item @((Model.CurrentPage == page) ? "active" : string.Empty)"><a class="page-link" href="@GetHrefForPage(page)">@(page)</a></li>
+                    }
+                }
+
+                @if (Model.CurrentPage < Model.TotalPages)
+                {
+                    <li class="page-item"><a class="page-link" href="@GetHrefForPage(Model.CurrentPage + 1)">Próxima</a></li>
+                }
+            </ul>
+        </nav>
+    </div>
+</div>

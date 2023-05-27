@@ -12,6 +12,6 @@ namespace SolucoesDefeitos.BusinessDefinition.Service
         Task<IEnumerable<Anomaly>> GetAllEagerLoadAsync();
         new Task<UpdateAnomalyResponseDto> UpdateAsync(Anomaly updatedAnomaly);
 
-        Task<ListViewModel<Anomaly>> FilterAsync(CancellationToken cancellationToken, int page = 1, int pageSize = 10);
+        Task<PagedData<Anomaly>> FilterAsync(CancellationToken cancellationToken, int page = 1, int pageSize = 10);
     }
 }

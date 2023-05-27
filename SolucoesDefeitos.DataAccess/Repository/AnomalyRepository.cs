@@ -19,9 +19,9 @@ namespace SolucoesDefeitos.DataAccess.Repository
         {
         }
 
-        public async Task<ListViewModel<Anomaly>> FilterAsync(CancellationToken cancellationToken, int page = 1, int pageSize = 20)
+        public async Task<PagedData<Anomaly>> FilterAsync(CancellationToken cancellationToken, int page = 1, int pageSize = 20)
         {
-            var listViewModel = new ListViewModel<Anomaly>();
+            var listViewModel = new PagedData<Anomaly>();
             listViewModel.CurrentPage = page;
             listViewModel.PageSize = pageSize;
             var skip = (page - 1) * pageSize;

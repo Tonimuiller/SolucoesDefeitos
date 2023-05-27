@@ -81,7 +81,7 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             }
         }
 
-        public async Task<ListViewModel<ProductGroup>> FilterAsync(CancellationToken cancellationToken, string description = null, int page = 1, int pageSize = 10)
+        public async Task<PagedData<ProductGroup>> FilterAsync(CancellationToken cancellationToken, string description = null, int page = 1, int pageSize = 10)
         {
             return await productGroupRepository.FilterAsync(cancellationToken, description, page, pageSize);
         }

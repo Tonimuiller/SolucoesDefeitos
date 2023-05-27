@@ -18,11 +18,11 @@ public class ListModel : PageModel
     }
 
     public string? ManufacturerNameFilter { get; set; }
-    public ListViewModel<Model.Manufacturer>? ViewModel { get; set; }
+    public PagedData<Model.Manufacturer>? PagedData { get; set; }
 
     public async Task OnGetAsync(CancellationToken cancellationToken, int pageIndex = 1, int pageSize = 10, string? manufacturerNameFilter = null)
     {
         ManufacturerNameFilter = manufacturerNameFilter;
-        ViewModel =  await _manufacturerService.FilterAsync(cancellationToken, manufacturerNameFilter, pageIndex, pageSize);
+        PagedData =  await _manufacturerService.FilterAsync(cancellationToken, manufacturerNameFilter, pageIndex, pageSize);
     }
 }

@@ -7,6 +7,6 @@ namespace SolucoesDefeitos.BusinessDefinition.Repository
 {
     public interface IAnomalyRepository: IRepository<Anomaly>
     {
-        Task<ListViewModel<Anomaly>> FilterAsync(CancellationToken cancellationToken, int page = 1, int pageSize = 20);
+        Task<PagedData<Anomaly>> FilterAsync(CancellationToken cancellationToken, int page = 1, int pageSize = 20);
     }
 }

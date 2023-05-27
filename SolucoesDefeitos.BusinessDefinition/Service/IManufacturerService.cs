@@ -7,6 +7,6 @@ namespace SolucoesDefeitos.BusinessDefinition.Service
 {
     public interface IManufacturerService: IService<Manufacturer>
     {
-        Task<ListViewModel<Manufacturer>> FilterAsync(CancellationToken cancellationToken, string name = null, int page = 1, int pageSize = 10);
+        Task<PagedData<Manufacturer>> FilterAsync(CancellationToken cancellationToken, string name = null, int page = 1, int pageSize = 10);
     }
 }

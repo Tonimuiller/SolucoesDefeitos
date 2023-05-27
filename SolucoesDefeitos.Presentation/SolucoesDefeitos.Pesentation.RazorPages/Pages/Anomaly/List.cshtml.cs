@@ -15,7 +15,7 @@ public sealed class ListModel : PageModel
         _anomalyService = anomalyService;
     }
 
-    public ListViewModel<Model.Anomaly> ViewModel { get; set; }
+    public PagedData<Model.Anomaly> ViewModel { get; set; }
 
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken, int pageIndex = 1, int pageSize = 10)
     {

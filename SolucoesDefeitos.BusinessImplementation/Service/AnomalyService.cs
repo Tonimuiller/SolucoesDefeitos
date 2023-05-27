@@ -92,7 +92,7 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             return anomalies;
         }
 
-        public async Task<ListViewModel<Anomaly>> FilterAsync(CancellationToken cancellationToken, int page = 1, int pageSize = 10)
+        public async Task<PagedData<Anomaly>> FilterAsync(CancellationToken cancellationToken, int page = 1, int pageSize = 10)
         {
             return await _anomalyRepository.FilterAsync(cancellationToken, page, pageSize);
         }

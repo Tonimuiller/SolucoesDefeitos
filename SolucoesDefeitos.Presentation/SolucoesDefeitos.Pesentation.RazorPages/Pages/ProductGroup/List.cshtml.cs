@@ -16,11 +16,11 @@ public class ListModel : PageModel
     }
 
     public string? ProductGroupDescriptionFilter { get; set; }
-    public ListViewModel<Model.ProductGroup>? ViewModel { get; set; }
+    public PagedData<Model.ProductGroup> PagedData { get; set; } = new PagedData<Model.ProductGroup>();
 
     public async Task OnGetAsync(CancellationToken cancellationToken, int pageIndex = 1, int pageSize = 10, string? productGroupDescriptionFilter = null)
     {
         ProductGroupDescriptionFilter = productGroupDescriptionFilter;
-        ViewModel = await _productGroupService.FilterAsync(cancellationToken, ProductGroupDescriptionFilter, pageIndex, pageSize);
+        PagedData = await _productGroupService.FilterAsync(cancellationToken, ProductGroupDescriptionFilter, pageIndex, pageSize);
     }
 }
