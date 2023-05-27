@@ -24,3 +24,8 @@ body {
 .disable-resize {
     resize: none;
 }
+
+.anomaly-link
+{
+    text-decoration: none;
+}

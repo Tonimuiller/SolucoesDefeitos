@@ -15,11 +15,11 @@ public sealed class ListModel : PageModel
         _anomalyService = anomalyService;
     }
 
-    public PagedData<Model.Anomaly> ViewModel { get; set; }
+    public PagedData<Model.Anomaly> PagedData { get; set; } = new PagedData<Model.Anomaly>();
 
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken, int pageIndex = 1, int pageSize = 10)
     {
-        ViewModel = await _anomalyService.FilterAsync(cancellationToken, pageIndex, pageSize);
+        PagedData = await _anomalyService.FilterAsync(cancellationToken, pageIndex, pageSize);
         return Page();
     }
 }

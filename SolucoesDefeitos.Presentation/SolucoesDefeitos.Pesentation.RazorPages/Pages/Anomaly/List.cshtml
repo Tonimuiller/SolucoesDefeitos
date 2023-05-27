@@ -1,6 +1,8 @@
 ﻿@page
 @using Microsoft.AspNetCore.Html;
 @using SolucoesDefeitos.Pesentation.RazorPages.Components.DisplayTempDataMessage;
+@using SolucoesDefeitos.Pesentation.RazorPages.Components.Pager;
+@using SolucoesDefeitos.Pesentation.RazorPages.Components.Pager.Model;
 @model SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.ListModel
 @{
 }
@@ -13,54 +15,30 @@
 </div>
 <form asp-page="./List" method="get">
     <div class="p-2 bg-light border">
-        @foreach (var anomaly in Model.ViewModel.Data)
+        @foreach (var anomaly in Model.PagedData.Data)
         {
-            <div class="card w-100">
+            <div class="card w-100" href="/Anomaly/View">
                 <div class="card-body">
                     <h5 class="card-title text-primary">@anomaly.Summary</h5>
                     <div class="card-text">
                         @(new HtmlString(anomaly.Description))
                     </div>
+                    <a href="/Anomaly/View" class="stretched-link"></a>
                 </div>
             </div>
         }
         <div class="row mt-2">
-            <span>@Model.ViewModel.TotalRecords Registro(s)</span>
+            <span>@Model.PagedData.TotalRecords Registro(s)</span>
         </div>
     </div>
 
-    <div class="d-flex justify-content-between">
-        <div class="d-flex p-2">
-            <label for="slPageSize" class="form-label">Tamanho da página</label>
-            <div class="ms-2">
-                <select class="form-select form-select-sm" id="slPageSize" style="width: 65px;" onchange="this.form.submit()" name="PageSize">
-                    <!option value="10" @(Model.ViewModel.PageSize == 10 ? "selected" : string.Empty)>10</!option>
-                    <!option value="20" @(Model.ViewModel.PageSize == 20 ? "selected" : string.Empty)>20</!option>
-                    <!option value="30" @(Model.ViewModel.PageSize == 30 ? "selected" : string.Empty)>30</!option>
-                    <!option value="40" @(Model.ViewModel.PageSize == 40 ? "selected" : string.Empty)>40</!option>
-                    <!option value="50" @(Model.ViewModel.PageSize == 50 ? "selected" : string.Empty)>50</!option>
-                </select>
-            </div>
-        </div>
-        <div class="p-2">
-            <nav>
-                <ul class="pagination">
-                    @if (Model.ViewModel.CurrentPage > 1)
-                    {
-                        <li class="page-item"><a class="page-link" href="/Anomaly/List?pageIndex=@(Model.ViewModel.CurrentPage-1)&pageSize=@(Model.ViewModel.PageSize)">Anterior</a></li>
-                    }
-                    @for (var page = 1; page <= Model.ViewModel.TotalPages; page++)
-                    {
-                        <li class="page-item @((Model.ViewModel.CurrentPage == page) ? "active" : string.Empty)"><a class="page-link" href="/Anomaly/List?pageIndex=@(page)&pageSize=@(Model.ViewModel.PageSize)">@(page)</a></li>
-                    }
-                    @if (Model.ViewModel.CurrentPage < Model.ViewModel.TotalPages)
-                    {
-                        <li class="page-item"><a class="page-link" href="/Anomaly/List?pageIndex=@(Model.ViewModel.CurrentPage + 1)&pageSize=@(Model.ViewModel.PageSize)">Próxima</a></li>
-                    }
-                </ul>
-            </nav>
-        </div>
-    </div>
+    @await Component.InvokeAsync(nameof(Pager),
+    new PagerModel {
+        CurrentPage = Model.PagedData.CurrentPage,
+        PageSize = Model.PagedData.PageSize,
+        Path = "/Anomaly/List",
+        TotalRecords = Model.PagedData.TotalRecords,
+    })
 </form>
 
 @section Scripts {
