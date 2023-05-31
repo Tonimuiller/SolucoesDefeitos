@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SolucoesDefeitos.BusinessDefinition.Service;
+using SolucoesDefeitos.Model;
 
 namespace SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly;
 
@@ -15,13 +16,17 @@ public sealed class FormModel : PageModel
     }
 
     [BindProperty]
-    public Model.Anomaly? Anomaly { get; set; }
+    public Model.Anomaly Anomaly { get; set; } = new Model.Anomaly
+    {
+        ProductSpecifications = new List<AnomalyProductSpecification>(),
+        Attachments = new List<Attachment>()
+    };
 
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken, int? anomalyId = null)
     {
         if (anomalyId != null)
         {
-            Anomaly = await _anomalyService.GetByKeyAsync(new { anomalyId });
+            Anomaly = await _anomalyService.GetByIdAsync(anomalyId.Value, cancellationToken);
             if (Anomaly == null)
             {
                 TempData["Error"] = "Não foi possível encontrar o registro.";
@@ -50,7 +55,7 @@ public sealed class FormModel : PageModel
 
         if (Anomaly.AnomalyId != 0)
         {
-            var storedAnomaly = await _anomalyService.GetByKeyAsync(new { Anomaly.AnomalyId });
+            var storedAnomaly = await _anomalyService.GetByIdAsync(Anomaly.AnomalyId, cancellationToken);
             if (storedAnomaly is null)
             {
                 TempData["Error"] = "Não foi possível recuperar os dados da Solução e Defeito.";
@@ -64,9 +69,15 @@ public sealed class FormModel : PageModel
 
             try
             {
-                await _anomalyService.UpdateAsync(storedAnomaly);
-                TempData["Success"] = "Solução e Defeito atualizada com sucesso.";
-                return Redirect("./List");
+                var response = await _anomalyService.UpdateAsync(storedAnomaly, cancellationToken);
+                if (response.Success)
+                {
+                    TempData["Success"] = "Solução e Defeito atualizada com sucesso.";
+                    return Redirect("./List");
+                }
+
+                TempData["Error"] = string.Join("\n", response.Errors);
+                return Page();
             }
             catch
             {
@@ -77,9 +88,15 @@ public sealed class FormModel : PageModel
 
         try
         {
-            await _anomalyService.AddAsync(Anomaly);
-            TempData["Success"] = "Solução e Defeito registrado com sucesso.";
-            return Redirect("./List");
+            var response = await _anomalyService.AddAsync(Anomaly, cancellationToken);
+            if (response.Success)
+            {
+                TempData["Success"] = "Solução e Defeito registrado com sucesso.";
+                return Redirect("./List");
+            }
+
+            TempData["Error"] = string.Join("\n", response.Errors);
+            return Page();
         }
         catch
         {

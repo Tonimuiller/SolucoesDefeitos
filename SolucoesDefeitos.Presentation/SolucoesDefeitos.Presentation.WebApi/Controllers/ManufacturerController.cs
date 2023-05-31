@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SolucoesDefeitos.BusinessDefinition.Service;
-using SolucoesDefeitos.DataAccess.Exception;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.Controllers
@@ -23,14 +23,14 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostAsync([FromBody] Manufacturer newManufacturer)
+        public async Task<IActionResult> PostAsync([FromBody] Manufacturer newManufacturer, CancellationToken cancellationToken)
         {
             if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var manufacturerAddResponse = await this.manufacturerService.AddAsync(newManufacturer);
+            var manufacturerAddResponse = await this.manufacturerService.AddAsync(newManufacturer, cancellationToken);
             if (manufacturerAddResponse.Success)
             {
                 return Ok(new ResponseDto(true));
@@ -40,14 +40,14 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpPut, Route("{manufacturerId}")]
-        public async Task<IActionResult> PutAsync([FromRoute] int manufacturerId, [FromBody] Manufacturer updatedManufacturer)
+        public async Task<IActionResult> PutAsync([FromRoute] int manufacturerId, [FromBody] Manufacturer updatedManufacturer, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var manufacturer = await this.manufacturerService.GetByKeyAsync(new { manufacturerId });
+            var manufacturer = await this.manufacturerService.GetByIdAsync(manufacturerId, cancellationToken);
             if (manufacturer == null)
             {
                 return NotFound();
@@ -58,7 +58,7 @@ namespace SolucoesDefeitos.Controllers
 
             try
             {
-                await this.manufacturerService.UpdateAsync(manufacturer);
+                await this.manufacturerService.UpdateAsync(manufacturer, cancellationToken);
                 return Ok(new ResponseDto(true));
             }
             catch (Exception ex)
@@ -68,9 +68,9 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpGet, Route("{manufacturerId}")]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] int manufacturerId)
+        public async Task<IActionResult> GetByIdAsync([FromRoute] int manufacturerId, CancellationToken cancellationToken)
         {
-            var manufacturer = await this.manufacturerService.GetByKeyAsync(new { manufacturerId });
+            var manufacturer = await this.manufacturerService.GetByIdAsync(manufacturerId, cancellationToken);
             if (manufacturer == null)
             {
                 return NotFound();
@@ -80,15 +80,15 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetListAsync()
+        public async Task<IActionResult> GetListAsync(CancellationToken cancellationToken)
         {
-            return Ok(new ResponseDto<IEnumerable<Manufacturer>>(true, await this.manufacturerService.GetAllAsync()));
+            return Ok(new ResponseDto<IEnumerable<Manufacturer>>(true, await this.manufacturerService.GetAllAsync(cancellationToken)));
         }
 
         [HttpDelete, Route("{manufacturerId}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int manufacturerId)
+        public async Task<IActionResult> DeleteAsync([FromRoute] int manufacturerId, CancellationToken cancellationToken)
         {
-            var manufacturer = await this.manufacturerService.GetByKeyAsync(new { manufacturerId });
+            var manufacturer = await this.manufacturerService.GetByIdAsync(manufacturerId, cancellationToken);
             if (manufacturer == null)
             {
                 return NotFound();
@@ -96,12 +96,8 @@ namespace SolucoesDefeitos.Controllers
 
             try
             {
-                await this.manufacturerService.DeleteAsync(manufacturer);
+                await this.manufacturerService.DeleteAsync(manufacturer, cancellationToken);
                 return Ok(new ResponseDto(true));
-            }
-            catch (RecordDependencyBreakException)
-            {
-                return BadRequest(new ResponseDto(false, "Não é possível excluir o registro pois possuí relacionamentos."));
             }
             catch (Exception ex)
             {

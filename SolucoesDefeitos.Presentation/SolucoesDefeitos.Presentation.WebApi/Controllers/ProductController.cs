@@ -5,6 +5,7 @@ using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.Controllers
@@ -22,7 +23,7 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostAsync([FromBody] Product newProduct)
+        public async Task<IActionResult> PostAsync([FromBody] Product newProduct, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -31,7 +32,7 @@ namespace SolucoesDefeitos.Controllers
 
             try
             {
-                var newProductResponse = await this.productService.AddAsync(newProduct);
+                var newProductResponse = await this.productService.AddAsync(newProduct, cancellationToken);
                 return Created(string.Empty, newProductResponse);
             }
             catch (Exception ex)
@@ -41,14 +42,14 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpPut, Route("{productId}")]
-        public async Task<IActionResult> PutAsync([FromRoute] int productId, [FromBody] Product updatedProduct)
+        public async Task<IActionResult> PutAsync([FromRoute] int productId, [FromBody] Product updatedProduct, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var product = await this.productService.GetByKeyAsync(new { productId });
+            var product = await this.productService.GetByIdAsync(productId, cancellationToken);
             if (product == null)
             {
                 NotFound();
@@ -56,7 +57,7 @@ namespace SolucoesDefeitos.Controllers
 
             try
             {
-                await this.productService.UpdateAsync(updatedProduct);
+                await this.productService.UpdateAsync(updatedProduct, cancellationToken);
                 return Ok(new ResponseDto(true));
             }
             catch (Exception ex)
@@ -66,11 +67,11 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpGet, Route("{productId}")]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] int productId)
+        public async Task<IActionResult> GetByIdAsync([FromRoute] int productId, CancellationToken cancellationToken)
         {
             try
             {
-                var product = await this.productService.GetByKeyAsync(new { productId });
+                var product = await this.productService.GetByIdAsync(productId, cancellationToken);             
                 if (product == null)
                 {
                     return NotFound();
@@ -85,11 +86,11 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetListAsync()
+        public async Task<IActionResult> GetListAsync(CancellationToken cancellationToken)
         {
             try
             {
-                var products = await this.productService.GetAllAsync();
+                var products = await this.productService.GetAllAsync(cancellationToken);
                 return Ok(new ResponseDto<IEnumerable<Product>>(true, products));
             }
             catch (Exception ex)
@@ -99,17 +100,17 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpDelete, Route("{productId}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int productId)
+        public async Task<IActionResult> DeleteAsync([FromRoute] int productId, CancellationToken cancellationToken)
         {
             try
             {
-                var product = await this.productService.GetByKeyAsync(new { productId });
+                var product = await this.productService.GetByIdAsync(productId, cancellationToken);              
                 if (product == null)
                 {
                     return NotFound();
                 }
 
-                await this.productService.DeleteAsync(product);
+                await this.productService.DeleteAsync(product, cancellationToken);
                 return Ok(new ResponseDto(true));
             }
             catch (Exception ex)

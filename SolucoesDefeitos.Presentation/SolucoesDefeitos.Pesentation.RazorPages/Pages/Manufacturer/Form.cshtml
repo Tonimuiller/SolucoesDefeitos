@@ -1,29 +1,13 @@
 ﻿@page
+@using SolucoesDefeitos.Pesentation.RazorPages.Components.DisplayTempDataMessage;
 @model SolucoesDefeitos.Pesentation.RazorPages.Pages.Manufacturer.FormModel
 @{
 }
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger d-flex align-items-center" role="alert">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
-        <div>
-            @(TempData["Error"])
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-else if (TempData["Success"] != null)
-{
-    <div class="alert alert-success d-flex align-items-center" role="alert">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill" /></svg>
-        <div>
-            @(TempData["Success"])
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
 
-<h2>Cadastro de Fabricante</h2>
+@await Component.InvokeAsync(nameof(DisplayTempDataMessage))
+<div class="p-3 mb-2 bg-secondary text-white">
+    <span>Cadastro de Fabricante</span>
+</div>
 <form method="post">
     <input type="hidden" name="Manufacturer.ManufacturerId" value="@Model.Manufacturer?.ManufacturerId"/>
     <input type="hidden" name="Manufacturer.CreationDate" value="@Model.Manufacturer?.CreationDate.ToString("yyyy-MM-ddThh:mm:ss")" />

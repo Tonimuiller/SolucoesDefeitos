@@ -1,0 +1,48 @@
+﻿@page
+@using SolucoesDefeitos.Pesentation.RazorPages.Components.DisplayTempDataMessage;
+@model SolucoesDefeitos.Pesentation.RazorPages.Pages.Product.Component.ProductForm.DefaultModel
+@{
+}
+
+@if(!Model.DisplayAsModal)
+{
+    @await Component.InvokeAsync(nameof(DisplayTempDataMessage))    
+}
+<div class="p-3 mb-2 bg-secondary text-white">
+    <span>Cadastro de Produto</span>
+</div>
+<form class="row mb-3" style="display: none">
+    @if(Model.Product.ProductId > 0)
+    {
+        <div class="col-mb-12">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" value="true" id="ckEnabled">
+                <label class="form-check-label" for="ckEnabled">
+                    Ativo
+                </label>
+            </div>
+        </div>
+    }    
+    <div class="col-md-6 mb-3">
+        <label for="txtProductName" class="form-label">Nome</label>
+        <input type="text" id="txtProductName" class="form-control" required name="Product.Name"/>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label for="txtProductCode" class="form-label">Código</label>
+        <input type="text" id="txtProductCode" class="form-control" name="Product.Code" />
+    </div>
+    <div class="col-md-6 mb-3">
+        <label for="txtProductManufacturer" class="form-label">Fabricante</label>
+        <input type="text" id="txtProductManufacturer" class="form-control" />
+        <input type="hidden" id="hdnManufacturerId" required name="Product.ManufacturerId" />
+    </div>
+    <div class="col-md-6 mb-3">
+        <label for="txtProductGroup" class="form-label">Grupo</label>
+        <input type="text" id="txtProductGroup" class="form-control" />
+        <input type="hidden" id="hdnProductGroupId" required name="Product.ProductGroupId" />
+    </div>
+    <div class="col-md-6 mb-3 d-flex align-items-end">
+        <button id="btSave" class="btn btn-primary">Salvar</button>
+        <button id="btCancel" class="btn btn-secondary">Cancelar</button>
+    </div>
+</form>

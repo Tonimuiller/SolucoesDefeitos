@@ -1,26 +1,22 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using SolucoesDefeitos.Dto;
 
 namespace SolucoesDefeitos.BusinessDefinition.Service
 {
-    public interface IService<TModel>
+    public interface IService<TModel, TKey>
         where TModel: class
     {
-        Task BeginTransactionAsync();
 
-        Task RollbackTransactionAsync();
+        Task<ResponseDto<TModel>> AddAsync(TModel entity, CancellationToken cancellationToken);
 
-        Task CommitAsync();
+        Task<ResponseDto> UpdateAsync(TModel entity, CancellationToken cancellationToken);
 
-        Task<ResponseDto<TModel>> AddAsync(TModel entity);
+        Task DeleteAsync(TModel entity, CancellationToken cancellationToken);
 
-        Task UpdateAsync(TModel entity);
+        Task<TModel> GetByIdAsync(TKey id, CancellationToken cancellationToken);
 
-        Task DeleteAsync(TModel entity);
-
-        Task<TModel> GetByKeyAsync(object key);
-
-        Task<IEnumerable<TModel>> GetAllAsync();
+        Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellationToken);
     }
 }

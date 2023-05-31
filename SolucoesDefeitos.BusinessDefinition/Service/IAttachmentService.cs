@@ -2,7 +2,7 @@
 
 namespace SolucoesDefeitos.BusinessDefinition.Service
 {
-    public interface IAttachmentService: IService<Attachment>
+    public interface IAttachmentService: IService<Attachment, int>
     {
     }
 }

@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SolucoesDefeitos.BusinessDefinition.Service;
-using SolucoesDefeitos.DataAccess.Exception;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.Controllers
@@ -27,9 +27,9 @@ namespace SolucoesDefeitos.Controllers
         /// <param name="id">Product id to fetch</param>
         /// <returns></returns>
         [HttpGet, Route("{id}")]
-        public async Task<IActionResult> GetAsync(int id)
+        public async Task<IActionResult> GetAsync(int id, CancellationToken cancellationToken)
         {
-            var productGroup = await this.productGroupService.GetByKeyAsync(new { productgroupid = id });
+            var productGroup = await this.productGroupService.GetByIdAsync(id, cancellationToken);
             if (productGroup == null)
             {
                 return NotFound();
@@ -43,9 +43,9 @@ namespace SolucoesDefeitos.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        public async Task<IActionResult> GetListAsync()
+        public async Task<IActionResult> GetListAsync(CancellationToken cancellationToken)
         {
-            var productGroups = await this.productGroupService.GetAllAsync();
+            var productGroups = await this.productGroupService.GetAllAsync(cancellationToken);
             return Ok(new ResponseDto<IEnumerable<ProductGroup>>(true, productGroups));
         }
 
@@ -55,14 +55,14 @@ namespace SolucoesDefeitos.Controllers
         /// <param name="productGroup">New product group to be created</param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> PostAsync([FromBody] ProductGroup productGroup)
+        public async Task<IActionResult> PostAsync([FromBody] ProductGroup productGroup, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var newProductGroupResponse = await this.productGroupService.AddAsync(productGroup);
+            var newProductGroupResponse = await this.productGroupService.AddAsync(productGroup, cancellationToken);
             return Ok(newProductGroupResponse);
         }
 
@@ -73,14 +73,14 @@ namespace SolucoesDefeitos.Controllers
         /// <param name="updatedProductGroup">Changes to be applied into the product group</param>
         /// <returns></returns>
         [HttpPut, Route("{id}")]
-        public async Task<IActionResult> PutAsync([FromRoute] int id, [FromBody] ProductGroup updatedProductGroup)
+        public async Task<IActionResult> PutAsync([FromRoute] int id, [FromBody] ProductGroup updatedProductGroup, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var response = await this.productGroupService.UpdateAsync(updatedProductGroup);
+            var response = await this.productGroupService.UpdateAsync(updatedProductGroup, cancellationToken);
             if (!response.Success)
             {
                 return BadRequest(response);
@@ -95,9 +95,9 @@ namespace SolucoesDefeitos.Controllers
         /// <param name="id">Identifier of the product group to delete</param>
         /// <returns></returns>
         [HttpDelete, Route("{id}")]
-        public async Task<IActionResult> DeleteAsync(int id)
+        public async Task<IActionResult> DeleteAsync(int id, CancellationToken cancellationToken)
         {
-            var productGroup = await this.productGroupService.GetByKeyAsync(new { productgroupid = id });
+            var productGroup = await this.productGroupService.GetByIdAsync(id, cancellationToken);
             if (productGroup == null)
             {
                 return NotFound();
@@ -105,13 +105,8 @@ namespace SolucoesDefeitos.Controllers
             
             try
             {
-                await this.productGroupService.DeleteAsync(productGroup);
+                await this.productGroupService.DeleteAsync(productGroup, cancellationToken);
                 return Ok(new ResponseDto(true));
-            }
-            catch (RecordDependencyBreakException)
-            {
-                var response = new ResponseDto(false, "Não é possível excluir o registro pois possuí relacionamentos.");
-                return BadRequest(response);
             }
             catch (Exception ex)
             {

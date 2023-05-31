@@ -6,6 +6,7 @@ using SolucoesDefeitos.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.Controllers
@@ -23,7 +24,7 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PostAsync([FromBody] Anomaly newAnomaly)
+        public async Task<IActionResult> PostAsync([FromBody] Anomaly newAnomaly, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -32,7 +33,7 @@ namespace SolucoesDefeitos.Controllers
 
             try
             {
-                var newAnomalyResponse = await this.anomalyService.AddAsync(newAnomaly);
+                var newAnomalyResponse = await this.anomalyService.AddAsync(newAnomaly, cancellationToken);
                 return Created(string.Empty, newAnomalyResponse);
             }
             catch(Exception ex)
@@ -42,7 +43,7 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpPut, Route("{anomalyId}")]
-        public async Task<IActionResult> PutAsync([FromRoute] int anomalyId, [FromBody] Anomaly updatedAnomaly)
+        public async Task<IActionResult> PutAsync([FromRoute] int anomalyId, [FromBody] Anomaly updatedAnomaly, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -51,13 +52,13 @@ namespace SolucoesDefeitos.Controllers
 
             try
             {
-                var anomaly = await this.anomalyService.GetByKeyAsync(new { anomalyId });
+                var anomaly = await this.anomalyService.GetByIdAsync(anomalyId, cancellationToken);
                 if (anomaly == null)
                 {
                     return NotFound();
                 }
 
-                await this.anomalyService.UpdateAsync(updatedAnomaly);
+                await this.anomalyService.UpdateAsync(updatedAnomaly, cancellationToken);
                 return Ok(new ResponseDto(true));
             }
             catch (Exception ex)
@@ -67,11 +68,11 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpGet, Route("{anomalyId}")]
-        public async Task<IActionResult> GetByIdAsync([FromRoute] int anomalyId)
+        public async Task<IActionResult> GetByIdAsync([FromRoute] int anomalyId, CancellationToken cancellationToken)
         {
             try
             {
-                var anomaly = await this.anomalyService.GetByKeyAsync(new { anomalyId });
+                var anomaly = await this.anomalyService.GetByIdAsync(anomalyId, cancellationToken);
                 if (anomaly == null)
                 {
                     return NotFound();
@@ -86,11 +87,11 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetListAsync()
+        public async Task<IActionResult> GetListAsync(CancellationToken cancellationToken)
         {
             try
             {
-                var anomalies = await this.anomalyService.GetAllEagerLoadAsync();
+                var anomalies = await this.anomalyService.GetAllEagerLoadAsync(cancellationToken);
                 return Ok(new ResponseDto<IEnumerable<Anomaly>>(true, anomalies));
             }
             catch (Exception ex)
@@ -100,17 +101,17 @@ namespace SolucoesDefeitos.Controllers
         }
 
         [HttpDelete, Route("{anomalyId}")]
-        public async Task<IActionResult> DeleteAsync([FromRoute] int anomalyId)
+        public async Task<IActionResult> DeleteAsync([FromRoute] int anomalyId, CancellationToken cancellationToken)
         {
             try
             {
-                var anomaly = await this.anomalyService.GetByKeyAsync(new { anomalyId });
+                var anomaly = await this.anomalyService.GetByIdAsync(anomalyId, cancellationToken);             
                 if (anomaly == null)
                 {
                     return NotFound();
                 }
 
-                await this.anomalyService.DeleteAsync(anomaly);
+                await this.anomalyService.DeleteAsync(anomaly, cancellationToken);
                 return Ok();
             }
             catch (Exception ex)

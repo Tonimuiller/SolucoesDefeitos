@@ -1,10 +1,10 @@
-﻿using SolucoesDefeitos.BusinessDefinition.Repository;
+﻿using SolucoesDefeitos.BusinessDefinition;
+using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.BusinessDefinition.Service;
 using SolucoesDefeitos.BusinessImplementation.Service;
+using SolucoesDefeitos.DataAccess;
 using SolucoesDefeitos.DataAccess.Database;
 using SolucoesDefeitos.DataAccess.Repository;
-using SolucoesDefeitos.DataAccess.UnitOfWork;
-using SolucoesDefeitos.Model;
 using SolucoesDefeitos.Provider;
 
 namespace SolucoesDefeitos.Pesentation.RazorPages;
@@ -15,9 +15,7 @@ public static class CompositionRoot
     {
         ConfigureDatabases(serviceCollection);
         ConfigureUnitOfWork(serviceCollection);
-        ConfigureGenericRepositories(serviceCollection);
         ConfigureRepositories(serviceCollection);
-        ConfigureGenericServices(serviceCollection);
         ConfigureServices(serviceCollection);
         ConfigureProviders(serviceCollection);
         return serviceCollection;
@@ -38,29 +36,9 @@ public static class CompositionRoot
         serviceCollection.AddScoped<IProductService, ProductService>();
     }
 
-    private static void ConfigureGenericServices(IServiceCollection serviceCollection)
-    {
-        serviceCollection.AddScoped<IService<AnomalyProductSpecification>, AnomalyProductSpecificationService>();
-        serviceCollection.AddScoped<IService<Anomaly>, AnomalyService>();
-        serviceCollection.AddScoped<IService<Attachment>, AttachmentService>();
-        serviceCollection.AddScoped<IService<Manufacturer>, ManufacturerService>();
-        serviceCollection.AddScoped<IService<ProductGroup>, ProductGroupService>();
-        serviceCollection.AddScoped<IService<Product>, ProductService>();
-    }
-
     private static void ConfigureUnitOfWork(IServiceCollection serviceCollection)
     {
-        serviceCollection.AddScoped<DapperUnitOfWork<SolucaoDefeitoMySqlDatabase>, SolucaoDefeitoUnitOfWork>();
-    }
-
-    private static void ConfigureGenericRepositories(IServiceCollection serviceCollection)
-    {
-        serviceCollection.AddScoped<IRepository<AnomalyProductSpecification>, AnomalyProductSpecificationRepository>();
-        serviceCollection.AddScoped<IRepository<Anomaly>, AnomalyRepository>();
-        serviceCollection.AddScoped<IRepository<Attachment>, AttachmentRepository>();
-        serviceCollection.AddScoped<IRepository<Manufacturer>, ManufacturerRepository>();
-        serviceCollection.AddScoped<IRepository<ProductGroup>, ProductGroupRepository>();
-        serviceCollection.AddScoped<IRepository<Product>, ProductRepository>();
+        serviceCollection.AddScoped<IUnitOfWork, UnitOfWork>();
     }
 
     private static void ConfigureRepositories(IServiceCollection serviceCollection)
@@ -75,6 +53,6 @@ public static class CompositionRoot
 
     private static void ConfigureDatabases(IServiceCollection serviceCollection)
     {
-        serviceCollection.AddSingleton<SolucaoDefeitoMySqlDatabase>();
+        serviceCollection.AddScoped<IDatabase, SolucaoDefeitoMySqlDatabase>();
     }
 }

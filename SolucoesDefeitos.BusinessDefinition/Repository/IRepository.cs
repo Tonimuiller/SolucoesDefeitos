@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.BusinessDefinition.Repository
 {
-    public interface IRepository<TModel>
+    public interface IRepository<TModel, TKey>
         where TModel : class
     {
-        Task BeginTransactionAsync();
+        Task<TModel> AddAsync(TModel entity, CancellationToken cancellationToken);
 
-        Task CommitTransactionAsync();
+        Task UpdateAsync(TModel entity, CancellationToken cancellationToken);
 
-        Task RoolbackTransactionAsync();
+        Task DeleteAsync(TModel entity, CancellationToken cancellationToken);
 
-        Task<TModel> AddAsync(TModel entity);
+        Task<TModel> GetByIdAsync(TKey keyValue, CancellationToken cancellationToken);
 
-        Task UpdateAsync(TModel entity);
-
-        Task DeleteAsync(TModel entity);
-
-        Task<TModel> GetByKeyAsync(object key);
-
-        Task<IEnumerable<TModel>> GetAllAsync();
+        Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellationToken);
     }
 }

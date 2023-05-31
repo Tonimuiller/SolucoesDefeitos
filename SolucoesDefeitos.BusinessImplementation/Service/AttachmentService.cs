@@ -4,11 +4,9 @@ using SolucoesDefeitos.Model;
 
 namespace SolucoesDefeitos.BusinessImplementation.Service
 {
-    public class AttachmentService : BaseService<Attachment>,
-        IService<Attachment>,
-        IAttachmentService
+    public class AttachmentService : BaseService<Attachment, int>, IAttachmentService
     {
-        public AttachmentService(IRepository<Attachment> repository) : base(repository)
+        public AttachmentService(IAttachmentRepository repository) : base(repository)
         {
         }
     }

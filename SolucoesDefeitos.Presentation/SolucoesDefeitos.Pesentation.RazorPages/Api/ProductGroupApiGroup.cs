@@ -15,7 +15,7 @@ public sealed class ProductGroupApiGroup : IApiGroup
         int id,
         IProductGroupService productGroupService)
     {
-        await productGroupService.DeleteAsync(new Model.ProductGroup { ProductGroupId = id });
+        await productGroupService.DeleteAsync(new Model.ProductGroup { ProductGroupId = id }, cancellationToken);
         return Results.Ok();
     }
 }

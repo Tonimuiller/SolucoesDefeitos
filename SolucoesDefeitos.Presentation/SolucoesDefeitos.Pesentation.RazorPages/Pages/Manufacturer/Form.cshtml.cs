@@ -14,13 +14,13 @@ public class FormModel : PageModel
     }
 
     [BindProperty]
-    public Model.Manufacturer? Manufacturer { get; set; }
+    public Model.Manufacturer Manufacturer { get; set; } = new Model.Manufacturer { Enabled = true };
 
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken, int? manufacturerId = null)
     {
         if (manufacturerId.HasValue)
         {
-            Manufacturer = await _manufacturerService.GetByKeyAsync(new { manufacturerId });
+            Manufacturer = await _manufacturerService.GetByIdAsync(manufacturerId.Value, cancellationToken);
             if (Manufacturer is null)
             {
                 return Redirect("./List");
@@ -36,12 +36,6 @@ public class FormModel : PageModel
 
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
-        if (Manufacturer is null)
-        {
-            TempData["Error"] = "Não foram enviados dados do Fabricante.";
-            return Page();
-        }
-
         if (string.IsNullOrEmpty(Manufacturer.Name))
         {
             TempData["Error"] = "O Nome do Fabricante é obrigatório.";
@@ -50,7 +44,7 @@ public class FormModel : PageModel
 
         if (Manufacturer?.ManufacturerId != 0)
         {
-            var storedManufacturer = await _manufacturerService.GetByKeyAsync(new { manufacturerId = Manufacturer?.ManufacturerId });
+            var storedManufacturer = await _manufacturerService.GetByIdAsync(Manufacturer!.ManufacturerId, cancellationToken);
             if (storedManufacturer is null)
             {
                 TempData["Error"] = "Não foi possível recuperar os dados do Fabricante.";
@@ -62,9 +56,15 @@ public class FormModel : PageModel
             storedManufacturer.Name = Manufacturer!.Name;
             try
             {
-                await _manufacturerService.UpdateAsync(storedManufacturer);
-                TempData["Success"] = "Fabricante atualizado com sucesso.";
-                return Redirect("./List");
+                var response = await _manufacturerService.UpdateAsync(storedManufacturer, cancellationToken);
+                if (response.Success)
+                {
+                    TempData["Success"] = "Fabricante atualizado com sucesso.";
+                    return Redirect("./List");
+                }
+
+                TempData["Error"] = string.Join("\n", response.Errors);
+                return Page();
             }
             catch 
             {
@@ -75,9 +75,15 @@ public class FormModel : PageModel
 
         try
         {
-            await _manufacturerService.AddAsync(Manufacturer);
-            TempData["Success"] = "Fabricante criado com sucesso.";
-            return Redirect("./List");
+            var response = await _manufacturerService.AddAsync(Manufacturer, cancellationToken);
+            if (response.Success)
+            {
+                TempData["Success"] = "Fabricante criado com sucesso.";
+                return Redirect("./List");
+            }
+
+            TempData["Error"] = string.Join("\n", response.Errors);
+            return Page();
         }
         catch
         {

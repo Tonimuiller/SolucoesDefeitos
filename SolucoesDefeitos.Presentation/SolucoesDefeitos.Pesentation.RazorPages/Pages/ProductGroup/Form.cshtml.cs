@@ -15,7 +15,7 @@ public sealed class FormModel : PageModel
     }
 
     [BindProperty]
-    public Model.ProductGroup? ProductGroup { get; set; }
+    public Model.ProductGroup ProductGroup { get; set; } = new Model.ProductGroup { Enabled = true };
 
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken, int? productGroupId = null)
     {
@@ -26,7 +26,7 @@ public sealed class FormModel : PageModel
         }
         else
         {
-            ProductGroup = await _productGroupService.GetByKeyAsync(new { productGroupId = productGroupId });
+            ProductGroup = await _productGroupService.GetByIdAsync(productGroupId.Value, cancellationToken);
             if (ProductGroup is null)
             {
                 return Redirect("./List");
@@ -52,7 +52,7 @@ public sealed class FormModel : PageModel
 
         if (ProductGroup!.ProductGroupId != 0)
         {
-            var storedProductGroup = await _productGroupService.GetByKeyAsync(new { productGroupId = ProductGroup!.ProductGroupId });
+            var storedProductGroup = await _productGroupService.GetByIdAsync(ProductGroup!.ProductGroupId, cancellationToken);
             if (storedProductGroup is null)
             {
                 TempData["Error"] = "Não foi possível recuperar os dados do Grupo de Produtos.";
@@ -64,9 +64,15 @@ public sealed class FormModel : PageModel
             storedProductGroup.Description = ProductGroup!.Description;
             try
             {
-                await _productGroupService.UpdateAsync(storedProductGroup);
-                TempData["Success"] = "Grupo de Produtos atualizado com sucesso.";
-                return Redirect("./List");
+                var response = await _productGroupService.UpdateAsync(storedProductGroup, cancellationToken);
+                if (response.Success)
+                {
+                    TempData["Success"] = "Grupo de Produtos atualizado com sucesso.";
+                    return Redirect("./List");
+                }
+
+                TempData["Error"] = string.Join("\n", response.Errors);
+                return Page();
             }
             catch
             {
@@ -77,9 +83,15 @@ public sealed class FormModel : PageModel
 
         try
         {
-            await _productGroupService.AddAsync(ProductGroup);
-            TempData["Success"] = "Grupo de Produtos criado com sucesso.";
-            return Redirect("./List");
+            var response = await _productGroupService.AddAsync(ProductGroup, cancellationToken);
+            if (response.Success)
+            {
+                TempData["Success"] = "Grupo de Produtos criado com sucesso.";
+                return Redirect("./List");
+            }
+
+            TempData["Error"] = string.Join("\n", response.Errors);
+            return Page();
         }
         catch
         {

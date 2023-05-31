@@ -1,45 +1,172 @@
-﻿using SolucoesDefeitos.BusinessDefinition.Repository;
-using SolucoesDefeitos.DataAccess.Database;
-using SolucoesDefeitos.DataAccess.EntityDml;
-using SolucoesDefeitos.DataAccess.UnitOfWork;
+﻿using Dapper;
+using SolucoesDefeitos.BusinessDefinition;
+using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.Model;
+using SolucoesDefeitos.Provider;
 using System.Collections.Generic;
-using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.DataAccess.Repository
 {
-    public class AnomalyProductSpecificationRepository :
-        BaseRepository<AnomalyProductSpecification, DapperUnitOfWork<SolucaoDefeitoMySqlDatabase>>,
-        IRepository<AnomalyProductSpecification>,
-        IAnomalyProductSpecificationRepository
+    public class AnomalyProductSpecificationRepository : IAnomalyProductSpecificationRepository
     {
-        private readonly AnomalyProductSpecificationEntityDml entityDml;
+        private readonly IDatabase _database;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public AnomalyProductSpecificationRepository(
-            DapperUnitOfWork<SolucaoDefeitoMySqlDatabase> unitOfWork) 
-            : base(unitOfWork)
+            IDatabase database, 
+            IDateTimeProvider dateTimeProvider)
         {
-            this.entityDml = new AnomalyProductSpecificationEntityDml();
+            _database = database;
+            _dateTimeProvider = dateTimeProvider;
         }
 
-        public async Task DeleteAsync(params int[] anomalyProductSpecificationIds)
+        public async Task<AnomalyProductSpecification> AddAsync(AnomalyProductSpecification entity, CancellationToken cancellationToken)
         {
-            await this.ExecuteRawAsync(this.entityDml.DeleteByAnomalyProductSpecificationIds, new { anomalyProductSpecificationIds });
+            entity.CreationDate = _dateTimeProvider.CurrentDateTime;
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("INSERT INTO anomalyproductspecification")
+                .AppendLine("\t(creationdate,")
+                .AppendLine("\tanomalyid,")
+                .AppendLine("\tproductid,")
+                .AppendLine("\tmanufactureyear)")
+                .AppendLine("VALUES")
+                .AppendLine("\t(@creationdate,")
+                .AppendLine("\t@anomalyid,")
+                .AppendLine("\t@productid,")
+                .AppendLine("\t@manufactureyear);")
+                .AppendLine("SELECT LAST_INSERT_ID();");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                entity,
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            entity.AnomalyProductSpecificationId = await _database.DbConnection.ExecuteScalarAsync<int>(commandDefinition);
+            return entity;
         }
 
-        public async Task<IEnumerable<int>> GetAnomalyProductSpecificationIdsByAnomalyIdAsync(int anomalyId)
+        public async Task DeleteAsync(CancellationToken cancellationToken, params int[] anomalyProductSpecificationIds)
         {
-            var anomalyproductSpecifications = await this.GetProductsSpecificationsByAnomalyId(anomalyId);
-
-            return anomalyproductSpecifications
-                .Select(a => a.AnomalyProductSpecificationId);
+            var commandDefinition = new CommandDefinition(
+                "DELETE FROM anomalyproductspecification WHERE anomalyproductspecificationid in @anomalyproductspecificationids",
+                new { anomalyProductSpecificationIds },
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            await _database.DbConnection.ExecuteAsync(commandDefinition);
         }
 
-        public async Task<IEnumerable<AnomalyProductSpecification>> GetProductsSpecificationsByAnomalyId(int anomalyId)
+        public async Task DeleteAsync(AnomalyProductSpecification entity, CancellationToken cancellationToken)
         {
-            return await this.QueryRawAsync(this.entityDml.SelectByAnomalyId, new { anomalyId }, CancellationToken.None);
+            var commandDefinition = new CommandDefinition(
+                "DELETE FROM anomalyproductspecification WHERE anomalyproductspecificationid = @anomalyproductspecificationid",
+                entity,
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            await _database.DbConnection.ExecuteAsync(commandDefinition);
+        }
+
+        public async Task<IEnumerable<AnomalyProductSpecification>> GetAllAsync(CancellationToken cancellationToken)
+        {
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tanomalyproductspecificationid,")
+                .AppendLine("\tcreationdate,")
+                .AppendLine("\tupdatedate,")
+                .AppendLine("\tanomalyid,")
+                .AppendLine("\tproductid,")
+                .AppendLine("\tmanufactureyear")
+                .AppendLine("FROM")
+                .AppendLine("\tanomalyproductspecification");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                transaction: _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QueryAsync<AnomalyProductSpecification>(commandDefinition);
+        }
+
+        public async Task<IEnumerable<int>> GetAnomalyProductSpecificationIdsByAnomalyIdAsync(int anomalyId, CancellationToken cancellationToken)
+        {
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tanomalyproductspecificationid")
+                .AppendLine("FROM")
+                .AppendLine("\tanomalyproductspecification")
+                .AppendLine("WHERE")
+                .AppendLine("\tanomalyid = @anomalyid")
+                ;
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                new { anomalyId },
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QueryAsync<int>(commandDefinition);
+        }
+
+        public async Task<AnomalyProductSpecification> GetByIdAsync(int keyValue, CancellationToken cancellationToken)
+        {
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tanomalyproductspecificationid,")
+                .AppendLine("\tcreationdate,")
+                .AppendLine("\tupdatedate,")
+                .AppendLine("\tanomalyid,")
+                .AppendLine("\tproductid,")
+                .AppendLine("\tmanufactureyear")
+                .AppendLine("FROM")
+                .AppendLine("\tanomalyproductspecification")
+                .AppendLine("WHERE")
+                .AppendLine("\tanomalyproductspecificationid = @anomalyproductspecificationid");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                new { anomalyproductspecificationid  = keyValue },
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QuerySingleOrDefaultAsync<AnomalyProductSpecification>(commandDefinition);
+        }
+
+        public async Task<IEnumerable<AnomalyProductSpecification>> GetProductsSpecificationsByAnomalyIdAsync(int anomalyId, CancellationToken cancellationToken)
+        {
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tanomalyproductspecificationid,")
+                .AppendLine("\tcreationdate,")
+                .AppendLine("\tupdatedate,")
+                .AppendLine("\tanomalyid,")
+                .AppendLine("\tproductid,")
+                .AppendLine("\tmanufactureyear")
+                .AppendLine("FROM")
+                .AppendLine("\tanomalyproductspecification")
+                .AppendLine("WHERE")
+                .AppendLine("\tanomalyid = @anomalyid");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                new { anomalyId },
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QueryAsync<AnomalyProductSpecification>(commandDefinition);
+        }
+
+        public async Task UpdateAsync(AnomalyProductSpecification entity, CancellationToken cancellationToken)
+        {
+            entity.UpdateDate = _dateTimeProvider.CurrentDateTime;
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("UPDATE")
+                .AppendLine("\tanomalyproductspecification")
+                .AppendLine("SET")
+                .AppendLine("\tupdatedate = @updatedate,")
+                .AppendLine("\tanomalyid = @anomalyid,")
+                .AppendLine("\tproductid = @productid,")
+                .AppendLine("\tmanufactureyear = @manufactureyear")
+                .AppendLine("WHERE")
+                .AppendLine("\tanomalyproductspecificationid - @anomalyproductspecificationid");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                entity,
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            await _database.DbConnection.ExecuteAsync(commandDefinition);
         }
     }
 }

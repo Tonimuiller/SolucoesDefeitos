@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.BusinessDefinition.Repository
 {
-    public interface IManufacturerRepository: IRepository<Manufacturer>
+    public interface IManufacturerRepository: IRepository<Manufacturer, int>
     {
         Task<PagedData<Manufacturer>> FilterAsync(CancellationToken cancellationToken, string name = null, int page = 1, int pageSize = 20);
     }

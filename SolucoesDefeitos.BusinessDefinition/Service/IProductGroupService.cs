@@ -5,10 +5,8 @@ using SolucoesDefeitos.Model;
 
 namespace SolucoesDefeitos.BusinessDefinition.Service
 {
-    public interface IProductGroupService : IService<ProductGroup>
+    public interface IProductGroupService : IService<ProductGroup, int>
     {
-        new Task<ResponseDto<ProductGroup>> AddAsync(ProductGroup newProductGroup);
-        new Task<ResponseDto> UpdateAsync(ProductGroup updatedProductGroup);
         Task<PagedData<ProductGroup>> FilterAsync(CancellationToken cancellationToken, string description = null, int page = 1, int pageSize = 10);
     }
 }

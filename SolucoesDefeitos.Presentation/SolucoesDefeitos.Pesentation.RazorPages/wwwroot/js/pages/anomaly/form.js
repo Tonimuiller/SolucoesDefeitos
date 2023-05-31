@@ -1,5 +1,7 @@
 ﻿const form = (function () {
     function _form() {
+        const _txtProductSearch = () => $('#txtProductSearch');
+
         const _initialize = function () {
             if (!tinymce) {
                 console.error("TinyMCE not found.");
@@ -8,12 +10,12 @@
 
             tinymce.init({
                 selector: 'textarea#txtDescription',
-                height: 300
+                height: 200
             });
 
             tinymce.init({
                 selector: 'textarea#txtRepairSteps',
-                height: 600
+                height: 300
             });
         };
 
@@ -24,5 +26,4 @@
 
     return new _form();
 })();
-
-form.initialize();
+$(document).ready(() => form.initialize());

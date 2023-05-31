@@ -1,9 +1,10 @@
-﻿using SolucoesDefeitos.BusinessDefinition.Repository;
-using SolucoesDefeitos.DataAccess.Database;
-using SolucoesDefeitos.DataAccess.EntityDml;
-using SolucoesDefeitos.DataAccess.UnitOfWork;
+﻿using Dapper;
+using SolucoesDefeitos.BusinessDefinition;
+using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
+using SolucoesDefeitos.Provider;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -11,16 +12,51 @@ using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.DataAccess.Repository
 {
-    public class ProductGroupRepository : 
-        BaseRepository<ProductGroup, DapperUnitOfWork<SolucaoDefeitoMySqlDatabase>>,
-        IRepository<ProductGroup>,
-        IProductGroupRepository
+    public class ProductGroupRepository : IProductGroupRepository
     {
-        private readonly ProductGroupEntityDml entityDml;
+        private readonly IDatabase _database;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public ProductGroupRepository(DapperUnitOfWork<SolucaoDefeitoMySqlDatabase> unitOfWork) : base(unitOfWork)
+        public ProductGroupRepository(
+            IDatabase database, 
+            IDateTimeProvider dateTimeProvider)
         {
-            this.entityDml = new ProductGroupEntityDml();
+            _database = database;
+            _dateTimeProvider = dateTimeProvider;
+        }
+
+        public async Task<ProductGroup> AddAsync(ProductGroup entity, CancellationToken cancellationToken)
+        {
+            entity.CreationDate = _dateTimeProvider.CurrentDateTime;
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("INSERT INTO productgroup")
+                .AppendLine("\t(creationdate, ")
+                .AppendLine("\tenabled, ")
+                .AppendLine("\tdescription, ")
+                .AppendLine("\tfatherproductgroupid)")
+                .AppendLine("VALUES")
+                .AppendLine("\t(@creationdate,")
+                .AppendLine("\t@Enabled,")
+                .AppendLine("\t@Description,")
+                .AppendLine("\t@FatherProductGroupId);")
+                .AppendLine("SELECT LAST_INSERT_ID();");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                entity,
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            entity.ProductGroupId = await _database.DbConnection.ExecuteScalarAsync<int>(commandDefinition);
+            return entity;
+        }
+
+        public async Task DeleteAsync(ProductGroup entity, CancellationToken cancellationToken)
+        {
+            var commandDefinition = new CommandDefinition(
+                "DELETE FROM productgroup WHERE productgroupid = @productgroupid",
+                entity,
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            await _database.DbConnection.ExecuteAsync(commandDefinition);
         }
 
         public async Task<PagedData<ProductGroup>> FilterAsync(CancellationToken cancellationToken, string description = null, int page = 1, int pageSize = 20)
@@ -47,7 +83,12 @@ namespace SolucoesDefeitos.DataAccess.Repository
                 description
             };
 
-            listViewModel.TotalRecords = await this.QuerySingleRawAsync<int>(totalItemsQueryBuilder.ToString(), totalItemsParameters, cancellationToken);
+            var commandDefinition = new CommandDefinition(
+                totalItemsQueryBuilder.ToString(),
+                totalItemsParameters,
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            listViewModel.TotalRecords = await _database.DbConnection.QuerySingleOrDefaultAsync<int>(commandDefinition);
             while (listViewModel.CurrentPage > 1 && skip >= listViewModel.TotalRecords)
             {
                 listViewModel.CurrentPage--;
@@ -82,19 +123,101 @@ namespace SolucoesDefeitos.DataAccess.Repository
                 pageSize
             };
 
-            listViewModel.Data = await this.QueryRawAsync(queryBuilder.ToString(), parameters, cancellationToken);
+            commandDefinition = new CommandDefinition(
+                queryBuilder.ToString(),
+                parameters,
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            listViewModel.Data = await _database.DbConnection.QueryAsync<ProductGroup>(commandDefinition);
             return listViewModel;
         }
 
-        public async Task LoadSubgroupsAsync(ProductGroup productGroup)
+        public async Task<IEnumerable<ProductGroup>> GetAllAsync(CancellationToken cancellationToken)
         {
-            if (productGroup == null)
-            {
-                return;
-            }
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tproductgroupid,")
+                .AppendLine("\tcreationdate,")
+                .AppendLine("\tupdatedate,")
+                .AppendLine("\tenabled,")
+                .AppendLine("\tdescription,")
+                .AppendLine("\tfatherproductgroupid")
+                .AppendLine("FROM")
+                .AppendLine("\tproductgroup")
+                .AppendLine("ORDER BY")
+                .AppendLine("\tdescription");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                transaction: _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QueryAsync<ProductGroup>(commandDefinition);
+        }
 
-            var subGroups = await this.QueryRawAsync(this.entityDml.SelectByFatherProductGroupId, new { productGroup.ProductGroupId }, CancellationToken.None);
-            productGroup.Subgroups = subGroups.ToList();
+        public async Task<ProductGroup> GetByIdAsync(int keyValue, CancellationToken cancellationToken)
+        {
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tproductgroupid,")
+                .AppendLine("\tcreationdate,")
+                .AppendLine("\tupdatedate,")
+                .AppendLine("\tenabled,")
+                .AppendLine("\tdescription,")
+                .AppendLine("\tfatherproductgroupid")
+                .AppendLine("FROM")
+                .AppendLine("\tproductgroup")
+                .AppendLine("WHERE")
+                .AppendLine("\tproductgroupid = @productgroupid");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                new { productGroupId =  keyValue },
+                transaction: _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QuerySingleOrDefaultAsync<ProductGroup>(commandDefinition);
+        }
+
+        public async Task LoadSubgroupsAsync(ProductGroup productGroup, CancellationToken cancellationToken)
+        {
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tproductgroupid,")
+                .AppendLine("\tcreationdate,")
+                .AppendLine("\tupdatedate,")
+                .AppendLine("\tenabled,")
+                .AppendLine("\tdescription,")
+                .AppendLine("\tfatherproductgroupid")
+                .AppendLine("FROM")
+                .AppendLine("\tproductgroup")
+                .AppendLine("WHERE")
+                .AppendLine("\tfatherproductgroupid = @productgroupid")
+                .AppendLine("ORDER BY")
+                .AppendLine("\tdescription");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                productGroup,
+                transaction: _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            productGroup.Subgroups = (await _database.DbConnection.QueryAsync<ProductGroup>(commandDefinition)).ToList();
+        }
+
+        public async Task UpdateAsync(ProductGroup entity, CancellationToken cancellationToken)
+        {
+            entity.UpdateDate = _dateTimeProvider.CurrentDateTime;
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("UPDATE")
+                .AppendLine("\tproductgroup")
+                .AppendLine("SET")
+                .AppendLine("\tupdatedate = @updatedate,")
+                .AppendLine("\tenabled = @enabled,")
+                .AppendLine("\tdescription = @description,")
+                .AppendLine("\tfatherproductgroupid = @fatherproductgroupid")
+                .AppendLine("WHERE")
+                .AppendLine("\tproductgroupid = @productgroupid");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                entity,
+                transaction: _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            await _database.DbConnection.ExecuteAsync(commandDefinition);
         }
     }
 }

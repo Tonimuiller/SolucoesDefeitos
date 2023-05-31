@@ -1,8 +1,10 @@
-﻿using SolucoesDefeitos.BusinessDefinition.Repository;
+﻿using SolucoesDefeitos.BusinessDefinition;
+using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.BusinessDefinition.Service;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Dto.Anomaly;
 using SolucoesDefeitos.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -10,83 +12,85 @@ using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.BusinessImplementation.Service
 {
-    public class AnomalyService : BaseService<Anomaly>,
-        IService<Anomaly>,
+    public class AnomalyService : BaseService<Anomaly, int>,
         IAnomalyService
     {
-        private readonly IAnomalyProductSpecificationService anomalyProductSpecificationService;
-        private readonly IAnomalyProductSpecificationRepository anomalyProductSpecificationRepository;
-        private readonly IAttachmentRepository attachmentRepository;
+        private readonly IAnomalyProductSpecificationService _anomalyProductSpecificationService;
+        private readonly IAnomalyProductSpecificationRepository _anomalyProductSpecificationRepository;
+        private readonly IAttachmentRepository _attachmentRepository;
         private readonly IAnomalyRepository _anomalyRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
         public AnomalyService(
-            IRepository<Anomaly> repository,
             IAnomalyProductSpecificationService anomalyProductSpecificationService,
             IAnomalyProductSpecificationRepository anomalyProductSpecificationRepository,
             IAttachmentRepository attachmentRepository,
-            IAnomalyRepository anomalyRepository) : base(repository)
+            IAnomalyRepository anomalyRepository,
+            IUnitOfWork unitOfWork)
+            : base(anomalyRepository)
         {
-            this.anomalyProductSpecificationService = anomalyProductSpecificationService;
-            this.anomalyProductSpecificationRepository = anomalyProductSpecificationRepository;
-            this.attachmentRepository = attachmentRepository;
+            _anomalyProductSpecificationService = anomalyProductSpecificationService;
+            _anomalyProductSpecificationRepository = anomalyProductSpecificationRepository;
+            _attachmentRepository = attachmentRepository;
             _anomalyRepository = anomalyRepository;
+            _unitOfWork = unitOfWork;
         }
 
-        public override async Task<ResponseDto<Anomaly>> AddAsync(Anomaly entity)
+        public override async Task<ResponseDto<Anomaly>> AddAsync(Anomaly entity, CancellationToken cancellationToken)
         {
             try
             {
-                await this.BeginTransactionAsync();
-                var addAnomalyResponse = await base.AddAsync(entity);
+                await _unitOfWork.BeginTransactionAsync(cancellationToken);
+                var addAnomalyResponse = await base.AddAsync(entity, cancellationToken);
                 if (!addAnomalyResponse.Success)
                 {
                     return addAnomalyResponse;
                 }
 
                 entity.AnomalyId = addAnomalyResponse.Content.AnomalyId;
-                await this.SaveNewAnomalyProductSpecifications(entity);
-                await this.CommitAsync();
+                await SaveNewAnomalyProductSpecifications(entity, cancellationToken);
+                await _unitOfWork.CommitAsync(cancellationToken);
                 return new ResponseDto<Anomaly>(true, entity);
             }
-            catch
+            catch (Exception ex)
             {
-                await this.RollbackTransactionAsync();
-                throw;
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                return new ResponseDto<Anomaly>(false, null, ex.Message);
             }
         }
 
-        new public async Task<UpdateAnomalyResponseDto> UpdateAsync(Anomaly updatedAnomaly)
+        public override async Task<ResponseDto> UpdateAsync(Anomaly updatedAnomaly, CancellationToken cancellationToken)
         {
             try
             {
-                var anomaly = await this.GetByKeyAsync(updatedAnomaly);
+                var anomaly = await GetByIdAsync(updatedAnomaly.AnomalyId, cancellationToken);
                 if (anomaly == null)
                 {
-                    return new UpdateAnomalyResponseDto(false, true, "Anomaly not found");
+                    return new ResponseDto(false, "Anomaly not found");
                 }
 
                 anomaly.Description = updatedAnomaly.Description;
                 anomaly.RepairSteps = updatedAnomaly.RepairSteps;
-                await this.BeginTransactionAsync();
-                await base.UpdateAsync(anomaly);
-                await this.anomalyProductSpecificationService.SaveAnomalyProductSpecifiationsAsync(updatedAnomaly.AnomalyId, updatedAnomaly.ProductSpecifications);
-                await this.CommitAsync();
+                await _unitOfWork.BeginTransactionAsync(cancellationToken);
+                await base.UpdateAsync(anomaly, cancellationToken);
+                await _anomalyProductSpecificationService.SaveAnomalyProductSpecifiationsAsync(updatedAnomaly.AnomalyId, updatedAnomaly.ProductSpecifications, cancellationToken);
+                await _unitOfWork.CommitAsync(cancellationToken);
                 return new UpdateAnomalyResponseDto(true);
             }
-            catch
+            catch (Exception ex)
             {
-                await this.RollbackTransactionAsync();
-                throw;
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                return new ResponseDto(false, ex.Message);
             }
         }
 
-        public async Task<IEnumerable<Anomaly>> GetAllEagerLoadAsync()
+        public async Task<IEnumerable<Anomaly>> GetAllEagerLoadAsync(CancellationToken cancellationToken)
         {
-            var anomalies = await this.GetAllAsync();
+            var anomalies = await GetAllAsync(cancellationToken);
             foreach(var anomaly in anomalies)
             {
-                anomaly.ProductSpecifications = (await this.anomalyProductSpecificationRepository.GetProductsSpecificationsByAnomalyId(anomaly.AnomalyId)).ToList();
-                anomaly.Attachments = (await this.attachmentRepository.GetAttachmentsByAnomalyId(anomaly.AnomalyId)).ToList();
+                anomaly.ProductSpecifications = (await _anomalyProductSpecificationRepository.GetProductsSpecificationsByAnomalyIdAsync(anomaly.AnomalyId, cancellationToken)).ToList();
+                anomaly.Attachments = (await _attachmentRepository.GetAttachmentsByAnomalyIdAsync(anomaly.AnomalyId, cancellationToken)).ToList();
             }
 
             return anomalies;
@@ -97,7 +101,7 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             return await _anomalyRepository.FilterAsync(cancellationToken, page, pageSize);
         }
 
-        private async Task SaveNewAnomalyProductSpecifications(Anomaly anomaly)
+        private async Task SaveNewAnomalyProductSpecifications(Anomaly anomaly, CancellationToken cancellationToken)
         {
             var newAnomalyProductSpecifications = anomaly
                 .ProductSpecifications?
@@ -109,8 +113,8 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
                 return;
             }
 
-            var anomalyProductsSpecifications = this.SetAnomalyIdInProductSpecifications(anomaly.AnomalyId, newAnomalyProductSpecifications);
-            await this.anomalyProductSpecificationService.AddCollectionAsync(anomalyProductsSpecifications);
+            var anomalyProductsSpecifications = SetAnomalyIdInProductSpecifications(anomaly.AnomalyId, newAnomalyProductSpecifications);
+            await _anomalyProductSpecificationService.AddCollectionAsync(anomalyProductsSpecifications, cancellationToken);
         }
 
         private ICollection<AnomalyProductSpecification> SetAnomalyIdInProductSpecifications(int anomalyId, ICollection<AnomalyProductSpecification> productSpecifications)

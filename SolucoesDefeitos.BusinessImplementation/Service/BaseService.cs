@@ -3,25 +3,26 @@ using SolucoesDefeitos.BusinessDefinition.Service;
 using SolucoesDefeitos.Dto;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.BusinessImplementation.Service
 {
-    public abstract class BaseService<TModel> : IService<TModel>
+    public abstract class BaseService<TModel, keyType> : IService<TModel, keyType>
         where TModel : class
     {
-        private readonly IRepository<TModel> repository;
+        private readonly IRepository<TModel, keyType> _repository;
 
-        public BaseService(IRepository<TModel> repository)
+        public BaseService(IRepository<TModel, keyType> repository)
         {
-            this.repository = repository;
+            this._repository = repository;
         }
 
-        public virtual async Task<ResponseDto<TModel>> AddAsync(TModel entity)
+        public virtual async Task<ResponseDto<TModel>> AddAsync(TModel entity, CancellationToken cancellationToken)
         {
             try
             {
-                await this.repository.AddAsync(entity);
+                await _repository.AddAsync(entity, cancellationToken);
                 return new ResponseDto<TModel>(true, entity);
             }
             catch(Exception ex)
@@ -30,39 +31,25 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             }
         }
 
-        public async Task BeginTransactionAsync()
+        public virtual async Task DeleteAsync(TModel entity, CancellationToken cancellationToken)
         {
-            await this.repository.BeginTransactionAsync();
+            await _repository.DeleteAsync(entity, cancellationToken);
         }
 
-        public async Task CommitAsync()
+        public async Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellationToken)
         {
-            await this.repository.CommitTransactionAsync();
+            return await _repository.GetAllAsync(cancellationToken);
         }
 
-        public virtual async Task DeleteAsync(TModel entity)
+        public async Task<TModel> GetByIdAsync(keyType id, CancellationToken cancellationToken)
         {
-            await this.repository.DeleteAsync(entity);
+            return await _repository.GetByIdAsync(id, cancellationToken);
         }
 
-        public async Task<IEnumerable<TModel>> GetAllAsync()
+        public virtual async Task<ResponseDto> UpdateAsync(TModel entity, CancellationToken cancellationToken)
         {
-            return await this.repository.GetAllAsync();
-        }
-
-        public async Task<TModel> GetByKeyAsync(object key)
-        {
-            return await this.repository.GetByKeyAsync(key);
-        }
-
-        public async Task RollbackTransactionAsync()
-        {
-            await this.repository.RoolbackTransactionAsync();
-        }
-
-        public virtual async Task UpdateAsync(TModel entity)
-        {
-            await this.repository.UpdateAsync(entity);
+            await _repository.UpdateAsync(entity, cancellationToken);
+            return new ResponseDto(true);
         }
     }
 }

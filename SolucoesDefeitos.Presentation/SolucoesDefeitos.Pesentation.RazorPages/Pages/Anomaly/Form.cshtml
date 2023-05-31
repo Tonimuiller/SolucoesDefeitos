@@ -1,33 +1,17 @@
 ﻿@page
+@using SolucoesDefeitos.Pesentation.RazorPages.Components.DisplayTempDataMessage;
 @model SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.FormModel
 @{
 }
-@if (TempData["Error"] != null)
-{
-    <div class="alert alert-danger d-flex align-items-center" role="alert">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
-        <div>
-            @(TempData["Error"])
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-else if (TempData["Success"] != null)
-{
-    <div class="alert alert-success d-flex align-items-center" role="alert">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill" /></svg>
-        <div>
-            @(TempData["Success"])
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
-<h2>Cadastro de Solução e Defeito</h2>
+@await Component.InvokeAsync(nameof(DisplayTempDataMessage))
+<div class="p-3 mb-2 bg-secondary text-white">
+    <span>Cadastro da Solução e Defeito</span>
+</div>
 <form method="post">
-    <input type="hidden" name="Anomaly.AnomalyId" value="@Model.Anomaly?.AnomalyId"/>
+    <input type="hidden" name="Anomaly.AnomalyId" value="@Model.Anomaly?.AnomalyId" />
     <div class="mb-3">
         <label class="form-label" for="txtSummary">Título/Resumo</label>
-        <input type="text" class="form-control" id="txtSummary" name="Anomaly.Summary" value="@Model.Anomaly?.Summary"/>
+        <input type="text" class="form-control" id="txtSummary" name="Anomaly.Summary" value="@Model.Anomaly?.Summary" />
     </div>
     <div class="mb-3">
         <label for="txtDescription">Descrição detalhada</label>
@@ -36,6 +20,59 @@ else if (TempData["Success"] != null)
     <div class="mb-3">
         <label for="txtRepairSteps">Solução(Descrição)</label>
         <textarea class="form-control disable-resize" id="txtRepairSteps" name="Anomaly.RepairSteps" rows="3">@Model.Anomaly?.RepairSteps</textarea>
+    </div>
+    <h5 class="text-primary text-md-end">Especificação de produto/equipamento afetado</h5>
+    <hr />
+    <div class="mb-3">
+        <div id="dbFrmExistingProduct" class="row mb-3">
+            <div class="col-md-12 mb-3">
+                <label for="txtProductSearch" class="form-label">Pesquisar Produto/Equipamento [<a href="#">Criar novo produto</a>]</label>
+                <input type="text" id="txtProductSearch" class="form-control"/>
+            </div>
+            <div class="col-md-3 mb-3">
+                <label for="txtProductManufactureYear" class="form-label">Ano Fabricação/Modelo</label>
+                <input type="number" id="txtProductManufactureYear" class="form-control" />
+            </div>
+            <div class="col-md-9 mb-3 d-flex align-items-end">
+                <button id="btAddProduct" class="btn btn-primary">Adicionar</button>
+            </div>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Fabricante</th>
+                    <th scope="col">Ano</th>
+                    <th scope="col">Código</th>
+                    <th scope="col">Grupo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Anomaly.ProductSpecifications.Any())
+                {
+                    <tr>
+                        <td colspan="5" class="text-center">Nenhum produto/equipamento especificado</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var product in Model.Anomaly.ProductSpecifications)
+                    {
+                    <th>
+                    <td>@product.Product.Name</td>
+                    <td>@product.Product.Manufacturer.Name</td>
+                    <td>@product.ManufactureYear</td>
+                    <td>@product.Product.Code</td>
+                    <td>@product.Product.ProductGroup.Description</td>
+                    </th>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    <h5 class="text-primary text-md-end">Anexos</h5>
+    <hr />
+    <div class="mb-3">
     </div>
     <button type="submit" class="btn btn-primary">Salvar</button>
     <a href="./List" class="btn btn-secondary">Cancelar</a>

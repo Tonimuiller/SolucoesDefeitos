@@ -2,21 +2,17 @@
 using SolucoesDefeitos.BusinessDefinition.Service;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.BusinessImplementation.Service
 {
-    public class ManufacturerService : BaseService<Manufacturer>,
-        IService<Manufacturer>,
+    public class ManufacturerService : BaseService<Manufacturer, int>,
         IManufacturerService
     {
         private readonly IManufacturerRepository _manufacturerRepository;
 
-        public ManufacturerService(
-            IManufacturerRepository manufacturerRepository
-            ) 
+        public ManufacturerService(IManufacturerRepository manufacturerRepository) 
             : base(manufacturerRepository)
         {
             _manufacturerRepository = manufacturerRepository;

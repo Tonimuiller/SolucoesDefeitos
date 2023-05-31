@@ -1,29 +1,150 @@
-﻿using SolucoesDefeitos.BusinessDefinition.Repository;
-using SolucoesDefeitos.DataAccess.Database;
-using SolucoesDefeitos.DataAccess.EntityDml;
-using SolucoesDefeitos.DataAccess.UnitOfWork;
+﻿using Dapper;
+using SolucoesDefeitos.BusinessDefinition;
+using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.Model;
+using SolucoesDefeitos.Provider;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SolucoesDefeitos.DataAccess.Repository
 {
-    public class AttachmentRepository :
-        BaseRepository<Attachment, DapperUnitOfWork<SolucaoDefeitoMySqlDatabase>>,
-        IRepository<Attachment>,
-        IAttachmentRepository
+    public class AttachmentRepository: IAttachmentRepository
     {
-        private readonly AttachmentEntityDml entityDml;
+        private readonly IDatabase _database;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
-        public AttachmentRepository(DapperUnitOfWork<SolucaoDefeitoMySqlDatabase> unitOfWork) : base(unitOfWork)
+        public AttachmentRepository(
+            IDatabase database, 
+            IDateTimeProvider dateTimeProvider)
         {
-            this.entityDml = new AttachmentEntityDml();
+            _database = database;
+            _dateTimeProvider = dateTimeProvider;
         }
 
-        public async Task<IEnumerable<Attachment>> GetAttachmentsByAnomalyId(int anomalyId)
+        public async Task<Attachment> AddAsync(Attachment entity, CancellationToken cancellationToken)
         {
-            return await this.QueryRawAsync(this.entityDml.SelectByAnomalyId, new { anomalyId }, CancellationToken.None);
+            entity.CreationDate = _dateTimeProvider.CurrentDateTime;
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("INSERT INTO attachment")
+                .AppendLine("\t(creationdate,")
+                .AppendLine("\tdescription,")
+                .AppendLine("\tcategory,")
+                .AppendLine("\tanomalyid,")
+                .AppendLine("\tstorage)")
+                .AppendLine("VALUES")
+                .AppendLine("\t(@creationdate,")
+                .AppendLine("\t@description,")
+                .AppendLine("\t@category,")
+                .AppendLine("\t@anomalyid,")
+                .AppendLine("\t@storage);")
+                .AppendLine("SELECT LAST_INSERT_ID();");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                entity,
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            entity.AttachmentId = await _database.DbConnection.ExecuteScalarAsync<int>(commandDefinition);
+            return entity;
+        }
+
+        public async Task DeleteAsync(Attachment entity, CancellationToken cancellationToken)
+        {
+            var commandDefinition = new CommandDefinition(
+                "DELETE FROM attachment WHERE attachmentid = @attachmentid",
+                entity,
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            await _database.DbConnection.ExecuteAsync(commandDefinition);
+        }
+
+        public async Task<IEnumerable<Attachment>> GetAllAsync(CancellationToken cancellationToken)
+        {
+            var queryBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tattachmentid,")
+                .AppendLine("\tcreationdate,")
+                .AppendLine("\tupdatedate,")
+                .AppendLine("\tdescription,")
+                .AppendLine("\tcategory,")
+                .AppendLine("\tanomalyid,")
+                .AppendLine("\tstorage")
+                .AppendLine("FROM")
+                .AppendLine("\tattachment");
+            var commandDefinition = new CommandDefinition(
+                queryBuilder.ToString(),
+                transaction: _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QueryAsync<Attachment>(commandDefinition);
+        }
+
+        public async Task<IEnumerable<Attachment>> GetAttachmentsByAnomalyIdAsync(int anomalyId, CancellationToken cancellationToken)
+        {
+            var queryBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tattachmentid,")
+                .AppendLine("\tcreationdate,")
+                .AppendLine("\tupdatedate,")
+                .AppendLine("\tdescription,")
+                .AppendLine("\tcategory,")
+                .AppendLine("\tanomalyid,")
+                .AppendLine("\tstorage")
+                .AppendLine("FROM")
+                .AppendLine("\tattachment")
+                .AppendLine("WHERE")
+                .AppendLine("\tanomalyid = @anomalyid");
+            var commandDefinition = new CommandDefinition(
+                queryBuilder.ToString(),
+                new { anomalyId },
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QueryAsync<Attachment>(commandDefinition);
+        }
+
+        public async Task<Attachment> GetByIdAsync(int keyValue, CancellationToken cancellationToken)
+        {
+            var queryBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tattachmentid,")
+                .AppendLine("\tcreationdate,")
+                .AppendLine("\tupdatedate,")
+                .AppendLine("\tdescription,")
+                .AppendLine("\tcategory,")
+                .AppendLine("\tanomalyid,")
+                .AppendLine("\tstorage")
+                .AppendLine("FROM")
+                .AppendLine("\tattachment")
+                .AppendLine("WHERE")
+                .AppendLine("\tattachmentid = @tattachmentid");
+            var commandDefinition = new CommandDefinition(
+                queryBuilder.ToString(),
+                new { attachmentId = keyValue },
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QuerySingleOrDefaultAsync<Attachment>(commandDefinition);
+        }
+
+        public async Task UpdateAsync(Attachment entity, CancellationToken cancellationToken)
+        {
+            entity.UpdateDate = _dateTimeProvider.CurrentDateTime;
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("UPDATE")
+                .AppendLine("\tattachment")
+                .AppendLine("SET")
+                .AppendLine("\tupdatedate = @updatedate,")
+                .AppendLine("\tdescription = @description,")
+                .AppendLine("\tcategory = @category,")
+                .AppendLine("\tanomalyid = @anomalyid,")
+                .AppendLine("\tstorage = @storage")
+                .AppendLine("WHERE")
+                .AppendLine("\tattachmentid = @attachmentid");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                entity,
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            await _database.DbConnection.ExecuteAsync(commandDefinition);
         }
     }
 }
