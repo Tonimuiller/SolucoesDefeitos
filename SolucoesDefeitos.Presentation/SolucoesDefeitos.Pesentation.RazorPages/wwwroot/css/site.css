@@ -28,3 +28,7 @@ body {
 .anomaly-link {
     text-decoration: none;
 }
+
+.li-divider:not(:last-of-type) {
+    border-bottom: 1px solid lightgray;
+}

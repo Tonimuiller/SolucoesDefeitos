@@ -114,11 +114,23 @@ namespace SolucoesDefeitos.DataAccess.Repository
             StringBuilder queryBuilder = new StringBuilder()
                 .AppendLine("SELECT")
                 .AppendLine("\tp.productid,")
+                .AppendLine("\tp.productgroupid,")
+                .AppendLine("\tp.manufacturerid,")
+                .AppendLine("\tp.creationdate,")
+                .AppendLine("\tp.updatedate,")
+                .AppendLine("\tp.enabled,")
                 .AppendLine("\tp.name,")
                 .AppendLine("\tp.code,")
                 .AppendLine("\tm.manufacturerid,")
+                .AppendLine("\tm.creationdate,")
+                .AppendLine("\tm.updatedate,")
+                .AppendLine("\tm.enabled,")
                 .AppendLine("\tm.name,")
-                .AppendLine("\tg.productgroupid")
+                .AppendLine("\tg.productgroupid,")
+                .AppendLine("\tg.creationdate,")
+                .AppendLine("\tg.updatedate,")
+                .AppendLine("\tg.enabled,")
+                .AppendLine("\tg.fatherproductgroupid,")
                 .AppendLine("\tg.description")
                 .AppendLine("FROM")
                 .AppendLine("\tproduct p")
@@ -135,7 +147,7 @@ namespace SolucoesDefeitos.DataAccess.Repository
                 .AppendLine("\tp.name");
             var commandDefinition = new CommandDefinition(
                 queryBuilder.ToString(),
-                new { term },
+                new { term = $"%{term}%" },
                 _database.DbTransaction,
                 cancellationToken: cancellationToken);
 
