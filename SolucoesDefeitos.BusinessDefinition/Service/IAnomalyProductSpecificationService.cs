@@ -10,5 +10,7 @@ namespace SolucoesDefeitos.BusinessDefinition.Service
         Task AddCollectionAsync(ICollection<AnomalyProductSpecification> anomalyProductsSpecifications, CancellationToken cancellationToken);
         
         Task SaveAnomalyProductSpecifiationsAsync(int parentAnomalyId, ICollection<AnomalyProductSpecification> anomalyProductSpecifications, CancellationToken cancellationToken);
+
+        Task LoadProductsAsync(IEnumerable<AnomalyProductSpecification> anomalyProductSpecifications, CancellationToken cancellationToken);
     }
 }

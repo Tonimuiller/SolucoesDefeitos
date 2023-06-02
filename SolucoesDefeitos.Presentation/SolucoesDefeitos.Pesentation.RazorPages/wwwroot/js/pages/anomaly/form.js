@@ -1,17 +1,14 @@
 ﻿const anomalyForm = (function () {
     function _form() {
-        const _txtProductSearch = () => $('#txtProductSearch');
-        const _txtProductManufactureYear = () => $('#txtProductManufactureYear');
-        const _productTableBody = $('#tbl-product-body');
-        const _selectedProduct = () => {
-            return {
-                id: $('#hdnSelectedProductId'),
-                name: $('#hdnSelectedProductName'),
-                manufacturer: $('#hdnSelectedProductManufacturer'),
-                group: $('#hdnSelectedProductGroup'),
-                code: $('#hdnSelectedProductCode'),
-                manufactureYear: _txtProductManufactureYear()
-            };
+        const _getComponents = () => {
+            return Object.freeze({
+                hdnAnomalyId: $('#hdnAnomalyId'),
+                txtProductSearch: $('#txtProductSearch'),
+                hdnSelectedProductId: $('#hdnSelectedProductId'),
+                txtProductManufactureYear: $('#txtProductManufactureYear'),
+                dvProductTable: $('#dvProductTable'),
+                productTableBody: $('#product-table-body')
+            });
         };
 
         const _renderProductAutocompleteItem = (item) => `
@@ -22,55 +19,6 @@
                 <span class="fw-bold fs-6">Código: </span><span class="fs-5">${item.code}</span>
             </div>
             `;
-
-        const _renderProductTableRow = (product) => `
-            <tr id="tr-product-${product.id}">
-                <th scope="row">
-                    <input type="hidden" name="Anomaly.ProductSpecifications.Index" value="${product.id}" />
-                    <input type="hidden" name="Anomaly.ProductSpecifications[${product.id}].ProductId" value="${product.id}" />
-                    <button type="button" class="btn btn-danger" onclick="anomalyForm.deleteProduct(${product.id})">Excluir</button>
-                </th>
-                <td>                                
-                    <span>${product.name}</span>
-                </td>
-                <td>
-                    <span>${product.manufacturer}</span>
-                </td>
-                <td>
-                    <input type="hidden" name="Anomaly.ProductSpecifications[${product.id}].ManufactureYear" value="${product.manufactureYear}" />
-                    <span>${product.manufactureYear}</span>
-                </td>
-                <td>${product.code}</td>
-                <td>${product.group}</td>
-            </tr>
-        `;
-
-        const _renderProductEmptyTableRow = () => `
-            <tr id="tr-product-norecord">
-                <td colspan="6" class="text-center">Nenhum produto/equipamento especificado</td>
-            </tr>
-        `;
-
-        const _setSelectedProduct = (item) => {
-            _selectedProduct().id.val(item?.productId);
-            _selectedProduct().name.val(item?.name);
-            _selectedProduct().manufacturer.val(item?.manufacturer.name);
-            _selectedProduct().group.val(item?.productGroup.description);
-            _selectedProduct().code.val(item?.code);
-        };
-
-        const _getSelectedProduct = () => {
-            if (!_selectedProduct().id.val())
-                return null;
-            return {
-                id: _selectedProduct().id.val(),
-                name: _selectedProduct().name.val(),
-                manufacturer: _selectedProduct().manufacturer.val(),
-                group: _selectedProduct().group.val(),
-                code: _selectedProduct().code.val(),
-                manufactureYear: _selectedProduct().manufactureYear.val()
-            };
-        };
 
         const _initialize = function () {
             if (!tinymce) {
@@ -88,24 +36,24 @@
                 height: 300
             });
 
-            _txtProductSearch().autocomplete({
+            _getComponents().txtProductSearch.autocomplete({
                 minLength: 0,
                 source: '/api/product/by-term',
                 focus: function (event, ui) {
-                    _txtProductSearch().val(ui.item.name);
+                    _getComponents().txtProductSearch.val(ui.item.name);
                     return false;
                 },
                 select: function (event, ui) {
-                    _setSelectedProduct(ui.item);
+                    _getComponents().hdnSelectedProductId.val(ui.item.productId);
                     return false;
                 },
                 close: function (event, ui) {
-                    if (!_selectedProduct().id.val()) {
-                        _txtProductSearch().val('');
+                    if (!_getComponents().hdnSelectedProductId.val()) {
+                        _getComponents().txtProductSearch.val('');
                     }
                 },
                 search: function (event, ui) {
-                    _setSelectedProduct(null);
+                    _getComponents().hdnSelectedProductId.val(null);
                 }
             }).autocomplete('instance')._renderItem = function (ul, item) {
                 return $('<li>')
@@ -116,28 +64,57 @@
         };
 
         const _addProduct = function () {
-            const product = _getSelectedProduct();
-            if (!product) {
+            const productId = _getComponents().hdnSelectedProductId.val()
+            if (!productId) {
                 alert('Nenhum produto selecionado.');
                 return;
             }
 
-            const manufactureYear = _txtProductManufactureYear().val();
+            const manufactureYear = _getComponents().txtProductManufactureYear.val();
             if (!manufactureYear || isNaN(manufactureYear)) {
                 alert('Informe um ano de fabricação válido.');
                 return;
             }
 
-            const productRowHtml = _renderProductTableRow(product);
-            _productTableBody.append(productRowHtml);
+            const products = [];
+            [..._getComponents().productTableBody.children('tr')].forEach((tr, index, children) => {
+                if (!jQuery.hasData(tr)) {
+                    return;
+                }
 
-            if ($('#tr-product-norecord').length) {
-                $('#tr-product-norecord').remove();
-            }
+                products.push({
+                    productId: $(tr).data('productId'),
+                    anomalyId: $(tr).data('anomalyId') ?? 0,
+                    manufactureYear: $(tr).data('manufactureYear')
+                });
+            });
 
-            _txtProductSearch().val('');
-            _txtProductManufactureYear().val('');
-            _setSelectedProduct(null);
+            products.push({
+                productId,
+                manufactureYear,
+                anomalyId: _getComponents().hdnAnomalyId.val() ?? 0
+            });
+
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            $.ajax({
+                url: "?handler=ProductsChange",
+                method: "POST",
+                data: {
+                    __RequestVerificationToken: token,
+                    products
+                },
+                success: function (data) {
+                    _getComponents().dvProductTable.html("");
+                    _getComponents().dvProductTable.html(data);
+                    _getComponents().txtProductSearch.val('');
+                    _getComponents().txtProductManufactureYear.val('');
+                    _getComponents().hdnSelectedProductId.val(null);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(textStatus);
+                    alert('Ocorreu um erro ao renderizar a tabela de produtos.')
+                }
+            });            
         };
 
         const _deleteProduct = function (productId) {

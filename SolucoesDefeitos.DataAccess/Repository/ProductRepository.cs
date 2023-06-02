@@ -4,6 +4,7 @@ using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.Model;
 using SolucoesDefeitos.Provider;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -62,6 +63,54 @@ namespace SolucoesDefeitos.DataAccess.Repository
                 _database.DbTransaction,
                 cancellationToken: cancellationToken);
             await _database.DbConnection.ExecuteAsync(commandDefinition);
+        }
+
+        public async Task<IEnumerable<Product>> EagerLoadByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken)
+        {
+            StringBuilder queryBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tp.productid,")
+                .AppendLine("\tp.productgroupid,")
+                .AppendLine("\tp.manufacturerid,")
+                .AppendLine("\tp.creationdate,")
+                .AppendLine("\tp.updatedate,")
+                .AppendLine("\tp.enabled,")
+                .AppendLine("\tp.name,")
+                .AppendLine("\tp.code,")
+                .AppendLine("\tm.manufacturerid,")
+                .AppendLine("\tm.creationdate,")
+                .AppendLine("\tm.updatedate,")
+                .AppendLine("\tm.enabled,")
+                .AppendLine("\tm.name,")
+                .AppendLine("\tg.productgroupid,")
+                .AppendLine("\tg.creationdate,")
+                .AppendLine("\tg.updatedate,")
+                .AppendLine("\tg.enabled,")
+                .AppendLine("\tg.fatherproductgroupid,")
+                .AppendLine("\tg.description")
+                .AppendLine("FROM")
+                .AppendLine("\tproduct p")
+                .AppendLine("LEFT JOIN manufacturer m")
+                .AppendLine("\tON p.manufacturerid = m.manufacturerid")
+                .AppendLine("LEFT JOIN productgroup g")
+                .AppendLine("\tON p.productgroupid = g.productgroupid")
+                .AppendLine("WHERE")
+                .AppendLine("\tp.productid in @ids");
+            var commandDefinition = new CommandDefinition(
+                queryBuilder.ToString(),
+                new { ids = ids.ToArray() },
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+
+            return await _database.DbConnection.QueryAsync<Product, Manufacturer, ProductGroup, Product>(
+                commandDefinition,
+                (product, manufacturer, productGroup) =>
+                {
+                    product.Manufacturer = manufacturer;
+                    product.ProductGroup = productGroup;
+                    return product;
+                },
+                "manufacturerid, productgroupid");
         }
 
         public async Task<IEnumerable<Product>> GetAllAsync(CancellationToken cancellationToken)

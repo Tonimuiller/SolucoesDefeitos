@@ -1,5 +1,6 @@
 ﻿@page
 @using SolucoesDefeitos.Pesentation.RazorPages.Components.DisplayTempDataMessage;
+@using SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.Components.ProductTable;
 @model SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.FormModel
 @{
 }
@@ -8,7 +9,7 @@
     <span>Cadastro da Solução e Defeito</span>
 </div>
 <form method="post">
-    <input type="hidden" name="Anomaly.AnomalyId" value="@Model.Anomaly?.AnomalyId" />
+    <input id="hdnAnomalyId" type="hidden" name="Anomaly.AnomalyId" value="@Model.Anomaly?.AnomalyId" />
     <div class="mb-3">
         <label class="form-label" for="txtSummary">Título/Resumo</label>
         <input type="text" class="form-control" id="txtSummary" name="Anomaly.Summary" value="@Model.Anomaly?.Summary" />
@@ -29,10 +30,6 @@
                 <label for="txtProductSearch" class="form-label">Pesquisar Produto/Equipamento [<a href="#">Criar novo produto</a>]</label>
                 <input type="text" id="txtProductSearch" class="form-control"/>
                 <input type="hidden" id="hdnSelectedProductId"/>
-                <input type="hidden" id="hdnSelectedProductName" />
-                <input type="hidden" id="hdnSelectedProductManufacturer" />
-                <input type="hidden" id="hdnSelectedProductGroup" />
-                <input type="hidden" id="hdnSelectedProductCode" />
             </div>
             <div class="col-md-3 mb-3">
                 <label for="txtProductManufactureYear" class="form-label">Ano Fabricação/Modelo</label>
@@ -42,51 +39,9 @@
                 <button type="button" id="btAddProduct" class="btn btn-primary" onclick="anomalyForm.addProduct()">Adicionar</button>
             </div>
         </div>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th scope="col">Opções</th>
-                    <th scope="col">Nome</th>
-                    <th scope="col">Fabricante</th>
-                    <th scope="col">Ano</th>
-                    <th scope="col">Código</th>
-                    <th scope="col">Grupo</th>
-                </tr>
-            </thead>
-            <tbody id="tbl-product-body">
-                @if (!Model.Anomaly.ProductSpecifications.Any())
-                {
-                    <tr id="tr-product-norecord">
-                        <td colspan="6" class="text-center">Nenhum produto/equipamento especificado</td>
-                    </tr>
-                }
-                else
-                {
-                    foreach (var product in Model.Anomaly.ProductSpecifications)
-                    {
-                        <tr id="tr-product-(@product.ProductId)">
-                            <th scope="row">
-                                <input type="hidden" name="Anomaly.ProductSpecifications.Index" value="@product.ProductId" />
-                                <input type="hidden" name="Anomaly.ProductSpecifications[@product.ProductId].ProductId" value="@product.ProductId" />
-                                <button type="button" class="btn btn-danger" onclick="anomalyForm.deleteProduct(@product.ProductId)">Excluir</button>
-                            </th>
-                            <td>                                
-                                <span>@product.Product.Name</span>
-                            </td>
-                            <td>
-                                <span>@product.Product.Manufacturer.Name</span>
-                            </td>
-                            <td>
-                                <input type="hidden" name="Anomaly.ProductSpecifications[@product.ProductId].ManufactureYear" value="@product.ManufactureYear" />
-                                <span>@product.ManufactureYear</span>
-                            </td>
-                            <td>@product.Product.Code</td>
-                            <td>@product.Product.ProductGroup.Description</td>
-                        </tr>
-                    }
-                }
-            </tbody>
-        </table>
+        <div id="dvProductTable">
+            @await Component.InvokeAsync(nameof(ProductTable), new { products = Model.Anomaly.ProductSpecifications })
+        </div>
     </div>
     <h5 class="text-primary text-md-end">Anexos</h5>
     <hr />

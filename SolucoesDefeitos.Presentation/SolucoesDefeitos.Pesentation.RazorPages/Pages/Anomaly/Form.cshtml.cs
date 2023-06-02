@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SolucoesDefeitos.BusinessDefinition.Service;
 using SolucoesDefeitos.Model;
+using SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.Components.ProductTable;
 
 namespace SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly;
 
@@ -16,11 +17,7 @@ public sealed class FormModel : PageModel
     }
 
     [BindProperty]
-    public Model.Anomaly Anomaly { get; set; } = new Model.Anomaly
-    {
-        ProductSpecifications = new List<AnomalyProductSpecification>(),
-        Attachments = new List<Attachment>()
-    };
+    public Model.Anomaly Anomaly { get; set; } = default!;
 
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken, int? anomalyId = null)
     {
@@ -34,7 +31,11 @@ public sealed class FormModel : PageModel
             }
         }
 
-        Anomaly = Anomaly ?? new Model.Anomaly();
+        Anomaly = Anomaly ?? new Model.Anomaly
+        {
+            ProductSpecifications = new List<AnomalyProductSpecification>(),
+            Attachments = new List<Attachment>()
+        };
 
         return Page();
     }
@@ -104,5 +105,10 @@ public sealed class FormModel : PageModel
         }
 
         return Page();
+    }
+
+    public async Task<IActionResult> OnPostProductsChangeAsync(IEnumerable<AnomalyProductSpecification> products, CancellationToken cancellationToken)
+    {
+        return await Task.FromResult<IActionResult>(ViewComponent(nameof(ProductTable), new { products }));
     }
 }

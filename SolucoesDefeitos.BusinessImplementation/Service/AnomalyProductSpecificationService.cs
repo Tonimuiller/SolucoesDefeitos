@@ -14,11 +14,15 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
     {
         private const int NewRecordId = 0;
         private readonly IAnomalyProductSpecificationRepository _anomalyProductSpecificationRepository;
+        private readonly IProductRepository _productRepository;
 
-        public AnomalyProductSpecificationService(IAnomalyProductSpecificationRepository anomalyProductSpecificationRepository) 
+        public AnomalyProductSpecificationService(
+            IAnomalyProductSpecificationRepository anomalyProductSpecificationRepository, 
+            IProductRepository productRepository)
             : base(anomalyProductSpecificationRepository)
         {
             _anomalyProductSpecificationRepository = anomalyProductSpecificationRepository;
+            _productRepository = productRepository;
         }
 
         public async Task AddCollectionAsync(ICollection<AnomalyProductSpecification> anomalyProductsSpecifications, CancellationToken cancellationToken)
@@ -47,6 +51,21 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             await UpdateAnomalyProductSpecificationsInAnomaly(anomalyProductSpecifications, cancellationToken);
             await AddNewAnomalyProductSpecificationsInAnomaly(parentAnomalyId, anomalyProductSpecifications, cancellationToken);
             await DeleteAnomalyProductSpecificationsInAnomaly(parentAnomalyId, anomalyProductSpecifications, cancellationToken);
+        }
+        
+        public async Task LoadProductsAsync(IEnumerable<AnomalyProductSpecification> anomalyProductSpecifications, CancellationToken cancellationToken)
+        {
+            if (anomalyProductSpecifications is null)
+            {
+                return;
+            }
+
+            var productIds = anomalyProductSpecifications.Select(p => p.ProductId);
+            var products = await _productRepository.EagerLoadByIdsAsync(productIds, cancellationToken);
+            foreach (var anomalyProductSpecification in anomalyProductSpecifications)
+            {
+                anomalyProductSpecification.Product = products.FirstOrDefault(p => p.ProductId == anomalyProductSpecification.ProductId);
+            }
         }
 
         private async Task UpdateAnomalyProductSpecificationsInAnomaly(ICollection<AnomalyProductSpecification> anomalyProductSpecifications, CancellationToken cancellationToken)
@@ -84,5 +103,6 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
                 .Where(anomalyProductSpecificationId => !anomalyProductSpecificationIds.Contains(anomalyProductSpecificationId));
             await _anomalyProductSpecificationRepository.DeleteAsync(cancellationToken, deletedAnomalyProductsSpecificationIds.ToArray());
         }
+
     }
 }

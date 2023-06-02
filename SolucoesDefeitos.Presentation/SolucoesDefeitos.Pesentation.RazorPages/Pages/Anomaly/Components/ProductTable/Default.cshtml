@@ -1,0 +1,55 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model IEnumerable<SolucoesDefeitos.Model.AnomalyProductSpecification>
+@{
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Opções</th>
+            <th scope="col">Nome</th>
+            <th scope="col">Fabricante</th>
+            <th scope="col">Ano</th>
+            <th scope="col">Código</th>
+            <th scope="col">Grupo</th>
+        </tr>
+    </thead>
+    <tbody id="product-table-body">
+        @if (!Model.Any())
+        {
+            <tr>
+                <td colspan="6" class="text-center">Nenhum produto/equipamento especificado</td>
+            </tr>
+        }
+        else
+        {
+            foreach (var product in Model)
+            {
+                <tr data-product-id="@product.ProductId"
+                    data-anomaly-id="@product.AnomalyId"
+                    data-manufacture-year="@product.ManufactureYear">
+                    <th scope="row">
+                        <input type="hidden" name="Anomaly.ProductSpecifications.Index" value="@product.ProductId" />
+                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.ProductId].ProductId" value="@product.ProductId" />
+                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.ProductId].AnomalyId" value="@product.AnomalyId" />
+                        <button type="button" class="btn btn-danger" onclick="anomalyForm.deleteProduct(@product.ProductId)">Excluir</button>
+                    </th>
+                    <td>
+                        <span>@product.Product.Name</span>
+                    </td>
+                    <td>
+                        <span>@product.Product.Manufacturer.Name</span>
+                    </td>
+                    <td>
+                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.ProductId].ManufactureYear" value="@product.ManufactureYear" />
+                        <span>@product.ManufactureYear</span>
+                    </td>
+                    <td>@product.Product.Code</td>
+                    <td>@product.Product.ProductGroup.Description</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
