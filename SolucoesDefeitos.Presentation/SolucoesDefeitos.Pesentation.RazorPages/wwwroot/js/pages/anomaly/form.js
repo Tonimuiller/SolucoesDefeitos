@@ -20,6 +20,46 @@
             </div>
             `;
 
+        const _renderProductTableServerSide = function (products) {
+            var token = $('input[name="__RequestVerificationToken"]').val();
+            $.ajax({
+                url: "?handler=ProductsChange",
+                method: "POST",
+                data: {
+                    __RequestVerificationToken: token,
+                    products
+                },
+                success: function (data) {
+                    _getComponents().dvProductTable.html("");
+                    _getComponents().dvProductTable.html(data);
+                    _getComponents().txtProductSearch.val('');
+                    _getComponents().txtProductManufactureYear.val('');
+                    _getComponents().hdnSelectedProductId.val(null);
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(textStatus);
+                    alert('Ocorreu um erro ao renderizar a tabela de produtos.')
+                }
+            });
+        };
+
+        const _getProductTableDataAsJson = function () {
+            const products = [];
+            [..._getComponents().productTableBody.children('tr')].forEach((tr, index, children) => {
+                if (!$(tr).data("productId")) {
+                    return;
+                }
+
+                products.push({
+                    productId: $(tr).data('productId'),
+                    anomalyId: $(tr).data('anomalyId') ?? 0,
+                    manufactureYear: $(tr).data('manufactureYear')
+                });
+            });
+
+            return products;
+        };
+
         const _initialize = function () {
             if (!tinymce) {
                 console.error("TinyMCE not found.");
@@ -76,18 +116,12 @@
                 return;
             }
 
-            const products = [];
-            [..._getComponents().productTableBody.children('tr')].forEach((tr, index, children) => {
-                if (!jQuery.hasData(tr)) {
-                    return;
-                }
-
-                products.push({
-                    productId: $(tr).data('productId'),
-                    anomalyId: $(tr).data('anomalyId') ?? 0,
-                    manufactureYear: $(tr).data('manufactureYear')
-                });
-            });
+            const products = _getProductTableDataAsJson();
+            const existentProduct = products.find((p) => p.productId === productId);
+            if (existentProduct) {
+                alert('Já existe um item do mesmo produto na lista.');
+                return;
+            }
 
             products.push({
                 productId,
@@ -95,43 +129,21 @@
                 anomalyId: _getComponents().hdnAnomalyId.val() ?? 0
             });
 
-            var token = $('input[name="__RequestVerificationToken"]').val();
-            $.ajax({
-                url: "?handler=ProductsChange",
-                method: "POST",
-                data: {
-                    __RequestVerificationToken: token,
-                    products
-                },
-                success: function (data) {
-                    _getComponents().dvProductTable.html("");
-                    _getComponents().dvProductTable.html(data);
-                    _getComponents().txtProductSearch.val('');
-                    _getComponents().txtProductManufactureYear.val('');
-                    _getComponents().hdnSelectedProductId.val(null);
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.error(textStatus);
-                    alert('Ocorreu um erro ao renderizar a tabela de produtos.')
-                }
-            });            
+            _renderProductTableServerSide(products);
         };
 
         const _deleteProduct = function (productId) {
             showYesNoConfirmation('Deseja realmente excluir o produto?', function (modalElement) {
-                const row = $(`#tr-product-${productId}`);
-                if (!row) {
+                modalElement.modal('hide');
+                modalElement.modal('dispose');
+                const products = _getProductTableDataAsJson();
+                const productIndex = products.findIndex((p) => p.productId === productId);
+                if (productIndex < 0) {
                     return;
                 }
 
-                row.remove();
-                
-                if (!_productTableBody.find('tr').length) {
-                    _productTableBody.append(_renderProductEmptyTableRow());
-                }
-
-                modalElement.modal('hide');
-                modalElement.modal('dispose');
+                products.splice(productIndex, 1);
+                _renderProductTableServerSide(products);
             });
         };
 
