@@ -67,6 +67,16 @@ namespace SolucoesDefeitos.DataAccess.Repository
             await _database.DbConnection.ExecuteAsync(commandDefinition);
         }
 
+        public async Task DeleteByAnomalyIdAsync(int anomalyId, CancellationToken cancellationToken)
+        {
+            var commandDefinition = new CommandDefinition(
+                "DELETE FROM anomalyproductspecification WHERE anomalyid = @anomalyid",
+                new { anomalyId },
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            await _database.DbConnection.ExecuteAsync(commandDefinition);
+        }
+
         public async Task<IEnumerable<AnomalyProductSpecification>> GetAllAsync(CancellationToken cancellationToken)
         {
             var sqlBuilder = new StringBuilder()

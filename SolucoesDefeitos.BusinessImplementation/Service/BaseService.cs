@@ -31,9 +31,10 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             }
         }
 
-        public virtual async Task DeleteAsync(TModel entity, CancellationToken cancellationToken)
+        public virtual async Task<ResponseDto> DeleteAsync(TModel entity, CancellationToken cancellationToken)
         {
             await _repository.DeleteAsync(entity, cancellationToken);
+            return new ResponseDto(true);
         }
 
         public async Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellationToken)

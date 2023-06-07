@@ -68,6 +68,11 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             }
         }
 
+        public async Task<IEnumerable<AnomalyProductSpecification>> GetByAnomalyIdAsync(int anomalyId, CancellationToken cancellationToken)
+        {
+            return await _anomalyProductSpecificationRepository.GetProductsSpecificationsByAnomalyIdAsync(anomalyId, cancellationToken);
+        }
+
         private async Task UpdateAnomalyProductSpecificationsInAnomaly(ICollection<AnomalyProductSpecification> anomalyProductSpecifications, CancellationToken cancellationToken)
         {
             var updatedAnomalyProductsSpecifications = anomalyProductSpecifications.Where(p => p.AnomalyProductSpecificationId > 0);
@@ -103,6 +108,5 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
                 .Where(anomalyProductSpecificationId => !anomalyProductSpecificationIds.Contains(anomalyProductSpecificationId));
             await _anomalyProductSpecificationRepository.DeleteAsync(cancellationToken, deletedAnomalyProductsSpecificationIds.ToArray());
         }
-
     }
 }

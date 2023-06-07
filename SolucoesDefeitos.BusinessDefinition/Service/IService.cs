@@ -13,7 +13,7 @@ namespace SolucoesDefeitos.BusinessDefinition.Service
 
         Task<ResponseDto> UpdateAsync(TModel entity, CancellationToken cancellationToken);
 
-        Task DeleteAsync(TModel entity, CancellationToken cancellationToken);
+        Task<ResponseDto> DeleteAsync(TModel entity, CancellationToken cancellationToken);
 
         Task<TModel> GetByIdAsync(TKey id, CancellationToken cancellationToken);
 

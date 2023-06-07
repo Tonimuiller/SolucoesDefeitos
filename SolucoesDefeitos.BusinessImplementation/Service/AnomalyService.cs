@@ -71,11 +71,29 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
 
                 anomaly.Description = updatedAnomaly.Description;
                 anomaly.RepairSteps = updatedAnomaly.RepairSteps;
+                anomaly.Summary = updatedAnomaly.Summary;
                 await _unitOfWork.BeginTransactionAsync(cancellationToken);
                 await base.UpdateAsync(anomaly, cancellationToken);
                 await _anomalyProductSpecificationService.SaveAnomalyProductSpecifiationsAsync(updatedAnomaly.AnomalyId, updatedAnomaly.ProductSpecifications, cancellationToken);
                 await _unitOfWork.CommitAsync(cancellationToken);
                 return new UpdateAnomalyResponseDto(true);
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                return new ResponseDto(false, ex.Message);
+            }
+        }
+
+        public override async Task<ResponseDto> DeleteAsync(Anomaly entity, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _unitOfWork.BeginTransactionAsync(cancellationToken);
+                await _anomalyProductSpecificationRepository.DeleteByAnomalyIdAsync(entity.AnomalyId, cancellationToken);
+                var deleteResponse = await base.DeleteAsync(entity, cancellationToken);
+                await _unitOfWork.CommitAsync(cancellationToken);
+                return deleteResponse;
             }
             catch (Exception ex)
             {

@@ -10,5 +10,6 @@ namespace SolucoesDefeitos.BusinessDefinition.Repository
         Task<IEnumerable<AnomalyProductSpecification>> GetProductsSpecificationsByAnomalyIdAsync(int anomalyId, CancellationToken cancellationToken);
         Task<IEnumerable<int>> GetAnomalyProductSpecificationIdsByAnomalyIdAsync(int anomalyId, CancellationToken cancellationToken);
         Task DeleteAsync(CancellationToken cancellationToken, params int[] anomalyProductSpecificationIds);
+        Task DeleteByAnomalyIdAsync(int anomalyId, CancellationToken cancellationToken);
     }
 }

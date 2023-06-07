@@ -33,6 +33,8 @@ public sealed class FormModel : PageModel
                 TempData["Error"] = "Não foi possível encontrar o registro.";
                 return Redirect("./List");
             }
+
+            Anomaly.ProductSpecifications = (await _anomalyProductSpecificationService.GetByAnomalyIdAsync(anomalyId.Value, cancellationToken)).ToList();
         }
 
         Anomaly = Anomaly ?? new Model.Anomaly
@@ -60,21 +62,10 @@ public sealed class FormModel : PageModel
 
         if (Anomaly.AnomalyId != 0)
         {
-            var storedAnomaly = await _anomalyService.GetByIdAsync(Anomaly.AnomalyId, cancellationToken);
-            if (storedAnomaly is null)
-            {
-                TempData["Error"] = "Não foi possível recuperar os dados da Solução e Defeito.";
-                return Page();
-            }
-
-            storedAnomaly.UpdateDate = DateTime.Now;
-            storedAnomaly.Description = Anomaly.Description;
-            storedAnomaly.RepairSteps = Anomaly.RepairSteps;
-            storedAnomaly.Summary = Anomaly.Summary;
-
             try
             {
-                var response = await _anomalyService.UpdateAsync(storedAnomaly, cancellationToken);
+                Anomaly.ProductSpecifications ??= new List<AnomalyProductSpecification>();
+                var response = await _anomalyService.UpdateAsync(Anomaly, cancellationToken);
                 if (response.Success)
                 {
                     TempData["Success"] = "Solução e Defeito atualizada com sucesso.";
