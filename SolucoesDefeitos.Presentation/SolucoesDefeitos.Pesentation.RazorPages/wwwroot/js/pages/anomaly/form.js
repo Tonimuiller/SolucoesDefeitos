@@ -132,18 +132,15 @@
             _renderProductTableServerSide(products);
         };
 
-        const _deleteProduct = function (productId) {
+        const _deleteProduct = function (productIndex) {
             showYesNoConfirmation('Deseja realmente excluir o produto?', function (modalElement) {
                 modalElement.modal('hide');
                 modalElement.modal('dispose');
                 const products = _getProductTableDataAsJson();
-                const productIndex = products.findIndex((p) => p.productId === productId);
-                if (productIndex < 0) {
-                    return;
-                }
-
-                products.splice(productIndex, 1);
-                _renderProductTableServerSide(products);
+                if (products[productIndex]) {
+                    products.splice(productIndex, 1);
+                    _renderProductTableServerSide(products);
+                }                
             });
         };
 

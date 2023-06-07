@@ -1,8 +1,44 @@
-﻿@page
+﻿@page "{anomalyId?}"
+
+@using Microsoft.AspNetCore.Html;
+@using SolucoesDefeitos.Pesentation.RazorPages.Extensions
 @model SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.ViewModel
 @{
+    var description = HtmlExtensions.GetHtmlStringContent(Model.Anomaly.Description);
+    var repairSteps = HtmlExtensions.GetHtmlStringContent(Model.Anomaly.RepairSteps);
 }
 
 <div class="p-3 mb-2 bg-secondary text-white">
-    <span>Detalhes da Solução e Defeito</span>
+    <span>Detalhes da Solução e Defeito</span>    
 </div>
+
+<div class="btn-group-sm">
+    <button  type="button" class="btn btn-primary" onclick="history.back()">Voltar</button>
+    <a class="btn btn-warning" asp-page="/Anomaly/Form" asp-route-anomalyId="@Model.Anomaly.AnomalyId">Alterar</a>
+    <button type="button" class="btn btn-danger" onclick="viewPage.delete(@Model.Anomaly.AnomalyId)">Excluir</button>
+</div>
+
+<h5 class="text-secondary text-md-end">Título/Resumo</h5>
+<div>
+    @(new HtmlString(Model.Anomaly.Summary))
+</div>
+
+@if (!string.IsNullOrEmpty(description) && !string.IsNullOrWhiteSpace(description))
+{
+    <h5 class="text-secondary text-md-end">Descrição detalhada</h5>
+    <div>
+        @(new HtmlString(Model.Anomaly.Description))
+    </div>    
+}
+
+@if (!string.IsNullOrEmpty(repairSteps) && !string.IsNullOrWhiteSpace(repairSteps))
+{
+    <h4 class="text-secondary text-md-end">Solução</h4>
+    <div>
+        @(new HtmlString(Model.Anomaly.RepairSteps))
+    </div>    
+}
+
+@section Scripts {
+    <script type="text/javascript" src="~/js/pages/anomaly/view.js" asp-append-version="true"></script>
+}

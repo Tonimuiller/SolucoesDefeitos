@@ -9,11 +9,15 @@ namespace SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly;
 public sealed class FormModel : PageModel
 {
     private readonly IAnomalyService _anomalyService;
+    private readonly IAnomalyProductSpecificationService _anomalyProductSpecificationService;
 
-    public FormModel(IAnomalyService anomalyService)
+    public FormModel(
+        IAnomalyService anomalyService, 
+        IAnomalyProductSpecificationService anomalyProductSpecificationService)
     {
         ArgumentNullException.ThrowIfNull(anomalyService);
         _anomalyService = anomalyService;
+        _anomalyProductSpecificationService = anomalyProductSpecificationService;
     }
 
     [BindProperty]

@@ -25,16 +25,19 @@
         }
         else
         {
+            var index = 0;
             foreach (var product in Model)
             {
-                <tr data-product-id="@product.ProductId"
+                <tr data-anomaly-product-specification-id="@product.AnomalyProductSpecificationId"
+                    data-product-id="@product.ProductId"
                     data-anomaly-id="@product.AnomalyId"
                     data-manufacture-year="@product.ManufactureYear">
                     <th scope="row">
-                        <input type="hidden" name="Anomaly.ProductSpecifications.Index" value="@product.ProductId" />
-                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.ProductId].ProductId" value="@product.ProductId" />
-                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.ProductId].AnomalyId" value="@product.AnomalyId" />
-                        <button type="button" class="btn btn-danger" onclick="anomalyForm.deleteProduct(@product.ProductId)">Excluir</button>
+                        <input type="hidden" name="Anomaly.ProductSpecifications.Index" value="@product.AnomalyProductSpecificationId" />
+                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.AnomalyProductSpecificationId].AnomalyProductSpecificationId" value="@product.AnomalyProductSpecificationId" />
+                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.AnomalyProductSpecificationId].ProductId" value="@product.ProductId" />
+                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.AnomalyProductSpecificationId].AnomalyId" value="@product.AnomalyId" />
+                        <button type="button" class="btn btn-danger" onclick="anomalyForm.deleteProduct(@index)">Excluir</button>
                     </th>
                     <td>
                         <span>@product.Product.Name</span>
@@ -43,12 +46,14 @@
                         <span>@product.Product.Manufacturer.Name</span>
                     </td>
                     <td>
-                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.ProductId].ManufactureYear" value="@product.ManufactureYear" />
+                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.AnomalyProductSpecificationId].ManufactureYear" value="@product.ManufactureYear" />
                         <span>@product.ManufactureYear</span>
                     </td>
                     <td>@product.Product.Code</td>
                     <td>@product.Product.ProductGroup.Description</td>
                 </tr>
+
+                index++;
             }
         }
     </tbody>

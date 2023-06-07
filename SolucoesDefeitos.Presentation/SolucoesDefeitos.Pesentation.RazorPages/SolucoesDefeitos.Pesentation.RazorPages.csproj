@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\SolucoesDefeitos.BusinessDefinition\SolucoesDefeitos.BusinessDefinition.csproj" />
     <ProjectReference Include="..\..\SolucoesDefeitos.BusinessImplementation\SolucoesDefeitos.BusinessImplementation.csproj" />
     <ProjectReference Include="..\..\SolucoesDefeitos.DataAccess\SolucoesDefeitos.DataAccess.csproj" />
