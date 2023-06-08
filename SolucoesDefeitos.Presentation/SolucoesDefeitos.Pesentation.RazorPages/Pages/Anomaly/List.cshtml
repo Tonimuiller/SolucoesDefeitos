@@ -1,5 +1,6 @@
 ﻿@page
 @using Microsoft.AspNetCore.Html;
+@using ReadSharp;
 @using SolucoesDefeitos.Pesentation.RazorPages.Components.DisplayTempDataMessage;
 @using SolucoesDefeitos.Pesentation.RazorPages.Components.Pager;
 @using SolucoesDefeitos.Pesentation.RazorPages.Components.Pager.Model;
@@ -22,7 +23,7 @@
                 <div class="card-body">
                     <h5 class="card-title text-primary">@anomaly.Summary</h5>
                     <div class="card-text">
-                        @(new HtmlString(anomaly.Description))
+                        @(HtmlUtilities.ConvertToPlainText(anomaly.Description)?.Substring(0, 100))
                     </div>
                     <a href="/Anomaly/View/@anomaly.AnomalyId" class="stretched-link"></a>
                 </div>

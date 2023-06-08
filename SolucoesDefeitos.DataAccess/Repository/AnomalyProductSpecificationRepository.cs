@@ -140,22 +140,52 @@ namespace SolucoesDefeitos.DataAccess.Repository
         {
             var sqlBuilder = new StringBuilder()
                 .AppendLine("SELECT")
-                .AppendLine("\tanomalyproductspecificationid,")
-                .AppendLine("\tcreationdate,")
-                .AppendLine("\tupdatedate,")
-                .AppendLine("\tanomalyid,")
-                .AppendLine("\tproductid,")
-                .AppendLine("\tmanufactureyear")
+                .AppendLine("\taps.anomalyproductspecificationid,")
+                .AppendLine("\taps.creationdate,")
+                .AppendLine("\taps.updatedate,")
+                .AppendLine("\taps.anomalyid,")
+                .AppendLine("\taps.manufactureyear,")
+                .AppendLine("\tp.productid,")
+                .AppendLine("\tp.creationdate,")
+                .AppendLine("\tp.updatedate,")
+                .AppendLine("\tp.enabled,")
+                .AppendLine("\tp.name,")
+                .AppendLine("\tp.code,")
+                .AppendLine("\tm.manufacturerid,")
+                .AppendLine("\tm.creationdate,")
+                .AppendLine("\tm.updatedate,")
+                .AppendLine("\tm.enabled,")
+                .AppendLine("\tm.name,")
+                .AppendLine("\tg.productgroupid,")
+                .AppendLine("\tg.creationdate,")
+                .AppendLine("\tg.updatedate,")
+                .AppendLine("\tg.enabled,")
+                .AppendLine("\tg.description")
                 .AppendLine("FROM")
-                .AppendLine("\tanomalyproductspecification")
+                .AppendLine("\tanomalyproductspecification aps")
+                .AppendLine("INNER JOIN product p ON aps.productid = p.productid")
+                .AppendLine("LEFT JOIN manufacturer m ON p.manufacturerid = m.manufacturerid")
+                .AppendLine("LEFT JOIN productgroup g ON p.productgroupid = g.productgroupid")
                 .AppendLine("WHERE")
-                .AppendLine("\tanomalyid = @anomalyid");
+                .AppendLine("\taps.anomalyid = @anomalyid");
             var commandDefinition = new CommandDefinition(
                 sqlBuilder.ToString(),
                 new { anomalyId },
                 _database.DbTransaction,
                 cancellationToken: cancellationToken);
-            return await _database.DbConnection.QueryAsync<AnomalyProductSpecification>(commandDefinition);
+            return await _database.DbConnection.QueryAsync<AnomalyProductSpecification, Product, Manufacturer, ProductGroup, AnomalyProductSpecification>(
+                commandDefinition,
+                (anomalyProductSpecification, product, manufacturer, productGroup) =>
+                {
+                    product.ProductGroupId = productGroup.ProductGroupId;
+                    product.ProductGroup = productGroup;
+                    product.ManufacturerId = manufacturer.ManufacturerId;
+                    product.Manufacturer = manufacturer;
+                    anomalyProductSpecification.ProductId = product.ProductId;
+                    anomalyProductSpecification.Product = product;
+                    return anomalyProductSpecification;
+                },
+                "productid, manufacturerid, productgroupid");
         }
 
         public async Task UpdateAsync(AnomalyProductSpecification entity, CancellationToken cancellationToken)
