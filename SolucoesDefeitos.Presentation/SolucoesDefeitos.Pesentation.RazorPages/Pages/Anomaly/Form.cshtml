@@ -1,5 +1,6 @@
 ﻿@page
 @using SolucoesDefeitos.Pesentation.RazorPages.Components.DisplayTempDataMessage;
+@using SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.Components.Attachments;
 @using SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.Components.ProductTable;
 @model SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.FormModel
 @{
@@ -25,7 +26,7 @@
     <h5 class="text-primary text-md-end">Especificação de produto/equipamento afetado</h5>
     <hr />
     <div class="mb-3">
-        <div id="dvFrmExistingProduct" class="row mb-3">
+        <div class="row mb-3">
             <div class="col-md-12 mb-3">
                 <label for="txtProductSearch" class="form-label">Pesquisar Produto/Equipamento [<a href="#">Criar novo produto</a>]</label>
                 <input type="text" id="txtProductSearch" class="form-control"/>
@@ -46,6 +47,19 @@
     <h5 class="text-primary text-md-end">Anexos</h5>
     <hr />
     <div class="mb-3">
+        <div class="btn-group mb-3">
+            <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown">
+                Anexar...
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#" onclick=""><i class="bi bi-image"></i> Imagem</a></li>
+                <li><a class="dropdown-item" href="#" onclick=""><i class="bi bi-youtube"></i> Vídeo do Youtube</a></li>
+                <li><a class="dropdown-item" href="#" onclick=""><i class="bi bi-filetype-pdf"></i> PDF</a></li>
+            </ul>
+        </div>
+        <div id="dvAttachments">
+            @await Component.InvokeAsync(nameof(Attachments), new { attachments = Model.Anomaly.Attachments })
+        </div>
     </div>
     <button type="submit" class="btn btn-primary">Salvar</button>
     <a href="./List" class="btn btn-secondary">Cancelar</a>

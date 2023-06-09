@@ -4,8 +4,8 @@
 @using ReadSharp;
 @model SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.ViewModel
 @{
-    var description = HtmlUtilities.ConvertToPlainText(Model.Anomaly.Description);
-    var repairSteps = HtmlUtilities.ConvertToPlainText(Model.Anomaly.RepairSteps);
+    var description = HtmlUtilities.ConvertToPlainText(Model.Anomaly.Description ?? string.Empty);
+    var repairSteps = HtmlUtilities.ConvertToPlainText(Model.Anomaly.RepairSteps ?? string.Empty);
 }
 
 <div class="p-3 mb-2 bg-secondary text-white">

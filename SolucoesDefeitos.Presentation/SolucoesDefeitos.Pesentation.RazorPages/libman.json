@@ -25,6 +25,11 @@
     {
       "library": "jqueryui@1.13.2",
       "destination": "wwwroot/lib/jqueryui/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "bootstrap-icons@1.10.5",
+      "destination": "wwwroot/lib/bootstrap-icons/"
     }
   ]
 }

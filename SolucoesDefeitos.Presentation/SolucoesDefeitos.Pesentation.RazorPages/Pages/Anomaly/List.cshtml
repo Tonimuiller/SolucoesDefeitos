@@ -19,11 +19,18 @@
     <div class="p-2 bg-light border">
         @foreach (var anomaly in Model.PagedData.Data)
         {
-            <div class="card w-100" href="/Anomaly/View">
+            <div class="card w-100">
                 <div class="card-body">
                     <h5 class="card-title text-primary">@anomaly.Summary</h5>
                     <div class="card-text">
-                        @(HtmlUtilities.ConvertToPlainText(anomaly.Description)?.Substring(0, 100))
+                        @{
+                            var description = HtmlUtilities.ConvertToPlainText(anomaly.Description ?? string.Empty);
+                            if (description.Length > 100)
+                            {
+                                description = description.Substring(0, 100);
+                            }
+                        }
+                        @(description)
                     </div>
                     <a href="/Anomaly/View/@anomaly.AnomalyId" class="stretched-link"></a>
                 </div>
