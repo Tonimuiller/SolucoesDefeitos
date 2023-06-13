@@ -10,7 +10,8 @@
     {        
         @foreach (var attachment in Model)
         {
-            <div id="dvAttachment-@attachmentIndex" class="card w-25" 
+            <div id="dvAttachment-@attachmentIndex" class="card w-25"
+                data-anomaly-id="@attachment.AnomalyId"
                 data-attachment-id="@attachment.AttachmentId"
                 data-attachment-description="@attachment.Description"
                 data-attachment-storage="@attachment.Storage"

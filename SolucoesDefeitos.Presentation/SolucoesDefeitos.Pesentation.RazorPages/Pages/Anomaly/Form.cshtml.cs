@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SolucoesDefeitos.BusinessDefinition.Service;
 using SolucoesDefeitos.Model;
+using SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.Components.Attachments;
 using SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.Components.ProductTable;
 
 namespace SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly;
@@ -102,8 +103,8 @@ public sealed class FormModel : PageModel
         return Page();
     }
 
-    public async Task<IActionResult> OnPostProductsChangeAsync(IEnumerable<AnomalyProductSpecification> products, CancellationToken cancellationToken)
+    public async Task<IActionResult> OnPostAttachmentsChangeAsync(IEnumerable<Attachment> attachments, CancellationToken cancellationToken)
     {
-        return await Task.FromResult<IActionResult>(ViewComponent(nameof(ProductTable), new { products }));
+        return await Task.FromResult<IActionResult>(ViewComponent(nameof(Attachments), new { attachments }));
     }
 }

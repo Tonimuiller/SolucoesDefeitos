@@ -9,9 +9,11 @@
                 txtProductManufactureYear: $('#txtProductManufactureYear'),
                 dvProductTable: $('#dvProductTable'),
                 productTableBody: $('#product-table-body'),
+                dvAttachments: $('#dvAttachments'),
                 dvImageUpload: $('#dvImageUpload'),
                 flImageUpload: $('#flImageUpload'),
-                txtImageDescription: $('#txtImageDescription'),                
+                txtImageDescription: $('#txtImageDescription'),
+                hdnToken: $('input[name="__RequestVerificationToken"]')
             });
         };        
 
@@ -24,7 +26,7 @@
             </div>
             `;
 
-        const _validationRules = {
+        const _validationRules = Object.freeze({
             addImage: {
                 rules: {
                     flImageUpload: 'required',
@@ -35,10 +37,18 @@
                     txtImageDescription: 'Informe uma descrição para a imagem'
                 }
             }
-        };
+        });
+
+        const _attachmentsCategories = Object.freeze({
+            PICTURE: 0,
+            VIDEO: 1,
+            PICTURELINK: 2,
+            VIDEOLINK: 3,
+            BINARY: 4
+        });
 
         const _renderProductTableServerSide = function (products) {
-            var token = $('input[name="__RequestVerificationToken"]').val();
+            var token = _getComponents().hdnToken.val();
             $.ajax({
                 url: "?handler=ProductsChange",
                 method: "POST",
@@ -167,16 +177,80 @@
         };
 
         const _addImageCancel = function () {
+            _getComponents().flImageUpload.val(null);
+            _getComponents().txtImageDescription.val('');
             _getComponents().dvImageUpload.hide();
             _getComponents().anomalyForm.validate(_validationRules.addImage).destroy();
             _getComponents().flImageUpload.removeClass('error');
             _getComponents().txtImageDescription.removeClass('error');
         };
 
-        const _addImage = function () {
+        const _convertBase64 = function (file) {
+            return new Promise((resolve, reject) => {
+                const fileReader = new FileReader();
+                fileReader.readAsDataURL(file);
+                fileReader.onload = () => {
+                    resolve(fileReader.result);
+                };
+                fileReader.onerror = (error) => {
+                    reject(error);
+                };
+            });
+        };
+
+        const _getAttachmentsAsJson = function () {
+            const attachments = [];
+            [...$('div[id^=dvAttachment-]')].forEach((attachmentDiv, index) => {
+                attachments.push({
+                    anomalyId: $(attachmentDiv).data('anomalyId'),
+                    attachmentId: $(attachmentDiv).data('attachmentId'),
+                    description: $(attachmentDiv).data('attachmentDescription'),
+                    storage: $(attachmentDiv).data('attachmentStorage'),
+                    category: $(attachmentDiv).data('attachmentCategory'),
+                });
+            });
+
+            return attachments;
+        };
+
+        const _renderAttachmentsServerSide = function (attachments) {
+            var token = _getComponents().hdnToken.val();
+            $.ajax({
+                url: "?handler=AttachmentsChange",
+                method: "POST",
+                data: {
+                    __RequestVerificationToken: token,
+                    attachments
+                },
+                success: function (data) {
+                    _getComponents().dvAttachments.html('');
+                    _getComponents().dvAttachments.html(data);                    
+                    _addImageCancel();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    console.error(textStatus);
+                    alert('Ocorreu um erro ao renderizar a seção de anexos.')
+                }
+            });
+        };
+
+        const _addImage = async function () {
             if (!_getComponents().anomalyForm.valid()) {
                 return;
             }
+
+            const imageFile = _getComponents().flImageUpload.prop('files')[0];
+            const imageBase64 = await _convertBase64(imageFile);
+            const imageDescription = _getComponents().txtImageDescription.val();
+            const attachments = _getAttachmentsAsJson();
+            attachments.push({
+                anomalyId: _getComponents().hdnAnomalyId.val() ?? 0,
+                description: imageDescription,
+                storage: imageBase64,
+                category: _attachmentsCategories.PICTURE
+            });
+
+            _renderAttachmentsServerSide(attachments);
         };
 
         return {
