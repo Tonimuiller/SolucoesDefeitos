@@ -9,7 +9,7 @@
 <div class="p-3 mb-2 bg-secondary text-white">
     <span>Cadastro da Solução e Defeito</span>
 </div>
-<form method="post">
+<form id="anomalyForm" method="post">
     <input id="hdnAnomalyId" type="hidden" name="Anomaly.AnomalyId" value="@Model.Anomaly?.AnomalyId" />
     <div class="mb-3">
         <label class="form-label" for="txtSummary">Título/Resumo</label>
@@ -52,10 +52,43 @@
                 Anexar...
             </button>
             <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#" onclick=""><i class="bi bi-image"></i> Imagem</a></li>
-                <li><a class="dropdown-item" href="#" onclick=""><i class="bi bi-youtube"></i> Vídeo do Youtube</a></li>
-                <li><a class="dropdown-item" href="#" onclick=""><i class="bi bi-filetype-pdf"></i> PDF</a></li>
+                <li><a class="dropdown-item" onclick="anomalyForm.startAddImage()"><i class="bi bi-image"></i> Imagem</a></li>
+                <li><a class="dropdown-item" onclick="anomalyForm.startAddYoutubeVideo()"><i class="bi bi-youtube"></i> Vídeo do Youtube</a></li>
             </ul>
+        </div>
+        <div id="dvImageUpload" class="row mb-3" style="display: none">
+            <div class="col-md-12 mb-3">
+                <label for="flImageUpload" class="form-label">Selecione a imagem</label>
+                <input type="file" id="flImageUpload" name="flImageUpload" class="form-control" accept="image/*"/>                
+            </div>
+            <div class="col-md-9 mb-3">
+                <label for="txtImageDescription" class="form-label">Descrição da imagem</label>
+                <input type="text" id="txtImageDescription" name="txtImageDescription" class="form-control" />
+            </div>
+            <div class="col-md-3 mb-3 d-flex align-items-end">
+                <button type="button" id="btAddImage" class="btn btn-primary" onclick="anomalyForm.addImage()">Adicionar Imagem</button>
+                <button type="button" id="btAddImageCancel" class="btn btn-secondary ms-1" onclick="anomalyForm.addImageCancel()">Cancelar</button>
+            </div>
+        </div>
+        <div id="dvYoutubeVideo" class="row mb-3" style="display: none">
+            <div class="col-md-12 mb-3">
+                <label for="txtYoutubeVideoUrl" class="form-label">Cole a url do vídeo do Youtube aqui.</label>
+                <input type="url" id="txtYoutubeVideoUrl" class="form-control" />
+            </div>
+            <div class="col-md-3 mb-3">
+                <!--Video thumbnail goes here-->
+            </div>
+            <div class="col-md-9 mb-3">
+                <!--Video data goes here-->
+            </div>
+            <div class="col-md-9 mb-3">
+                <label for="txtYoutubeVideoDescription" class="form-label">Descrição do vídeo</label>
+                <input type="text" id="txtYoutubeVideoDescription" class="form-control"/>
+            </div>
+            <div class="col-md-3 mb-3 d-flex align-items-end">
+                <button type="button" id="btAddYoutubeVideo" class="btn btn-primary" onclick="anomalyForm.addYoutubeVideo()">Adicionar Vídeo</button>
+                <button type="button" id="btAddYoutubeVideoCancel" class="btn btn-secondary ms-1" onclick="anomalyForm.addYoutubeVideoCancel()">Cancelar</button>
+            </div>
         </div>
         <div id="dvAttachments">
             @await Component.InvokeAsync(nameof(Attachments), new { attachments = Model.Anomaly.Attachments })

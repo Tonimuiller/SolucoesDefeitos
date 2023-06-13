@@ -3,13 +3,22 @@
 *@
 @model IEnumerable<SolucoesDefeitos.Model.Attachment>
 @{
+    var attachmentIndex = 0;
 }
 <div class="p-2 bg-light border">
     @if (Model?.Any() ?? false)
-    {
+    {        
         @foreach (var attachment in Model)
         {
-            <div class="card w-100">
+            <div id="dvAttachment-@attachmentIndex" class="card w-25" 
+                data-attachment-id="@attachment.AttachmentId"
+                data-attachment-description="@attachment.Description"
+                data-attachment-storage="@attachment.Storage"
+                data-attachment-category="@attachment.Category">
+                <input type="hidden" name="Anomaly.Attachments[@attachmentIndex].AttachmentId" value="@attachment.AttachmentId" />
+                <input type="hidden" name="Anomaly.Attachments[@attachmentIndex].Description" value="@attachment.Description" />
+                <input type="hidden" name="Anomaly.Attachments[@attachmentIndex].Storage" value="@attachment.Storage" />
+                <input type="hidden" name="Anomaly.Attachments[@attachmentIndex].Category" value="@attachment.Category" />
                 <div class="row g-0">
                     <div class="col-md-4">
                         @if ((attachment.Category == SolucoesDefeitos.Model.Enum.AttachmentCategory.Picture)
@@ -22,6 +31,10 @@
                             <iframe class="img-fluid rounded-start" width="200" height="100" src="@attachment.Storage">
                             </iframe>
                         }
+                        else
+                        {
+                            <span>Formato de anexo não reconhecido.</span>
+                        }
                     </div>
                     <div class="col-md-8">
                         <div class="card-body">
@@ -30,7 +43,6 @@
                             </div>
                         </div>
                     </div>
-                    <input type="hidden" name="Anomaly.Attachments.Index" value="@attachment.AttachmentId" />
                 </div>
             </div>
         }

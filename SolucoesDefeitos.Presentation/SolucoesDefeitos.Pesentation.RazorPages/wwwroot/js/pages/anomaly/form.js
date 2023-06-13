@@ -2,14 +2,18 @@
     function _form() {
         const _getComponents = () => {
             return Object.freeze({
+                anomalyForm: $('#anomalyForm'),
                 hdnAnomalyId: $('#hdnAnomalyId'),
                 txtProductSearch: $('#txtProductSearch'),
                 hdnSelectedProductId: $('#hdnSelectedProductId'),
                 txtProductManufactureYear: $('#txtProductManufactureYear'),
                 dvProductTable: $('#dvProductTable'),
-                productTableBody: $('#product-table-body')
+                productTableBody: $('#product-table-body'),
+                dvImageUpload: $('#dvImageUpload'),
+                flImageUpload: $('#flImageUpload'),
+                txtImageDescription: $('#txtImageDescription'),                
             });
-        };
+        };        
 
         const _renderProductAutocompleteItem = (item) => `
             <div>
@@ -19,6 +23,19 @@
                 <span class="fw-bold fs-6">Código: </span><span class="fs-5">${item.code}</span>
             </div>
             `;
+
+        const _validationRules = {
+            addImage: {
+                rules: {
+                    flImageUpload: 'required',
+                    txtImageDescription: 'required'
+                },
+                messages: {
+                    flImageUpload: 'Escolha a imagem',
+                    txtImageDescription: 'Informe uma descrição para a imagem'
+                }
+            }
+        };
 
         const _renderProductTableServerSide = function (products) {
             var token = $('input[name="__RequestVerificationToken"]').val();
@@ -100,7 +117,7 @@
                     .addClass('li-divider')
                     .append(_renderProductAutocompleteItem(item))
                     .appendTo(ul);
-            };
+                };            
         };
 
         const _addProduct = function () {
@@ -144,10 +161,31 @@
             });
         };
 
+        const _startAddImage = function () {
+            _getComponents().dvImageUpload.show();
+            _getComponents().anomalyForm.validate(_validationRules.addImage);
+        };
+
+        const _addImageCancel = function () {
+            _getComponents().dvImageUpload.hide();
+            _getComponents().anomalyForm.validate(_validationRules.addImage).destroy();
+            _getComponents().flImageUpload.removeClass('error');
+            _getComponents().txtImageDescription.removeClass('error');
+        };
+
+        const _addImage = function () {
+            if (!_getComponents().anomalyForm.valid()) {
+                return;
+            }
+        };
+
         return {
             initialize: _initialize,
             addProduct: _addProduct,
-            deleteProduct: _deleteProduct
+            deleteProduct: _deleteProduct,
+            startAddImage: _startAddImage,
+            addImageCancel: _addImageCancel,
+            addImage: _addImage
         };
     }
 

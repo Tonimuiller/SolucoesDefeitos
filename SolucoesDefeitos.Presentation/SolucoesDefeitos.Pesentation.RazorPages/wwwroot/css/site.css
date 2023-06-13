@@ -32,3 +32,11 @@ body {
 .li-divider:not(:last-of-type) {
     border-bottom: 1px solid lightgray;
 }
+
+label.error {
+    color: red;
+}
+
+.error {
+    border-color: red
+}
