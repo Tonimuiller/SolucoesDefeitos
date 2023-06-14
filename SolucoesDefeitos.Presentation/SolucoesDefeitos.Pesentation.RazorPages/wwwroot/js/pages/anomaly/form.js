@@ -253,13 +253,26 @@
             _renderAttachmentsServerSide(attachments);
         };
 
+        const _deleteAttachment = function (attachmentIndex) {
+            showYesNoConfirmation('Deseja realmente excluir o anexo?', function (modalElement) {
+                modalElement.modal('hide');
+                modalElement.modal('dispose');
+                const attachments = _getAttachmentsAsJson();
+                if (attachments[attachmentIndex]) {
+                    attachments.splice(attachmentIndex, 1);
+                    _renderAttachmentsServerSide(attachments);
+                }
+            });
+        };
+
         return {
             initialize: _initialize,
             addProduct: _addProduct,
             deleteProduct: _deleteProduct,
             startAddImage: _startAddImage,
             addImageCancel: _addImageCancel,
-            addImage: _addImage
+            addImage: _addImage,
+            deleteAttachment: _deleteAttachment
         };
     }
 
