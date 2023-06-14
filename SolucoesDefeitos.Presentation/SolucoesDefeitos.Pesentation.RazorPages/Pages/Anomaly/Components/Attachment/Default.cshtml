@@ -5,12 +5,12 @@
 @{
     var attachmentIndex = 0;
 }
-<div class="p-2 bg-light border">
+<div class="row p-2 bg-light border">
     @if (Model?.Any() ?? false)
     {        
         @foreach (var attachment in Model)
         {
-            <div id="dvAttachment-@attachmentIndex" class="card attachment-card"
+            <div id="dvAttachment-@attachmentIndex" class="card attachment-card ms-1"
                 data-anomaly-id="@attachment.AnomalyId"
                 data-attachment-id="@attachment.AttachmentId"
                 data-attachment-description="@attachment.Description"
@@ -40,17 +40,18 @@
                     </div>
                     <div>
                         <div class="card-body position-relative h-100">
-                            <div class="card-text position-absolute top-0 start-0 p-2">
-                                @attachment.Description
+                            <div class="card-text position-absolute top-0 start-0 p-2 attachment-card-text"
+                                 data-bs-toggle="tooltip" data-bs-placement="top" title="@attachment.Description">
+                                <span>@attachment.Description</span>
                             </div>
                             <div class="btn-group btn-group-sm position-absolute bottom-0 start-0">
-                                <a onclick="anomalyForm.EditAttachment(@attachmentIndex)" class="btn btn-link"><i class="bi bi-pencil-square"></i></a>
                                 <a onclick="anomalyForm.deleteAttachment(@attachmentIndex)" class="btn btn-link"><i class="bi bi-trash"></i></a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            attachmentIndex++;
         }
     }    
     else

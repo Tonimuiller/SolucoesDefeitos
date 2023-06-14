@@ -56,3 +56,12 @@ label.error {
 .attachment-card > div > div:nth-of-type(2) {
     width: 200px;
 }
+
+.attachment-card-text {
+    max-height: 130px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 5;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+}
