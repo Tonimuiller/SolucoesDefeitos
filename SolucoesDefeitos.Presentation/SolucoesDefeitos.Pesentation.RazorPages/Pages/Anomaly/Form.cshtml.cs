@@ -111,4 +111,9 @@ public sealed class FormModel : PageModel
     {
         return await Task.FromResult<IActionResult>(ViewComponent(nameof(Attachments), new { attachments }));
     }
+
+    public async Task<IActionResult> OnPostProductsChangeAsync(IEnumerable<AnomalyProductSpecification> products, CancellationToken cancellationToken)
+    {
+        return await Task.FromResult<IActionResult>(ViewComponent(nameof(ProductTable), new { products }));
+    }
 }
