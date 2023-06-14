@@ -40,3 +40,19 @@ label.error {
 .error {
     border-color: red
 }
+
+.attachment-card {
+    width: 350px;
+}
+
+.attachment-card > div {
+    width: 350px;
+}
+
+.attachment-card > div > div:first-of-type {
+    width: 150px;
+}
+
+.attachment-card > div > div:nth-of-type(2) {
+    width: 200px;
+}

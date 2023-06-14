@@ -11,14 +11,17 @@ public sealed class FormModel : PageModel
 {
     private readonly IAnomalyService _anomalyService;
     private readonly IAnomalyProductSpecificationService _anomalyProductSpecificationService;
+    private readonly IAttachmentService _attachmentService;
 
     public FormModel(
-        IAnomalyService anomalyService, 
-        IAnomalyProductSpecificationService anomalyProductSpecificationService)
+        IAnomalyService anomalyService,
+        IAnomalyProductSpecificationService anomalyProductSpecificationService,
+        IAttachmentService attachmentService)
     {
         ArgumentNullException.ThrowIfNull(anomalyService);
         _anomalyService = anomalyService;
         _anomalyProductSpecificationService = anomalyProductSpecificationService;
+        _attachmentService = attachmentService;
     }
 
     [BindProperty]
@@ -36,6 +39,7 @@ public sealed class FormModel : PageModel
             }
 
             Anomaly.ProductSpecifications = (await _anomalyProductSpecificationService.GetByAnomalyIdAsync(anomalyId.Value, cancellationToken)).ToList();
+            Anomaly.Attachments = (await _attachmentService.GetByAnomalyIdAsync(anomalyId.Value, cancellationToken)).ToList();
         }
 
         Anomaly = Anomaly ?? new Model.Anomaly

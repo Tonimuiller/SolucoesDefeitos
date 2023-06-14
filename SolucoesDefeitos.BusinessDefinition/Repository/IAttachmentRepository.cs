@@ -8,5 +8,7 @@ namespace SolucoesDefeitos.BusinessDefinition.Repository
     public interface IAttachmentRepository: IRepository<Attachment, int>
     {
         Task<IEnumerable<Attachment>> GetAttachmentsByAnomalyIdAsync(int anomalyId, CancellationToken cancellationToken);
+
+        Task DeleteAsync(int anomalyId, int[] attachmentIds, CancellationToken cancellationToken);
     }
 }

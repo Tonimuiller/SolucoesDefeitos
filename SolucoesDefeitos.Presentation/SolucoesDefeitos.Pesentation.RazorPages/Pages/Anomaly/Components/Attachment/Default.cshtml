@@ -10,18 +10,19 @@
     {        
         @foreach (var attachment in Model)
         {
-            <div id="dvAttachment-@attachmentIndex" class="card w-25"
+            <div id="dvAttachment-@attachmentIndex" class="card attachment-card"
                 data-anomaly-id="@attachment.AnomalyId"
                 data-attachment-id="@attachment.AttachmentId"
                 data-attachment-description="@attachment.Description"
                 data-attachment-storage="@attachment.Storage"
                 data-attachment-category="@attachment.Category">
                 <input type="hidden" name="Anomaly.Attachments[@attachmentIndex].AttachmentId" value="@attachment.AttachmentId" />
+                <input type="hidden" name="Anomaly.Attachments[@attachmentIndex].AnomalyId" value="@attachment.AnomalyId" />
                 <input type="hidden" name="Anomaly.Attachments[@attachmentIndex].Description" value="@attachment.Description" />
                 <input type="hidden" name="Anomaly.Attachments[@attachmentIndex].Storage" value="@attachment.Storage" />
                 <input type="hidden" name="Anomaly.Attachments[@attachmentIndex].Category" value="@attachment.Category" />
                 <div class="row g-0">
-                    <div class="col-md-4">
+                    <div>
                         @if ((attachment.Category == SolucoesDefeitos.Model.Enum.AttachmentCategory.Picture)
                        || (attachment.Category == SolucoesDefeitos.Model.Enum.AttachmentCategory.PictureLink))
                         {
@@ -37,7 +38,7 @@
                             <span>Formato de anexo não reconhecido.</span>
                         }
                     </div>
-                    <div class="col-md-8">
+                    <div>
                         <div class="card-body">
                             <div class="card-text">
                                 @attachment.Description

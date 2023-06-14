@@ -49,6 +49,7 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
 
                 entity.AnomalyId = addAnomalyResponse.Content.AnomalyId;
                 await SaveNewAnomalyProductSpecifications(entity, cancellationToken);
+                await SaveNewAnomalyAttachments(entity, cancellationToken);
                 await _unitOfWork.CommitAsync(cancellationToken);
                 return new ResponseDto<Anomaly>(true, entity);
             }
@@ -75,6 +76,7 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
                 await _unitOfWork.BeginTransactionAsync(cancellationToken);
                 await base.UpdateAsync(anomaly, cancellationToken);
                 await _anomalyProductSpecificationService.SaveAnomalyProductSpecifiationsAsync(updatedAnomaly.AnomalyId, updatedAnomaly.ProductSpecifications, cancellationToken);
+                await SaveUpdatedAnomalyAttachmentsAsync(updatedAnomaly, cancellationToken);
                 await _unitOfWork.CommitAsync(cancellationToken);
                 return new UpdateAnomalyResponseDto(true);
             }
@@ -143,6 +145,68 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             }
 
             return productSpecifications;
+        }
+
+        private async Task SaveNewAnomalyAttachments(Anomaly anomaly, CancellationToken cancellationToken)
+        {
+            var newAnomalyAttachments = anomaly
+                .Attachments?
+                .Where(a => a.AttachmentId == default)
+                .ToList();
+
+            if (!(newAnomalyAttachments?.Any() ?? false))
+            {
+                return;
+            }
+
+            var attachments = SetAttachmentsAnomalyId(anomaly.AnomalyId, newAnomalyAttachments);
+            foreach(var attachment in attachments)
+            {
+                await _attachmentRepository.AddAsync(attachment, cancellationToken);
+            }
+        }
+
+        private ICollection<Attachment> SetAttachmentsAnomalyId(int anomalyId, ICollection<Attachment> attachments)
+        {
+            foreach(var attachment in attachments)
+            {
+                attachment.AnomalyId = anomalyId;
+            }
+
+            return attachments;
+        }
+
+        private async Task SaveUpdatedAnomalyAttachmentsAsync(Anomaly anomaly, CancellationToken cancellationToken)
+        {
+            await SaveDeletedAttachmentsAsync(anomaly, cancellationToken);
+            await SaveNewAnomalyAttachments(anomaly, cancellationToken);
+            await SaveUpdatedAttachmentsAsync(anomaly, cancellationToken);
+        }
+
+        private async Task SaveUpdatedAttachmentsAsync(Anomaly anomaly, CancellationToken cancellationToken)
+        {
+            var updatedAttachments = anomaly
+                .Attachments?
+                .Where(a => a.AttachmentId > 0)
+                .ToList();
+            if (!(updatedAttachments?.Any() ?? false))
+            {
+                return;
+            }
+
+            foreach (var attachment in updatedAttachments)
+            {
+                await _attachmentRepository.UpdateAsync(attachment, cancellationToken);
+            }
+        }
+
+        private async Task SaveDeletedAttachmentsAsync(Anomaly anomaly, CancellationToken cancellationToken)
+        {
+            var attachmentIds = anomaly
+                .Attachments?
+                .Select(a => a.AttachmentId)
+                .ToArray();
+            await _attachmentRepository.DeleteAsync(anomaly.AnomalyId, attachmentIds, cancellationToken);
         }
     }
 }

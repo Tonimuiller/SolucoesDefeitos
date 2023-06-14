@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static Dapper.SqlMapper;
 
 namespace SolucoesDefeitos.DataAccess.Repository
 {
@@ -54,6 +55,20 @@ namespace SolucoesDefeitos.DataAccess.Repository
             var commandDefinition = new CommandDefinition(
                 "DELETE FROM attachment WHERE attachmentid = @attachmentid",
                 entity,
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            await _database.DbConnection.ExecuteAsync(commandDefinition);
+        }
+
+        public async Task DeleteAsync(int anomalyId, int[] attachmentIds, CancellationToken cancellationToken)
+        {
+            var commandDefinition = new CommandDefinition(
+                "DELETE FROM attachment WHERE anomalyid = @anomalyid and attachmentid NOT IN @attachmentids",
+                new
+                {
+                    anomalyId,
+                    attachmentIds
+                },
                 _database.DbTransaction,
                 cancellationToken: cancellationToken);
             await _database.DbConnection.ExecuteAsync(commandDefinition);
