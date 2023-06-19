@@ -30,7 +30,7 @@
                         }
                         else if (attachment.Category == SolucoesDefeitos.Model.Enum.AttachmentCategory.VideoLink)
                         {
-                            <iframe class="img-fluid rounded-start" width="200" height="100" src="@attachment.Storage">
+                            <iframe class="img-fluid rounded-start" width="200" height="100" src="@($"https://www.youtube.com/embed/{attachment.Storage}?autoplay=0&mute=1")">
                             </iframe>
                         }
                         else

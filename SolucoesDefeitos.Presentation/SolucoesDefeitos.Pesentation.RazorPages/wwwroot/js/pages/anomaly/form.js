@@ -13,7 +13,12 @@
                 dvImageUpload: $('#dvImageUpload'),
                 flImageUpload: $('#flImageUpload'),
                 txtImageDescription: $('#txtImageDescription'),
-                hdnToken: $('input[name="__RequestVerificationToken"]')
+                hdnToken: $('input[name="__RequestVerificationToken"]'),
+                dvYoutubeVideo: $('#dvYoutubeVideo'),
+                txtYoutubeVideoUrl: $('#txtYoutubeVideoUrl'),
+                iFrmYoutube: $('#iFrmYoutube'),
+                txtYoutubeVideoDescription: $('#txtYoutubeVideoDescription'),
+                dvYoutubeVideoPreview: $('#dvYoutubeVideoPreview')
             });
         };        
 
@@ -35,6 +40,16 @@
                 messages: {
                     flImageUpload: 'Escolha a imagem',
                     txtImageDescription: 'Informe uma descrição para a imagem'
+                }
+            },
+            addYoutubeVideoLink: {
+                rules: {
+                    txtYoutubeVideoUrl: 'required',
+                    txtYoutubeVideoDescription: 'required'
+                },
+                messages: {
+                    txtYoutubeVideoUrl: 'Informe uma url de vídeo do Youtube válida',
+                    txtYoutubeVideoDescription: "Informa uma descrição para o vídeo"
                 }
             }
         });
@@ -127,7 +142,10 @@
                     .addClass('li-divider')
                     .append(_renderProductAutocompleteItem(item))
                     .appendTo(ul);
-                };            
+                };
+
+            _getComponents().txtYoutubeVideoUrl.change(_txtYoutubeVideoUrlChange);
+            _getComponents().iFrmYoutube.on('load', _iFrmYoutubeVideoPreviewLoad);
         };
 
         const _addProduct = function () {
@@ -213,7 +231,7 @@
             return attachments;
         };
 
-        const _renderAttachmentsServerSide = function (attachments) {
+        const _renderAttachmentsServerSide = function (attachments, afterRenderAttachmentsServerSideCallback) {
             var token = _getComponents().hdnToken.val();
             $.ajax({
                 url: "?handler=AttachmentsChange",
@@ -224,8 +242,9 @@
                 },
                 success: function (data) {
                     _getComponents().dvAttachments.html('');
-                    _getComponents().dvAttachments.html(data);                    
-                    _addImageCancel();
+                    _getComponents().dvAttachments.html(data);
+                    if (afterRenderAttachmentsServerSideCallback)
+                        afterRenderAttachmentsServerSideCallback();
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.error(textStatus);
@@ -250,7 +269,7 @@
                 category: _attachmentsCategories.PICTURE
             });
 
-            _renderAttachmentsServerSide(attachments);
+            _renderAttachmentsServerSide(attachments, _addImageCancel);
         };
 
         const _deleteAttachment = function (attachmentIndex) {
@@ -265,6 +284,73 @@
             });
         };
 
+        const _startAddYoutubeVideo = function () {
+            _getComponents().dvYoutubeVideo.show();
+            _getComponents().anomalyForm.validate(_validationRules.addYoutubeVideoLink);
+        };
+
+        const _addYoutubeVideoCancel = function () {
+            _getComponents().txtYoutubeVideoUrl.val('');
+            _getComponents().iFrmYoutube.attr('src', null);
+            _getComponents().dvYoutubeVideoPreview.hide();
+            _getComponents().txtYoutubeVideoDescription.val('');
+            _getComponents().dvYoutubeVideo.hide();
+            _getComponents().anomalyForm.validate(_validationRules.addYoutubeVideoLink).destroy();
+            _getComponents().txtYoutubeVideoUrl.removeClass('error');
+            _getComponents().txtYoutubeVideoDescription.removeClass('error');
+        };
+
+        const _txtYoutubeVideoUrlChange = function () {
+            const youtubeVideoUrl = _getComponents().txtYoutubeVideoUrl.val();
+            if (!youtubeVideoUrl) {
+                _getComponents().iFrmYoutube.attr('src', null);
+                _getComponents().dvYoutubeVideoPreview.hide();
+                return;
+            }
+
+            const youtubeVideoId = _getYoutubeVideoIdFromUrl(youtubeVideoUrl);
+            if (!youtubeVideoId) {
+                alert('Não foi possível identificar o vídeo.');
+                return;
+            }
+
+            _getComponents().iFrmYoutube.attr('src',
+                `https://www.youtube.com/embed/${youtubeVideoId}?autoplay=0&mute=1`);
+        };
+
+        const _getYoutubeVideoIdFromUrl = function (url) {
+            // Our regex pattern to look for a youTube ID
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            //Match the url with the regex
+            const match = url.match(regExp);
+            //Return the result
+            return match && match[2].length === 11 ? match[2] : undefined;
+        };
+
+        const _iFrmYoutubeVideoPreviewLoad = function () {
+            if (_getComponents().iFrmYoutube.attr('src')) {
+                _getComponents().dvYoutubeVideoPreview.show();
+            }
+        };
+
+        const _addYoutubeVideo = function () {
+            if (!_getComponents().anomalyForm.valid()) {
+                return;
+            }
+
+            const videoId =  _getYoutubeVideoIdFromUrl(_getComponents().txtYoutubeVideoUrl.val());
+            const videoDescription = _getComponents().txtYoutubeVideoDescription.val();
+            const attachments = _getAttachmentsAsJson();
+            attachments.push({
+                anomalyId: _getComponents().hdnAnomalyId.val() ?? 0,
+                description: videoDescription,
+                storage: videoId,
+                category: _attachmentsCategories.VIDEOLINK
+            });
+
+            _renderAttachmentsServerSide(attachments, _addYoutubeVideoCancel);
+        };
+
         return {
             initialize: _initialize,
             addProduct: _addProduct,
@@ -272,7 +358,10 @@
             startAddImage: _startAddImage,
             addImageCancel: _addImageCancel,
             addImage: _addImage,
-            deleteAttachment: _deleteAttachment
+            deleteAttachment: _deleteAttachment,
+            startAddYoutubeVideo: _startAddYoutubeVideo,
+            addYoutubeVideoCancel: _addYoutubeVideoCancel,
+            addYoutubeVideo: _addYoutubeVideo
         };
     }
 

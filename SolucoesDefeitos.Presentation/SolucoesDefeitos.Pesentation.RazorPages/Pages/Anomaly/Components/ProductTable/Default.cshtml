@@ -33,10 +33,10 @@
                     data-anomaly-id="@product.AnomalyId"
                     data-manufacture-year="@product.ManufactureYear">
                     <th scope="row">
-                        <input type="hidden" name="Anomaly.ProductSpecifications.Index" value="@product.AnomalyProductSpecificationId" />
-                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.AnomalyProductSpecificationId].AnomalyProductSpecificationId" value="@product.AnomalyProductSpecificationId" />
-                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.AnomalyProductSpecificationId].ProductId" value="@product.ProductId" />
-                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.AnomalyProductSpecificationId].AnomalyId" value="@product.AnomalyId" />
+                        <input type="hidden" name="Anomaly.ProductSpecifications.Index" value="@index" />
+                        <input type="hidden" name="Anomaly.ProductSpecifications[@index].AnomalyProductSpecificationId" value="@product.AnomalyProductSpecificationId" />
+                        <input type="hidden" name="Anomaly.ProductSpecifications[@index].ProductId" value="@product.ProductId" />
+                        <input type="hidden" name="Anomaly.ProductSpecifications[@index].AnomalyId" value="@product.AnomalyId" />
                         <button type="button" class="btn btn-danger" onclick="anomalyForm.deleteProduct(@index)">Excluir</button>
                     </th>
                     <td>
@@ -46,7 +46,7 @@
                         <span>@product.Product.Manufacturer.Name</span>
                     </td>
                     <td>
-                        <input type="hidden" name="Anomaly.ProductSpecifications[@product.AnomalyProductSpecificationId].ManufactureYear" value="@product.ManufactureYear" />
+                        <input type="hidden" name="Anomaly.ProductSpecifications[@index].ManufactureYear" value="@product.ManufactureYear" />
                         <span>@product.ManufactureYear</span>
                     </td>
                     <td>@product.Product.Code</td>

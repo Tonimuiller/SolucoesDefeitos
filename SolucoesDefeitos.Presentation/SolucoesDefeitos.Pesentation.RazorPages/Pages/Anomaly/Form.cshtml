@@ -73,17 +73,17 @@
         <div id="dvYoutubeVideo" class="row mb-3" style="display: none">
             <div class="col-md-12 mb-3">
                 <label for="txtYoutubeVideoUrl" class="form-label">Cole a url do vídeo do Youtube aqui.</label>
-                <input type="url" id="txtYoutubeVideoUrl" class="form-control" />
+                <input type="url" id="txtYoutubeVideoUrl" name="txtYoutubeVideoUrl" class="form-control" />
             </div>
-            <div class="col-md-3 mb-3">
-                <!--Video thumbnail goes here-->
-            </div>
-            <div class="col-md-9 mb-3">
-                <!--Video data goes here-->
-            </div>
+            <div id="dvYoutubeVideoPreview" class="col-md-12 mb-3" style="display: none">
+                <div class="col-md-12 d-flex justify-content-center">
+                    <iframe id="iFrmYoutube" width="270" height="200">
+                    </iframe>
+                </div>
+            </div>            
             <div class="col-md-9 mb-3">
                 <label for="txtYoutubeVideoDescription" class="form-label">Descrição do vídeo</label>
-                <input type="text" id="txtYoutubeVideoDescription" class="form-control"/>
+                <input type="text" id="txtYoutubeVideoDescription" name="txtYoutubeVideoDescription" class="form-control" />
             </div>
             <div class="col-md-3 mb-3 d-flex align-items-end">
                 <button type="button" id="btAddYoutubeVideo" class="btn btn-primary" onclick="anomalyForm.addYoutubeVideo()">Adicionar Vídeo</button>

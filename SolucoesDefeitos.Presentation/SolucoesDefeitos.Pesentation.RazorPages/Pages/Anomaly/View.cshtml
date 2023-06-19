@@ -52,6 +52,30 @@
     </div>    
 }
 
+@if (Model.Anomaly.Attachments?.Any() ?? false)
+{
+    <h4 class="text-secondary">Anexos</h4>
+    foreach(var attachment in Model.Anomaly.Attachments)
+    {
+        <div class="card mb-3">
+            @if ((attachment.Category == SolucoesDefeitos.Model.Enum.AttachmentCategory.Picture) || (attachment.Category == SolucoesDefeitos.Model.Enum.AttachmentCategory.PictureLink))
+            {
+                <img src="@attachment.Storage" class="card-img-top">
+            }
+            else if (attachment.Category == SolucoesDefeitos.Model.Enum.AttachmentCategory.VideoLink)
+            {
+                <div class="ratio ratio-16x9">
+                    <iframe src="@($"https://www.youtube.com/embed/{attachment.Storage}?autoplay=0&mute=1")" allowfullscreen>
+                    </iframe>
+                </div>
+            }
+            <div class="card-body">                
+                <p class="card-text"><small class="text-muted">@attachment.Description</small></p>
+            </div>
+        </div>
+    }
+}
+
 @section Scripts {
     <script type="text/javascript" src="~/js/pages/anomaly/view.js" asp-append-version="true"></script>
 }
