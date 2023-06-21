@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.BusinessDefinition.Service;
+using System.Threading;
 
 namespace SolucoesDefeitos.Pesentation.RazorPages.Pages.Product;
 
@@ -18,7 +19,7 @@ public sealed class FormModel : PageModel
     {
         _productService = productService;
         _manufacturerRepository = manufacturerRepository;
-        _productGroupRepository = productGroupRepository;
+        _productGroupRepository = productGroupRepository;        
     }
 
     [BindProperty]
@@ -27,13 +28,13 @@ public sealed class FormModel : PageModel
     public IEnumerable<Model.Manufacturer> Manufacturers { get; private set; }
 
     public IEnumerable<Model.ProductGroup> ProductGroups { get; private set; }
-
+     
     public async Task<IActionResult> OnGetAsync(int? productId, CancellationToken cancellationToken)
     {
+        await InitializeModelAvailableReferencesAsync(cancellationToken);
         if (productId == null) 
         {
-            Product = new Model.Product { Enabled = true };
-            await InitializeModelAvailableReferencesAsync(cancellationToken);
+            Product = new Model.Product { Enabled = true };            
             return Page();
         }
 
@@ -49,6 +50,7 @@ public sealed class FormModel : PageModel
 
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
+        await InitializeModelAvailableReferencesAsync(cancellationToken);
         if (string.IsNullOrEmpty(Product?.Name))
         {
             TempData["Error"] = "O Nome do Produto é obrigatório.";
