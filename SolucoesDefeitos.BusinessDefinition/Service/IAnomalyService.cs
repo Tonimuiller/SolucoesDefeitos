@@ -1,4 +1,5 @@
 ﻿using SolucoesDefeitos.Dto;
+using SolucoesDefeitos.Dto.Anomaly.Request;
 using SolucoesDefeitos.Model;
 using System.Collections.Generic;
 using System.Threading;
@@ -10,6 +11,6 @@ namespace SolucoesDefeitos.BusinessDefinition.Service
     {
         Task<IEnumerable<Anomaly>> GetAllEagerLoadAsync(CancellationToken cancellationToken);
 
-        Task<PagedData<Anomaly>> FilterAsync(CancellationToken cancellationToken, int page = 1, int pageSize = 10);
+        Task<PagedData<Anomaly>> FilterAsync(AnomalyFilterRequest request, CancellationToken cancellationToken);
     }
 }

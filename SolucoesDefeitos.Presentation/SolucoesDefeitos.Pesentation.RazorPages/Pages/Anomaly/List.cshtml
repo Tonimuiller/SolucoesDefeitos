@@ -12,10 +12,64 @@
 <div class="p-3 mb-2 bg-secondary text-white">
     <span>Banco de Soluções e Defeitos</span>
 </div>
-<div class="mb-1">
-    <a class="btn btn-primary" asp-page="./Form">Novo</a>
-</div>
 <form asp-page="./List" method="get">
+    <div class="card mb-3">
+        <div class="card-header">
+            Filtros
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12 mb-3">
+                    <label class="form-label" for="txtSearchTerm">Termo à pesquisar</label>
+                    <input type="text" class="form-control" id="txtSearchTerm" name="SearchTerm" value="@Model.SearchTerm" />
+                </div>
+                <div class="col-md-4 col-sm-12 mb-3">
+                    <label class="form-label" for="slManufacturer">Fabricante</label>
+                    <select class="form-select" id="slManufacturer" name="ManufacturerIds[]" multiple>
+                        @if (Model.Manufacturers?.Any() ?? false)
+                        {
+                            foreach (var manufacturer in Model.Manufacturers)
+                            {
+                                <!option  value="@manufacturer.ManufacturerId" @((Model.ManufacturerIds?.Contains(manufacturer.ManufacturerId) ?? false) ? "selected" : string.Empty)>@manufacturer.Name</!option>
+                            }
+                        }
+                        else
+                        {
+                            <!option>Nenhum fabricante ativo disponível</!option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-3">
+                    <label class="form-label" for="slProductGroup">Grupo</label>
+                    <select class="form-select" id="slProductGroup" name="ProductGroupIds[]" multiple>
+                        @if (Model.ProductGroups?.Any() ?? false)
+                        {
+                            foreach (var productGroup in Model.ProductGroups)
+                            {
+                                <!option  value="@productGroup.ProductGroupId" @((Model.ProductGroupIds?.Contains(productGroup.ProductGroupId) ?? false) ? "selected" : string.Empty)>@productGroup.Description</!option>
+                            }
+                        }
+                        else
+                        {
+                            <!option>Nenhum fabricante ativo disponível</!option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-4 col-sm-12 mb-3">
+                    <label class="form-label" for="slProduct">Produto</label>
+                    <select class="form-select" id="slProduct" name="ProductIds[]" multiple>                        
+                    </select>
+                </div>
+                <div class="btn-group btn-group-sm">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                    <button type="reset" class="btn btn-secondary">Limpar Filtro</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mb-1">
+        <a class="btn btn-primary" asp-page="./Form">Novo</a>
+    </div>
     <div class="p-2 bg-light border">
         @foreach (var anomaly in Model.PagedData.Data)
         {
@@ -43,10 +97,10 @@
 
     @await Component.InvokeAsync(nameof(Pager),
     new PagerModel {
-        CurrentPage = Model.PagedData.CurrentPage,
-        PageSize = Model.PagedData.PageSize,
-        Path = "/Anomaly/List",
-        TotalRecords = Model.PagedData.TotalRecords,
+    CurrentPage = Model.PagedData.CurrentPage,
+    PageSize = Model.PagedData.PageSize,
+    Path = "/Anomaly/List",
+    TotalRecords = Model.PagedData.TotalRecords,
     })
 </form>
 

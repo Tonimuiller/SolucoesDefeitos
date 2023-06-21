@@ -2,6 +2,7 @@
 using SolucoesDefeitos.BusinessDefinition;
 using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.Dto;
+using SolucoesDefeitos.Dto.Anomaly.Request;
 using SolucoesDefeitos.Model;
 using SolucoesDefeitos.Provider;
 using System;
@@ -68,27 +69,41 @@ namespace SolucoesDefeitos.DataAccess.Repository
             }
         }
 
-        public async Task<PagedData<Anomaly>> FilterAsync(CancellationToken cancellationToken, int page = 1, int pageSize = 20)
+        public async Task<PagedData<Anomaly>> FilterAsync(AnomalyFilterRequest request, CancellationToken cancellationToken)
         {
             var listViewModel = new PagedData<Anomaly>();
-            listViewModel.CurrentPage = page;
-            listViewModel.PageSize = pageSize;
-            var skip = (page - 1) * pageSize;
+            listViewModel.CurrentPage = request.Page;
+            listViewModel.PageSize = request.PageSize;
+            var skip = (request.Page - 1) * request.PageSize;
             var totalItemsQueryBuilder = new StringBuilder()
                 .AppendLine("SELECT")
                 .AppendLine("\tCOUNT(anomalyId) AS TotalItems")
                 .AppendLine("FROM")
-            .AppendLine("\tanomaly");
+                .AppendLine("\tanomaly");
+
+            if (!string.IsNullOrEmpty(request.SearchTerm))
+            {
+                totalItemsQueryBuilder.AppendLine("WHERE")
+                    .AppendLine("\t(")
+                    .AppendLine("\t\t(LOWER(summary) LIKE @searchTerm)")
+                    .AppendLine("\t\t OR (LOWER(description) LIKE @searchTerm)")
+                    .AppendLine("\t\t OR (LOWER(repairsteps) LIKE @searchTerm)")
+                    .AppendLine("\t)");
+            }
 
             var commandDefinition = new CommandDefinition(
                 totalItemsQueryBuilder.ToString(),
-                transaction: _database.DbTransaction,
+                new
+                {
+                    searchTerm = $"%{request.SearchTerm?.ToLower()}%"
+                },
+                _database.DbTransaction,
                 cancellationToken: cancellationToken);
             listViewModel.TotalRecords = await _database.DbConnection.QuerySingleOrDefaultAsync<int>(commandDefinition);
             while (listViewModel.CurrentPage > 1 && skip >= listViewModel.TotalRecords)
             {
                 listViewModel.CurrentPage--;
-                skip = (listViewModel.CurrentPage - 1) * pageSize;
+                skip = (listViewModel.CurrentPage - 1) * request.PageSize;
             }
 
             var queryBuilder = new StringBuilder()
@@ -100,7 +115,17 @@ namespace SolucoesDefeitos.DataAccess.Repository
                 .AppendLine("\tdescription,")
                 .AppendLine("\trepairsteps")
                 .AppendLine("FROM")
-            .AppendLine("\tanomaly");
+                .AppendLine("\tanomaly");
+
+            if (!string.IsNullOrEmpty(request.SearchTerm))
+            {
+                queryBuilder.AppendLine("WHERE")
+                    .AppendLine("\t(")
+                    .AppendLine("\t\t(LOWER(summary) LIKE @searchTerm)")
+                    .AppendLine("\t\t OR (LOWER(description) LIKE @searchTerm)")
+                    .AppendLine("\t\t OR (LOWER(repairsteps) LIKE @searchTerm)")
+                    .AppendLine("\t)");
+            }
 
             queryBuilder.AppendLine("ORDER BY creationdate DESC");
 
@@ -108,8 +133,9 @@ namespace SolucoesDefeitos.DataAccess.Repository
 
             var parameters = new
             {
-                skip,
-                pageSize
+                searchTerm = $"%{request.SearchTerm?.ToLower()}%",
+                skip,                
+                request.PageSize
             };
 
             commandDefinition = new CommandDefinition(

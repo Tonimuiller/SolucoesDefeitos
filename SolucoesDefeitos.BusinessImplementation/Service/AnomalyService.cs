@@ -3,6 +3,7 @@ using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.BusinessDefinition.Service;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Dto.Anomaly;
+using SolucoesDefeitos.Dto.Anomaly.Request;
 using SolucoesDefeitos.Model;
 using System;
 using System.Collections.Generic;
@@ -116,9 +117,9 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             return anomalies;
         }
 
-        public async Task<PagedData<Anomaly>> FilterAsync(CancellationToken cancellationToken, int page = 1, int pageSize = 10)
+        public async Task<PagedData<Anomaly>> FilterAsync(AnomalyFilterRequest request,CancellationToken cancellationToken)
         {
-            return await _anomalyRepository.FilterAsync(cancellationToken, page, pageSize);
+            return await _anomalyRepository.FilterAsync(request, cancellationToken);
         }
 
         private async Task SaveNewAnomalyProductSpecifications(Anomaly anomaly, CancellationToken cancellationToken)
