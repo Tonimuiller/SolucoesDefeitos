@@ -5,7 +5,9 @@
 @model SolucoesDefeitos.Pesentation.RazorPages.Pages.Product.ListModel
 @{
 }
-@await Component.InvokeAsync(nameof(DisplayTempDataMessage))
+<div id="dvMessages">
+    @await Component.InvokeAsync(nameof(DisplayTempDataMessage))
+</div>
 <div class="p-3 mb-2 bg-secondary text-white">
     <span>Produtos</span>
 </div>
@@ -13,6 +15,7 @@
     <a class="btn btn-primary" asp-page="./Form">Novo</a>
 </div>
 <form asp-page="./List" method="get">
+    @Html.AntiForgeryToken()
     <table class="table">
         <thead>
             <tr>

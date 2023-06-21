@@ -1,5 +1,6 @@
 ﻿using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 

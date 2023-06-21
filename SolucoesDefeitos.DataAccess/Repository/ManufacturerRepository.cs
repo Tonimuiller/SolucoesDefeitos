@@ -159,6 +159,28 @@ namespace SolucoesDefeitos.DataAccess.Repository
             return await _database.DbConnection.QueryAsync<Manufacturer>(commandDefinition);
         }
 
+        public async Task<IEnumerable<Manufacturer>> GetAllEnabledNameOrderedAsync(CancellationToken cancellationToken)
+        {
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tmanufacturerid,")
+                .AppendLine("\tcreationdate,")
+                .AppendLine("\tupdatedate,")
+                .AppendLine("\tenabled,")
+                .AppendLine("\tname")
+                .AppendLine("FROM")
+                .AppendLine("\tmanufacturer")
+                .AppendLine("WHERE")
+                .AppendLine("\tenabled = 1")
+                .AppendLine("ORDER BY")
+                .AppendLine("\tname");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                transaction: _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QueryAsync<Manufacturer>(commandDefinition);
+        }
+
         public async Task<Manufacturer> GetByIdAsync(int keyValue, CancellationToken cancellationToken)
         {
             var sqlBuilder = new StringBuilder()

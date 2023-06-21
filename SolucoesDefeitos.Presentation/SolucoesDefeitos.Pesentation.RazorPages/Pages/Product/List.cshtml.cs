@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SolucoesDefeitos.BusinessDefinition.Service;
 using SolucoesDefeitos.Dto;
+using SolucoesDefeitos.Pesentation.RazorPages.Pages.Shared;
 
 namespace SolucoesDefeitos.Pesentation.RazorPages.Pages.Product;
 
-public sealed class ListModel : PageModel
+public sealed class ListModel : BasePageModel
 {
     public readonly IProductService _productService;
 

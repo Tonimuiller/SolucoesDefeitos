@@ -14,10 +14,56 @@
         <input type="checkbox" class="form-check-inline" id="ckBxEnabled" name="Product.Enabled" value="true" @((Model.Product?.Enabled ?? false) ? "checked" : string.Empty) />
         <label class="form-check-label" for="ckBxEnabled">Ativo</label>
     </div>
-    <div class="mb-3">
+    <div class="col-12 mb-3">
         <label class="form-label" for="txtName">Nome</label>
         <input type="text" class="form-control" id="txtName" name="Product.Name" value="@Model.Product?.Name" />
     </div>
+    <div class="row">
+        <div class="col-md-4 col-sm-12 mb-3">
+            <label class="form-label" for="txtCode">Código de Referência</label>
+            <input type="text" class="form-control" id="txtCode" name="Product.Code" value="@Model.Product?.Code" />
+        </div>
+        <div class="col-md-4 col-sm-12 mb-3">
+            <label class="form-label" for="slManufacturer">Fabricante</label>
+            <select class="form-select" id="slManufacturer" name="Product.ManufacturerId">
+                @if (Model.Product.ProductId <= 0)
+                {
+                    <!option disabled selected hidden>Escolha um fabricante</!option>
+                }
+                @if (Model.Manufacturers?.Any() ?? false)
+                {
+                    foreach (var manufacturer in Model.Manufacturers)
+                    {
+                        <!option  value="@manufacturer.ManufacturerId" @(Model.Product.ManufacturerId == manufacturer.ManufacturerId ? "selected" : string.Empty)>@manufacturer.Name</!option>
+                    }
+                }
+                else
+                {
+                    <!option>Nenhum fabricante ativo disponível</!option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4 col-sm-12 mb-3">
+            <label class="form-label" for="slProductGroup">Grupo</label>
+            <select class="form-select" id="slProductGroup" name="Product.ProductGroupId">
+                @if (Model.Product.ProductId <= 0)
+                {
+                    <!option disabled selected hidden>Escolha um grupo</!option>
+                }
+                @if (Model.ProductGroups?.Any() ?? false)
+                {
+                    foreach (var productGroup in Model.ProductGroups)
+                    {
+                        <!option  value="@productGroup.ProductGroupId" @(Model.Product.ProductGroupId == productGroup.ProductGroupId ? "selected" : string.Empty)>@productGroup.Description</!option>
+                    }
+                }
+                else
+                {
+                    <!option>Nenhum fabricante ativo disponível</!option>
+                }
+            </select>
+        </div>
+    </div>    
     <button type="submit" class="btn btn-primary">Salvar</button>
     <a class="btn btn-secondary" asp-page="./List">Cancelar</a>
 </form>
