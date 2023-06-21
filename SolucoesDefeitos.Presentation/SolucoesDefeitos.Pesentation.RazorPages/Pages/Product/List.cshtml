@@ -1,0 +1,67 @@
+﻿@page
+@using SolucoesDefeitos.Pesentation.RazorPages.Components.DisplayTempDataMessage;
+@using SolucoesDefeitos.Pesentation.RazorPages.Components.Pager;
+@using SolucoesDefeitos.Pesentation.RazorPages.Components.Pager.Model;
+@model SolucoesDefeitos.Pesentation.RazorPages.Pages.Product.ListModel
+@{
+}
+@await Component.InvokeAsync(nameof(DisplayTempDataMessage))
+<div class="p-3 mb-2 bg-secondary text-white">
+    <span>Produtos</span>
+</div>
+<div>
+    <a class="btn btn-primary" asp-page="./Form">Novo</a>
+</div>
+<form asp-page="./List" method="get">
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col" class="options-column">Ações</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Fabricante</th>
+                <th scope="col">Grupo</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if(Model.PagedData?.Data?.Any() ?? false)
+            {
+                @foreach (var product in Model.PagedData.Data)
+                {
+                    <tr>
+                        <th scope="row">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                    Opções
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-page="./Form" asp-route-productId="@product.ProductId">Alterar</a></li>
+                                    <li><a class="dropdown-item" href="#" onclick="list.deleteRecord(@product.ProductId)">Excluir</a></li>
+                                </ul>
+                            </div>
+                        </th>
+                        <td>@product.Name</td>
+                        <td>@product.Manufacturer?.Name</td>
+                        <td>@product.ProductGroup?.Description</td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="4">Nenhum produto cadastrado</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    @await Component.InvokeAsync(nameof(Pager),
+    new PagerModel {
+        CurrentPage = Model.PagedData.CurrentPage,
+        PageSize = Model.PagedData.PageSize,
+        Path = "/Product/List",
+        TotalRecords = Model.PagedData.TotalRecords,
+    })
+</form>
+
+@section Scripts {
+    <script type="text/javascript" src="~/js/pages/product/list.js" asp-append-version="true"></script>
+}

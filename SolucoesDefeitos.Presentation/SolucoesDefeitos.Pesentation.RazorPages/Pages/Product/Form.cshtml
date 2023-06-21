@@ -1,0 +1,23 @@
+﻿@page
+@using SolucoesDefeitos.Pesentation.RazorPages.Components.DisplayTempDataMessage;
+@model SolucoesDefeitos.Pesentation.RazorPages.Pages.Product.FormModel
+@{
+}
+@await Component.InvokeAsync(nameof(DisplayTempDataMessage))
+<div class="p-3 mb-2 bg-secondary text-white">
+    <span>Cadastro de Produto</span>
+</div>
+<form method="post">
+    <input type="hidden" name="Product.ProductId" value="@Model.Product?.ProductId" />
+    <input type="hidden" name="Product.CreationDate" value="@Model.Product?.CreationDate.ToString("yyyy-MM-ddThh:mm:ss")" />
+    <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-inline" id="ckBxEnabled" name="Product.Enabled" value="true" @((Model.Product?.Enabled ?? false) ? "checked" : string.Empty) />
+        <label class="form-check-label" for="ckBxEnabled">Ativo</label>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="txtName">Nome</label>
+        <input type="text" class="form-control" id="txtName" name="Product.Name" value="@Model.Product?.Name" />
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <a class="btn btn-secondary" asp-page="./List">Cancelar</a>
+</form>

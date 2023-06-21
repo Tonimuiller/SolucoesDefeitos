@@ -1,8 +1,10 @@
 ﻿using Dapper;
 using SolucoesDefeitos.BusinessDefinition;
 using SolucoesDefeitos.BusinessDefinition.Repository;
+using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
 using SolucoesDefeitos.Provider;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -57,14 +59,22 @@ namespace SolucoesDefeitos.DataAccess.Repository
             await _database.DbConnection.ExecuteAsync(commandDefinition);
         }
 
-        public async Task DeleteAsync(AnomalyProductSpecification entity, CancellationToken cancellationToken)
+        public async Task<ResponseDto> DeleteAsync(AnomalyProductSpecification entity, CancellationToken cancellationToken)
         {
             var commandDefinition = new CommandDefinition(
                 "DELETE FROM anomalyproductspecification WHERE anomalyproductspecificationid = @anomalyproductspecificationid",
                 entity,
                 _database.DbTransaction,
                 cancellationToken: cancellationToken);
-            await _database.DbConnection.ExecuteAsync(commandDefinition);
+            try
+            {
+                await _database.DbConnection.ExecuteAsync(commandDefinition);
+                return new ResponseDto(true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto(false, ex.Message);
+            }
         }
 
         public async Task DeleteByAnomalyIdAsync(int anomalyId, CancellationToken cancellationToken)

@@ -1,4 +1,5 @@
-﻿using SolucoesDefeitos.Model;
+﻿using SolucoesDefeitos.Dto;
+using SolucoesDefeitos.Model;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,5 +11,7 @@ namespace SolucoesDefeitos.BusinessDefinition.Repository
         Task<IEnumerable<Product>> SearchByTermAsync(CancellationToken cancellationToken, string term);
 
         Task<IEnumerable<Product>> EagerLoadByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken);
+
+        Task<PagedData<Product>> FilterAsync(int page, int pageSize, CancellationToken cancellationToken);
     }
 }

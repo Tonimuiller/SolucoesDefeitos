@@ -33,8 +33,7 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
 
         public virtual async Task<ResponseDto> DeleteAsync(TModel entity, CancellationToken cancellationToken)
         {
-            await _repository.DeleteAsync(entity, cancellationToken);
-            return new ResponseDto(true);
+            return await _repository.DeleteAsync(entity, cancellationToken);
         }
 
         public async Task<IEnumerable<TModel>> GetAllAsync(CancellationToken cancellationToken)

@@ -1,8 +1,10 @@
 ﻿using Dapper;
 using SolucoesDefeitos.BusinessDefinition;
 using SolucoesDefeitos.BusinessDefinition.Repository;
+using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
 using SolucoesDefeitos.Provider;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -50,14 +52,22 @@ namespace SolucoesDefeitos.DataAccess.Repository
             return entity;
         }
 
-        public async Task DeleteAsync(Attachment entity, CancellationToken cancellationToken)
+        public async Task<ResponseDto> DeleteAsync(Attachment entity, CancellationToken cancellationToken)
         {
             var commandDefinition = new CommandDefinition(
                 "DELETE FROM attachment WHERE attachmentid = @attachmentid",
                 entity,
                 _database.DbTransaction,
                 cancellationToken: cancellationToken);
-            await _database.DbConnection.ExecuteAsync(commandDefinition);
+            try
+            {
+                await _database.DbConnection.ExecuteAsync(commandDefinition);
+                return new ResponseDto(true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto(false, ex.Message);
+            }
         }
 
         public async Task DeleteAsync(int anomalyId, int[] attachmentIds, CancellationToken cancellationToken)

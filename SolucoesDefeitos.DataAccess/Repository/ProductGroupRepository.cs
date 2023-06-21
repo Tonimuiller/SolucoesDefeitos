@@ -4,6 +4,7 @@ using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
 using SolucoesDefeitos.Provider;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -49,14 +50,22 @@ namespace SolucoesDefeitos.DataAccess.Repository
             return entity;
         }
 
-        public async Task DeleteAsync(ProductGroup entity, CancellationToken cancellationToken)
+        public async Task<ResponseDto> DeleteAsync(ProductGroup entity, CancellationToken cancellationToken)
         {
             var commandDefinition = new CommandDefinition(
                 "DELETE FROM productgroup WHERE productgroupid = @productgroupid",
                 entity,
                 _database.DbTransaction,
                 cancellationToken: cancellationToken);
-            await _database.DbConnection.ExecuteAsync(commandDefinition);
+            try
+            {
+                await _database.DbConnection.ExecuteAsync(commandDefinition);
+                return new ResponseDto(true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto(false, ex.Message);
+            }
         }
 
         public async Task<PagedData<ProductGroup>> FilterAsync(CancellationToken cancellationToken, string description = null, int page = 1, int pageSize = 20)

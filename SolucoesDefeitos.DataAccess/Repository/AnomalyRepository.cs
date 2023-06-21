@@ -4,6 +4,7 @@ using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
 using SolucoesDefeitos.Provider;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -49,14 +50,22 @@ namespace SolucoesDefeitos.DataAccess.Repository
             return entity;
         }
 
-        public async Task DeleteAsync(Anomaly entity, CancellationToken cancellationToken)
+        public async Task<ResponseDto> DeleteAsync(Anomaly entity, CancellationToken cancellationToken)
         {
             var commandDefinition = new CommandDefinition(
                 "DELETE FROM anomaly WHERE anomalyid = @anomalyid",
                 entity,
                 _database.DbTransaction,
                 cancellationToken: cancellationToken);
-            await _database.DbConnection.ExecuteAsync(commandDefinition);
+            try
+            {
+                await _database.DbConnection.ExecuteAsync(commandDefinition);
+                return new ResponseDto(true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto(false, ex.Message);
+            }
         }
 
         public async Task<PagedData<Anomaly>> FilterAsync(CancellationToken cancellationToken, int page = 1, int pageSize = 20)
