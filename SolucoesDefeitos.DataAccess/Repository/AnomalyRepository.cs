@@ -7,6 +7,7 @@ using SolucoesDefeitos.Model;
 using SolucoesDefeitos.Provider;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -79,23 +80,17 @@ namespace SolucoesDefeitos.DataAccess.Repository
                 .AppendLine("SELECT")
                 .AppendLine("\tCOUNT(anomalyId) AS TotalItems")
                 .AppendLine("FROM")
-                .AppendLine("\tanomaly");
-
-            if (!string.IsNullOrEmpty(request.SearchTerm))
-            {
-                totalItemsQueryBuilder.AppendLine("WHERE")
-                    .AppendLine("\t(")
-                    .AppendLine("\t\t(LOWER(summary) LIKE @searchTerm)")
-                    .AppendLine("\t\t OR (LOWER(description) LIKE @searchTerm)")
-                    .AppendLine("\t\t OR (LOWER(repairsteps) LIKE @searchTerm)")
-                    .AppendLine("\t)");
-            }
+                .AppendLine("\tanomaly")
+                .AppendLine(BuildFilterWhere(request));
 
             var commandDefinition = new CommandDefinition(
                 totalItemsQueryBuilder.ToString(),
                 new
                 {
-                    searchTerm = $"%{request.SearchTerm?.ToLower()}%"
+                    searchTerm = $"%{request.SearchTerm?.ToLower()}%",
+                    request.ManufacturerIds,
+                    request.ProductGroupIds,
+                    request.ProductIds
                 },
                 _database.DbTransaction,
                 cancellationToken: cancellationToken);
@@ -115,25 +110,18 @@ namespace SolucoesDefeitos.DataAccess.Repository
                 .AppendLine("\tdescription,")
                 .AppendLine("\trepairsteps")
                 .AppendLine("FROM")
-                .AppendLine("\tanomaly");
-
-            if (!string.IsNullOrEmpty(request.SearchTerm))
-            {
-                queryBuilder.AppendLine("WHERE")
-                    .AppendLine("\t(")
-                    .AppendLine("\t\t(LOWER(summary) LIKE @searchTerm)")
-                    .AppendLine("\t\t OR (LOWER(description) LIKE @searchTerm)")
-                    .AppendLine("\t\t OR (LOWER(repairsteps) LIKE @searchTerm)")
-                    .AppendLine("\t)");
-            }
+                .AppendLine("\tanomaly")
+                .AppendLine(BuildFilterWhere(request));
 
             queryBuilder.AppendLine("ORDER BY creationdate DESC");
-
             queryBuilder.AppendLine("LIMIT @pageSize OFFSET @skip");
 
             var parameters = new
             {
                 searchTerm = $"%{request.SearchTerm?.ToLower()}%",
+                request.ManufacturerIds,
+                request.ProductGroupIds,
+                request.ProductIds,
                 skip,                
                 request.PageSize
             };
@@ -207,6 +195,77 @@ namespace SolucoesDefeitos.DataAccess.Repository
                 _database.DbTransaction,
                 cancellationToken: cancellationToken);
             await _database.DbConnection.ExecuteAsync(commandDefinition);
+        }
+
+        private string BuildFilterWhere(AnomalyFilterRequest request)
+        {
+            if (!request.Filtered)
+                return string.Empty;
+            
+            
+            var queryBuilder = new StringBuilder()
+                .AppendLine("WHERE");
+            if (!string.IsNullOrEmpty(request.SearchTerm))
+            {
+                queryBuilder
+                    .AppendLine("\t(")
+                    .AppendLine("\t\t(LOWER(summary) LIKE @searchTerm)")
+                    .AppendLine("\t\t OR (LOWER(description) LIKE @searchTerm)")
+                    .AppendLine("\t\t OR (LOWER(repairsteps) LIKE @searchTerm)")
+                    .AppendLine("\t)");
+            }
+
+            if (!string.IsNullOrEmpty(request.SearchTerm)
+                && ((request.ProductIds?.Any() ?? false)
+                || (request.ProductGroupIds?.Any() ?? false)
+                || (request.ManufacturerIds?.Any() ?? false)))
+            {
+                queryBuilder.AppendLine("\tAND");
+            }
+
+            if (request.ProductIds?.Any() ?? false)
+            {
+                queryBuilder
+                    .AppendLine("\tanomalyid IN")
+                    .AppendLine("\t(")
+                    .AppendLine("\t\tSELECT")
+                    .AppendLine("\t\t\tanomalyid")
+                    .AppendLine("\t\tFROM")
+                    .AppendLine("\t\t\tanomalyproductspecification")
+                    .AppendLine("\t\tWHERE")
+                    .AppendLine("\t\t\tproductid in @productIds")
+                    .AppendLine("\t)");
+            }
+            else if (request.ProductGroupIds?.Any() ?? false)
+            {
+                queryBuilder
+                    .AppendLine("\tanomalyid IN")
+                    .AppendLine("\t(")
+                    .AppendLine("\t\tSELECT")
+                    .AppendLine("\t\t\ti.anomalyid")
+                    .AppendLine("\t\tFROM")
+                    .AppendLine("\t\t\tanomalyproductspecification i")
+                    .AppendLine("\t\t\tINNER JOIN product p ON i.productid = p.productid")
+                    .AppendLine("\t\tWHERE")
+                    .AppendLine("\t\t\tp.productgroupid in @productGroupIds")
+                    .AppendLine("\t)");
+            }
+            else if (request.ManufacturerIds?.Any() ?? false)
+            {
+                queryBuilder
+                    .AppendLine("\tanomalyid IN")
+                    .AppendLine("\t(")
+                    .AppendLine("\t\tSELECT")
+                    .AppendLine("\t\t\ti.anomalyid")
+                    .AppendLine("\t\tFROM")
+                    .AppendLine("\t\t\tanomalyproductspecification i")
+                    .AppendLine("\t\t\tINNER JOIN product p ON i.productid = p.productid")
+                    .AppendLine("\t\tWHERE")
+                    .AppendLine("\t\t\tp.manufacturerid in @manufacturerIds")
+                    .AppendLine("\t)");
+            }
+
+            return queryBuilder.ToString();
         }
     }
 }

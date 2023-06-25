@@ -25,7 +25,7 @@
                 </div>
                 <div class="col-md-4 col-sm-12 mb-3">
                     <label class="form-label" for="slManufacturer">Fabricante</label>
-                    <select class="form-select" id="slManufacturer" name="ManufacturerIds[]" multiple>
+                    <select class="form-select" id="slManufacturer" name="ManufacturerIds" multiple>
                         @if (Model.Manufacturers?.Any() ?? false)
                         {
                             foreach (var manufacturer in Model.Manufacturers)
@@ -41,34 +41,23 @@
                 </div>
                 <div class="col-md-4 col-sm-12 mb-3">
                     <label class="form-label" for="slProductGroup">Grupo</label>
-                    <select class="form-select" id="slProductGroup" name="ProductGroupIds[]" multiple>
-                        @if (Model.ProductGroups?.Any() ?? false)
-                        {
-                            foreach (var productGroup in Model.ProductGroups)
-                            {
-                                <!option  value="@productGroup.ProductGroupId" @((Model.ProductGroupIds?.Contains(productGroup.ProductGroupId) ?? false) ? "selected" : string.Empty)>@productGroup.Description</!option>
-                            }
-                        }
-                        else
-                        {
-                            <!option>Nenhum fabricante ativo disponível</!option>
-                        }
+                    <select class="form-select" id="slProductGroup" name="ProductGroupIds" multiple>
                     </select>
                 </div>
                 <div class="col-md-4 col-sm-12 mb-3">
                     <label class="form-label" for="slProduct">Produto</label>
-                    <select class="form-select" id="slProduct" name="ProductIds[]" multiple>                        
+                    <select class="form-select" id="slProduct" name="ProductIds" multiple>                        
                     </select>
                 </div>
                 <div class="btn-group btn-group-sm">
-                    <button type="submit" class="btn btn-primary">Filtrar</button>
-                    <button type="reset" class="btn btn-secondary">Limpar Filtro</button>
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i>&nbsp;Filtrar</button>
+                    <button type="reset" class="btn btn-outline-danger"><i class="bi bi-backspace"></i>&nbsp;Limpar Filtro</button>
                 </div>
             </div>
         </div>
     </div>
-    <div class="mb-1">
-        <a class="btn btn-primary" asp-page="./Form">Novo</a>
+    <div class="mb-3">
+        <a class="btn btn-primary" asp-page="./Form"><i class="bi bi-plus-lg"></i>&nbsp;Novo</a>
     </div>
     <div class="p-2 bg-light border">
         @foreach (var anomaly in Model.PagedData.Data)

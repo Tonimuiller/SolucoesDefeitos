@@ -13,5 +13,7 @@ namespace SolucoesDefeitos.BusinessDefinition.Repository
         Task<PagedData<ProductGroup>> FilterAsync(CancellationToken cancellationToken, string description = null, int page = 1, int pageSize = 20);
 
         Task<IEnumerable<ProductGroup>> GetAllEnabledDescriptionOrderedAsync(CancellationToken cancellationToken);
+
+        Task<IEnumerable<ProductGroup>> GetAllEnabledByManufacturerIdsDescriptionOrderedAsync(int[] manufacturerIds, CancellationToken cancellationToken);
     }
 }

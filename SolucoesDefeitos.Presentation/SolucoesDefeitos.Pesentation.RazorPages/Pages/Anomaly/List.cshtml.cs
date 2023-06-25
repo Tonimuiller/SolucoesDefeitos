@@ -11,17 +11,14 @@ public sealed class ListModel : PageModel
 {
     private readonly IAnomalyService _anomalyService;
     private readonly IManufacturerRepository _manufacturerRepository;
-    private readonly IProductGroupRepository _productGroupRepository;
 
     public ListModel(
         IAnomalyService anomalyService,
-        IManufacturerRepository manufacturerRepository,
-        IProductGroupRepository productGroupRepository)
+        IManufacturerRepository manufacturerRepository)
     {
         ArgumentNullException.ThrowIfNull(anomalyService);
         _anomalyService = anomalyService;
         _manufacturerRepository = manufacturerRepository;
-        _productGroupRepository = productGroupRepository;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -44,20 +41,20 @@ public sealed class ListModel : PageModel
 
     public IEnumerable<Model.Manufacturer> Manufacturers { get; set; } = Enumerable.Empty<Model.Manufacturer>();
 
-    public IEnumerable<Model.ProductGroup> ProductGroups { get; set; } = Enumerable.Empty<Model.ProductGroup>();
-
     public PagedData<Model.Anomaly> PagedData { get; set; } = new PagedData<Model.Anomaly>();
 
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
         Manufacturers = await _manufacturerRepository.GetAllEnabledNameOrderedAsync(cancellationToken);
-        ProductGroups = await _productGroupRepository.GetAllEnabledDescriptionOrderedAsync(cancellationToken);
         PagedData = await _anomalyService.FilterAsync(
             new AnomalyFilterRequest
             {
                 Page = PageIndex,
                 PageSize = PageSize,
                 SearchTerm = SearchTerm,
+                ManufacturerIds = ManufacturerIds,
+                ProductGroupIds = ProductGroupIds,
+                ProductIds = ProductIds,
             }, cancellationToken);
         return Page();
     }

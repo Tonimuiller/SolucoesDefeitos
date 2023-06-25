@@ -162,6 +162,44 @@ namespace SolucoesDefeitos.DataAccess.Repository
             return await _database.DbConnection.QueryAsync<ProductGroup>(commandDefinition);
         }
 
+        public async Task<IEnumerable<ProductGroup>> GetAllEnabledByManufacturerIdsDescriptionOrderedAsync(int[] manufacturerIds, CancellationToken cancellationToken)
+        {
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tproductgroupid,")
+                .AppendLine("\tcreationdate,")
+                .AppendLine("\tupdatedate,")
+                .AppendLine("\tenabled,")
+                .AppendLine("\tdescription,")
+                .AppendLine("\tfatherproductgroupid")
+                .AppendLine("FROM")
+                .AppendLine("\tproductgroup")
+                .AppendLine("WHERE")
+                .AppendLine("\t(enabled = 1)")
+                .AppendLine("\tAND")
+                .AppendLine("\t(")
+                .AppendLine("\t\tproductgroupid IN")
+                .AppendLine("\t\t(")
+                .AppendLine("\t\t\tSELECT")
+                .AppendLine("\t\t\t\tp.productgroupid")
+                .AppendLine("\t\t\tFROM")
+                .AppendLine("\t\t\t\tproduct p")
+                .AppendLine("\t\t\t\tINNER JOIN anomalyproductspecification s")
+                .AppendLine("\t\t\t\tON p.productid = s.productid")
+                .AppendLine("\t\t\tWHERE")
+                .AppendLine("\t\t\t\tp.manufacturerid in @manufacturerIds")
+                .AppendLine("\t\t)")
+                .AppendLine("\t)")
+                .AppendLine("ORDER BY")
+                .AppendLine("\tdescription");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                new { manufacturerIds },
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QueryAsync<ProductGroup>(commandDefinition);
+        }
+
         public async Task<IEnumerable<ProductGroup>> GetAllEnabledDescriptionOrderedAsync(CancellationToken cancellationToken)
         {
             var sqlBuilder = new StringBuilder()
