@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.BusinessDefinition.Service;
 
 namespace SolucoesDefeitos.Pesentation.RazorPages.Api;
@@ -10,6 +11,7 @@ public class ProductApiGroup : IApiGroup
         var group = webApplication.MapGroup("/api/product");
         group.MapGet("/by-term", ByTermAsync);
         group.MapDelete("/{id:int}", DeleteAsync);
+        group.MapGet("/anomaly-filter-options", AnomalyFilterOptionsAsync);
     }
 
     private async Task<IResult> ByTermAsync(CancellationToken cancellationToken, 
@@ -33,5 +35,14 @@ public class ProductApiGroup : IApiGroup
         }
 
         return Results.Ok();
+    }
+
+    private async Task<IResult> AnomalyFilterOptionsAsync(
+        [FromQuery] int[] productGroupIds,
+        IProductRepository productRepository,
+        CancellationToken cancellationToken)
+    {
+        var products = await productRepository.GetAllEnabledByProductGroupIdsAsync(productGroupIds, cancellationToken);
+        return Results.Ok(products);
     }
 }

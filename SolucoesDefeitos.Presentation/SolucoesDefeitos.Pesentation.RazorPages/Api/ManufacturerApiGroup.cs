@@ -18,5 +18,4 @@ public class ManufacturerApiGroup : IApiGroup
         await manufacturerService.DeleteAsync(new Model.Manufacturer { ManufacturerId = id }, cancellationToken);
         return Results.Ok();
     }
-
 }

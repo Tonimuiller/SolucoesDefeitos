@@ -222,6 +222,30 @@ namespace SolucoesDefeitos.DataAccess.Repository
             return await _database.DbConnection.QueryAsync<Product>(commandDefinition);
         }
 
+        public async Task<IEnumerable<Product>> GetAllEnabledByProductGroupIdsAsync(int[] productGroupIds, CancellationToken cancellationToken)
+        {
+            var sqlBuilder = new StringBuilder()
+                .AppendLine("SELECT")
+                .AppendLine("\tproductid,")
+                .AppendLine("\tcreationdate,")
+                .AppendLine("\tupdatedate,")
+                .AppendLine("\tenabled,")
+                .AppendLine("\tmanufacturerid,")
+                .AppendLine("\tproductgroupid,")
+                .AppendLine("\tname,")
+                .AppendLine("\tcode")
+                .AppendLine("FROM")
+                .AppendLine("\tproduct")
+                .AppendLine("WHERE")
+                .AppendLine("\tproductgroupid IN @productGroupIds");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                new { productGroupIds },
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QueryAsync<Product>(commandDefinition);
+        }
+
         public async Task<Product> GetByIdAsync(int keyValue, CancellationToken cancellationToken)
         {
             var sqlBuilder = new StringBuilder()

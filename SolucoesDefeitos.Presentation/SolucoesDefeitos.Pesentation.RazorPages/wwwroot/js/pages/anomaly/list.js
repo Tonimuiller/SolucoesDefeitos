@@ -10,49 +10,98 @@ const list = (function () {
             });
         }
 
-        const _initialize = function () {
-            _getComponents().slManufacturer.multiselect({
+        const _slManufacturerOnChange = function (option, checked, select) {
+            const manufacturerIds = _getComponents().slManufacturer.val();
+            if (!manufacturerIds || !manufacturerIds.length) {
+                _getComponents().slProductGroup.multiselect('dataprovider', []);
+                _getComponents().slProduct.multiselect('dataprovider', []);
+                return;
+            }
+
+            const manufacturerIdsQueryParameters = manufacturerIds.map(manufacturerId => `manufacturerIds=${manufacturerId}`);
+            $.ajax({
+                type: 'GET',
+                url: `/api/product-group/anomaly-filter-options?${manufacturerIdsQueryParameters.join('&')}`,
+                success: (result, status, xhr) => {
+                    const slProductGroupData = result.map(productGroup => {
+                        return {
+                            label: productGroup.description,
+                            title: productGroup.description,
+                            value: productGroup.productGroupId
+                        };
+                    });
+                    _getComponents().slProductGroup.multiselect('dataprovider', slProductGroupData);
+                    _getComponents().slProduct.multiselect('dataprovider', []);
+                },
+                error: (xhr, status, error) => {
+                    alert('Ocorreu um erro ao carregar as opções de filtro dinamicamente.');
+                }
+            });
+        };
+
+        const _slProductGroupOnChange = function (option, checked, select) {
+            const productGroupIds = _getComponents().slProductGroup.val();
+            if (!productGroupIds || !productGroupIds.length) {
+                _getComponents().slProduct.multiselect('dataprovider', []);
+                return;
+            }
+
+            const productGroupIdsQueryParameters = productGroupIds.map(productGroupId => `productGroupIds=${productGroupId}`);
+            $.ajax({
+                type: 'GET',
+                url: `/api/product/anomaly-filter-options?${productGroupIdsQueryParameters.join('&')}`,
+                success: (result, status, xhr) => {
+                    const slProductData = result.map(product => {
+                        return {
+                            label: product.name,
+                            title: product.name,
+                            value: product.productId
+                        };
+                    });
+                    _getComponents().slProduct.multiselect('dataprovider', slProductData);
+                },
+                error: (xhr, status, error) => {
+                    alert('Ocorreu um erro ao carregar as opções de filtro dinamicamente.');
+                }
+            });
+        };
+
+        const _buildMultiSelectOptions = function (
+            disabledText,
+            nonSelectedText,
+            onChangeEvent) {
+            return Object.freeze({
+                onChange: onChangeEvent,
                 templates: {
                     button: '<button type="button" class="multiselect dropdown-toggle btn btn-primary" data-bs-toggle="dropdown" aria-expanded="false"><span class="multiselect-selected-text"></span></button>',
                     filter: '<div class="multiselect-filter d-flex align-items-center"><i class="fas fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control"  style="margin-left: -0.625rem;"/></div>'
                 },
                 disableIfEmpty: true,
-                disabledText: 'Nenhum Fabricante disponível',
-                nonSelectedText: 'Selecione um ou mais Fabricante(s)',
+                disabledText,
+                nonSelectedText,
                 numberDisplayed: 0,
                 includeSelectAllOption: true,
                 selectAllText: 'Selecionar todos',
                 enableFiltering: true,
-                enableCaseInsensitiveFiltering: true
+                enableCaseInsensitiveFiltering: true,                
             });
-            _getComponents().slProductGroup.multiselect({
-                templates: {
-                    button: '<button type="button" class="multiselect dropdown-toggle btn btn-primary" data-bs-toggle="dropdown" aria-expanded="false"><span class="multiselect-selected-text"></span></button>',
-                    filter: '<div class="multiselect-filter d-flex align-items-center"><i class="fas fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>'
-                },
-                disableIfEmpty: true,
-                disabledText: 'Nenhum Grupo de Produto disponível',
-                nonSelectedText: 'Selecione um ou mais Grupo(s) de Produtos',
-                numberDisplayed: 0,
-                includeSelectAllOption: true,
-                selectAllText: 'Selecionar todos',
-                enableFiltering: true,
-                enableCaseInsensitiveFiltering: true
-            });
-            _getComponents().slProduct.multiselect({
-                templates: {
-                    button: '<button type="button" class="multiselect dropdown-toggle btn btn-primary" data-bs-toggle="dropdown" aria-expanded="false"><span class="multiselect-selected-text"></span></button>',
-                    filter: '<div class="multiselect-filter d-flex align-items-center"><i class="fas fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control" /></div>'
-                },
-                disableIfEmpty: true,
-                disabledText: 'Nenhum Produto disponível',
-                nonSelectedText: 'Selecione um ou mais Produto(s)',
-                numberDisplayed: 0,
-                includeSelectAllOption: true,
-                selectAllText: 'Selecionar todos',
-                enableFiltering: true,
-                enableCaseInsensitiveFiltering: true
-            });
+        };
+
+        const _initialize = function () {
+            _getComponents().slManufacturer.multiselect(
+                _buildMultiSelectOptions(
+                    'Nenhum Fabricante disponível',
+                    'Selecione um ou mais Fabricante(s)',
+                    _slManufacturerOnChange));
+            _getComponents().slProductGroup.multiselect(
+                _buildMultiSelectOptions(
+                    'Nenhum Grupo de Produto disponível',
+                    'Selecione um ou mais Grupo(s) de Produtos',
+                    _slProductGroupOnChange));
+            _getComponents().slProduct.multiselect(
+                _buildMultiSelectOptions(
+                    'Nenhum Produto disponível',
+                    'Selecione um ou mais Produto(s)'));
         };
 
         return {

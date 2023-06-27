@@ -13,5 +13,7 @@ namespace SolucoesDefeitos.BusinessDefinition.Repository
         Task<IEnumerable<Product>> EagerLoadByIdsAsync(IEnumerable<int> ids, CancellationToken cancellationToken);
 
         Task<PagedData<Product>> FilterAsync(int page, int pageSize, CancellationToken cancellationToken);
+
+        Task<IEnumerable<Product>> GetAllEnabledByProductGroupIdsAsync(int[] productGroupIds, CancellationToken cancellationToken);
     }
 }
