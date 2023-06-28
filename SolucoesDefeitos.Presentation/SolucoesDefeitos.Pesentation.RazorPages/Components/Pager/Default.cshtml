@@ -22,21 +22,25 @@
     }
 }
 
-<div class="d-flex justify-content-between">
-    <div class="d-flex p-2">
-        <label for="slPageSize" class="form-label">Tamanho da página</label>
-        <div class="ms-2">
-            <select class="form-select form-select-sm" id="slPageSize" style="width: 65px;" onchange="this.form.submit()" name="PageSize">
-                <!option value="10" @(Model.PageSize == 10 ? "selected" : string.Empty)>10</!option>
-                <!option value="20" @(Model.PageSize == 20 ? "selected" : string.Empty)>20</!option>
-                <!option value="30" @(Model.PageSize == 30 ? "selected" : string.Empty)>30</!option>
-                <!option value="40" @(Model.PageSize == 40 ? "selected" : string.Empty)>40</!option>
-                <!option value="50" @(Model.PageSize == 50 ? "selected" : string.Empty)>50</!option>
-            </select>
+<div class="row">
+    <div class="col-sm-12 col-md-4 float-start p-2">
+        <div class="row g-3 align-items-center">
+            <div class="col-auto">
+                <label for="slPageSize" class="form-label">Tamanho da página</label>
+            </div>
+            <div class="col-auto">
+                <select class="form-select form-select-sm" id="slPageSize" style="width: 65px;" onchange="this.form.submit()" name="PageSize">
+                    <!option value="10" @(Model.PageSize == 10 ? "selected" : string.Empty)>10</!option>
+                    <!option value="20" @(Model.PageSize == 20 ? "selected" : string.Empty)>20</!option>
+                    <!option value="30" @(Model.PageSize == 30 ? "selected" : string.Empty)>30</!option>
+                    <!option value="40" @(Model.PageSize == 40 ? "selected" : string.Empty)>40</!option>
+                    <!option value="50" @(Model.PageSize == 50 ? "selected" : string.Empty)>50</!option>
+                </select>
+            </div>
         </div>
     </div>
-    <div class="p-2">
-        <nav>
+    <div class="col-sm-12 col-md-8 float-end p-2">
+        <nav class="float-md-end float-sm-start">
             <ul class="pagination">
                 @if (Model.CurrentPage > 1)
                 {
