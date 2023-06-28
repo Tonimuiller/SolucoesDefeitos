@@ -1,4 +1,5 @@
-﻿using SolucoesDefeitos.Model;
+﻿using SolucoesDefeitos.Dto;
+using SolucoesDefeitos.Model;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,5 +11,7 @@ namespace SolucoesDefeitos.BusinessDefinition.Repository
         Task<IEnumerable<Attachment>> GetAttachmentsByAnomalyIdAsync(int anomalyId, CancellationToken cancellationToken);
 
         Task DeleteAsync(int anomalyId, int[] attachmentIds, CancellationToken cancellationToken);
+
+        Task<ResponseDto> DeleteAnomalyAttachmentsAsync(int  anomalyId, CancellationToken cancellationToken);
     }
 }

@@ -52,6 +52,24 @@ namespace SolucoesDefeitos.DataAccess.Repository
             return entity;
         }
 
+        public  async Task<ResponseDto> DeleteAnomalyAttachmentsAsync(int anomalyId, CancellationToken cancellationToken)
+        {
+            var commandDefinition = new CommandDefinition(
+                "DELETE FROM attachment WHERE anomalyid = @anomalyid",
+                new { anomalyId },
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            try
+            {
+                await _database.DbConnection.ExecuteAsync(commandDefinition);
+                return new ResponseDto(true);
+            }
+            catch (Exception ex)
+            {
+                return new ResponseDto(false, ex.Message);
+            }
+        }
+
         public async Task<ResponseDto> DeleteAsync(Attachment entity, CancellationToken cancellationToken)
         {
             var commandDefinition = new CommandDefinition(

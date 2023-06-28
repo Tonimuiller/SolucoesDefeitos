@@ -94,6 +94,7 @@ namespace SolucoesDefeitos.BusinessImplementation.Service
             {
                 await _unitOfWork.BeginTransactionAsync(cancellationToken);
                 await _anomalyProductSpecificationRepository.DeleteByAnomalyIdAsync(entity.AnomalyId, cancellationToken);
+                await _attachmentRepository.DeleteAnomalyAttachmentsAsync(entity.AnomalyId, cancellationToken);
                 var deleteResponse = await base.DeleteAsync(entity, cancellationToken);
                 await _unitOfWork.CommitAsync(cancellationToken);
                 return deleteResponse;
