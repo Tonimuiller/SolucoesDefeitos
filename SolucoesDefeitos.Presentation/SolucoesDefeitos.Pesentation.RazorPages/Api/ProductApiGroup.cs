@@ -8,7 +8,8 @@ public class ProductApiGroup : IApiGroup
 {
     public void RegisterGroupMappings(WebApplication webApplication)
     {
-        var group = webApplication.MapGroup("/api/product");
+        var group = webApplication.MapGroup("/api/product")
+            .RequireAuthorization();
         group.MapGet("/by-term", ByTermAsync);
         group.MapDelete("/{id:int}", DeleteAsync);
         group.MapGet("/anomaly-filter-options", AnomalyFilterOptionsAsync);

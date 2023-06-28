@@ -6,7 +6,8 @@ public class ManufacturerApiGroup : IApiGroup
 {
     public void RegisterGroupMappings(WebApplication webApplication)
     {
-        var group = webApplication.MapGroup("/api/manufacturer");
+        var group = webApplication.MapGroup("/api/manufacturer")
+            .RequireAuthorization();
         group.MapDelete("/{id:int}", DeleteAsync);
     }
 

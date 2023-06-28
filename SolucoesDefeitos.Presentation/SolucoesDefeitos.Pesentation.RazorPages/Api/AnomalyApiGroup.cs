@@ -6,7 +6,8 @@ public sealed class AnomalyApiGroup : IApiGroup
 {
     public void RegisterGroupMappings(WebApplication webApplication)
     {
-        var group = webApplication.MapGroup("/api/anomaly");
+        var group = webApplication.MapGroup("/api/anomaly")
+            .RequireAuthorization();
         group.MapDelete("/{id:int}", DeleteAsync);
     }
 

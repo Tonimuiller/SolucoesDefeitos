@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using SolucoesDefeitos.Pesentation.RazorPages.Api;
 
 namespace SolucoesDefeitos.Pesentation.RazorPages
@@ -11,9 +12,23 @@ namespace SolucoesDefeitos.Pesentation.RazorPages
             // Add services to the container.
             builder.Services
                 .AddRazorPages()
-                .AddRazorRuntimeCompilation();
+                .AddRazorRuntimeCompilation()
+                .AddRazorPagesOptions(options =>
+                {
+                    options.Conventions.AuthorizeFolder("/");
+                });
 
             builder.Services.ConfigureApplicationDependencies();
+
+            builder.Services
+                .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+                    options.SlidingExpiration = true;
+                    options.LoginPath = "/Identity/Account/Login";
+                    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+                });
 
             var app = builder.Build();
 
@@ -29,8 +44,10 @@ namespace SolucoesDefeitos.Pesentation.RazorPages
             
             app.UseStaticFiles();
 
-            app.UseRouting();
+            app.UseAuthentication();
 
+            app.UseRouting();
+            
             app.UseAuthorization();
 
             app.MapRazorPages();
