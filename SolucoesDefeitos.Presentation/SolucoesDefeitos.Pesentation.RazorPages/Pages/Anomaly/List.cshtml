@@ -6,13 +6,33 @@
 @using SolucoesDefeitos.Pesentation.RazorPages.Components.Pager.Model;
 @model SolucoesDefeitos.Pesentation.RazorPages.Pages.Anomaly.ListModel
 @{
+    var additionalParameters = new List<(string, string)>();
+    if (!string.IsNullOrEmpty(Model.SearchTerm?.Trim()))
+    {
+        additionalParameters.Add((nameof(Model.SearchTerm), Model.SearchTerm));
+    }
+
+    if (Model.ManufacturerIds?.Any() ?? false)
+    {
+        additionalParameters.AddRange(Model.ManufacturerIds.Select(id => (nameof(Model.ManufacturerIds), id.ToString())));
+    }
+
+    if (Model.ProductGroupIds?.Any() ?? false)
+    {
+        additionalParameters.AddRange(Model.ProductGroupIds.Select(id => (nameof(Model.ProductGroupIds), id.ToString())));
+    }
+
+    if (Model.ProductIds?.Any() ?? false)
+    {
+        additionalParameters.AddRange(Model.ProductIds.Select(id => (nameof(Model.ProductIds), id.ToString())));
+    }
 }
 
 @await Component.InvokeAsync(nameof(DisplayTempDataMessage))
 <div class="p-3 mb-2 bg-secondary text-white">
     <span>Banco de Soluções e Defeitos</span>
 </div>
-<form asp-page="./List" method="get">
+<form id="frmAnomalyList" asp-page="./List" method="get">
     <div class="card mb-3">
         <div class="card-header">
             Filtros
@@ -61,7 +81,7 @@
                 </div>
                 <div class="btn-group btn-group-sm">
                     <button type="submit" class="btn btn-primary"><i class="bi bi-funnel"></i>&nbsp;Filtrar</button>
-                    <button type="reset" class="btn btn-outline-danger"><i class="bi bi-backspace"></i>&nbsp;Limpar Filtro</button>
+                    <button type="button" class="btn btn-outline-danger" onclick="list.filterClear()"><i class="bi bi-backspace"></i>&nbsp;Limpar Filtro</button>
                 </div>
             </div>
         </div>
@@ -100,6 +120,7 @@
     PageSize = Model.PagedData.PageSize,
     Path = "/Anomaly/List",
     TotalRecords = Model.PagedData.TotalRecords,
+    AdditionalParameters = additionalParameters
     })
 </form>
 

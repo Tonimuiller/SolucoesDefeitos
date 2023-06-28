@@ -1,4 +1,5 @@
-﻿@*
+﻿@using System.Text;
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @model SolucoesDefeitos.Pesentation.RazorPages.Components.Pager.Model.PagerModel
@@ -9,13 +10,15 @@
 @functions {
     string GetHrefForPage(int pageIndex)
     {
-        var href = $"{Model.Path}?pageIndex={pageIndex}&pageSize={Model.PageSize}";
+        var hrefBuilder = new StringBuilder()
+            .Append($"{Model.Path}?pageIndex={pageIndex}&pageSize={Model.PageSize}");
         if (Model.AdditionalParameters?.Any(a => !string.IsNullOrEmpty(a.Item2)) ?? false)
         {
-            href += string.Join("&", Model.AdditionalParameters.Where(a => !string.IsNullOrEmpty(a.Item2)).Select(p => $"{p.Item1}=${p.Item2}"));
+            hrefBuilder.Append("&");
+            hrefBuilder.Append(string.Join("&", Model.AdditionalParameters.Where(a => !string.IsNullOrEmpty(a.Item2)).Select(p => $"{p.Item1}={p.Item2}")));
         }
 
-        return href;
+        return hrefBuilder.ToString();
     }
 }
 

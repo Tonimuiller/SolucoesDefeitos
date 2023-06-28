@@ -3,12 +3,13 @@ const list = (function () {
     function _list() {
         const _getComponents = function () {
             return Object.freeze({
+                frmAnomalyList: $("#frmAnomalyList"),
                 txtSearchTerm: $("#txtSearchTerm"),
                 slManufacturer: $("#slManufacturer"),
                 slProductGroup: $("#slProductGroup"),
                 slProduct: $("#slProduct")
             });
-        }
+        }        
 
         const _slManufacturerOnChange = function (option, checked, select) {
             const manufacturerIds = _getComponents().slManufacturer.val();
@@ -72,8 +73,11 @@ const list = (function () {
             onChangeEvent) {
             return Object.freeze({
                 onChange: onChangeEvent,
-                templates: {
-                    button: '<button type="button" class="multiselect dropdown-toggle btn btn-primary" data-bs-toggle="dropdown" aria-expanded="false"><span class="multiselect-selected-text"></span></button>',
+                onSelectAll: onChangeEvent,
+                onDeselectAll: onChangeEvent,
+                buttonContainer: '<div class="btn-group w-100" />',
+                templates: {                    
+                    button: '<button type="button" class="multiselect dropdown-toggle btn btn-outline-secondary" data-bs-toggle="dropdown" aria-expanded="false"><span class="multiselect-selected-text"></span></button>',
                     filter: '<div class="multiselect-filter d-flex align-items-center"><i class="fas fa-sm fa-search text-muted"></i><input type="search" class="multiselect-search form-control"  style="margin-left: -0.625rem;"/></div>'
                 },
                 disableIfEmpty: true,
@@ -83,7 +87,8 @@ const list = (function () {
                 includeSelectAllOption: true,
                 selectAllText: 'Selecionar todos',
                 enableFiltering: true,
-                enableCaseInsensitiveFiltering: true,                
+                enableCaseInsensitiveFiltering: true,
+                allSelectedText: 'Todos'
             });
         };
 
@@ -104,8 +109,19 @@ const list = (function () {
                     'Selecione um ou mais Produto(s)'));
         };
 
+        const _filterClear = function () {
+            _getComponents().txtSearchTerm.val('');
+            _getComponents().slManufacturer.multiselect('deselectAll', false);
+            _getComponents().slProductGroup.multiselect('deselectAll', false);
+            _getComponents().slProduct.multiselect('deselectAll', false);
+            _getComponents().slProductGroup.multiselect('dataprovider', []);
+            _getComponents().slProduct.multiselect('dataprovider', []);
+            _getComponents().frmAnomalyList.submit();
+        };
+
         return {
-            initialize: _initialize
+            initialize: _initialize,
+            filterClear: _filterClear
         };
     }
 
