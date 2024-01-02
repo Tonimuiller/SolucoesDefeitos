@@ -4,7 +4,6 @@ using SolucoesDefeitos.BusinessDefinition.Repository;
 using SolucoesDefeitos.Dto;
 using SolucoesDefeitos.Model;
 using SolucoesDefeitos.Provider;
-using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -67,6 +66,17 @@ namespace SolucoesDefeitos.DataAccess.Repository
             return new ResponseDto(true);
         }
 
+        public async Task<bool> ExistsAsync(int userId, CancellationToken cancellationToken)
+        {
+            var sql = "SELECT COUNT(userid) AS RecordCount FROM  user WHERE userid = @userid";
+            var commandDefinition = new CommandDefinition(
+                sql,
+                new { userId },
+                _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.ExecuteScalarAsync<int>(commandDefinition) > 0;
+        }
+
         public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken)
         {
             var sqlBuilder = new StringBuilder()
@@ -88,7 +98,7 @@ namespace SolucoesDefeitos.DataAccess.Repository
             return await _database.DbConnection.QueryAsync<User>(commandDefinition);
         }
 
-        public async Task<ResponseDto<User>> GetByCredentialsAsync(string loginOrEmail, string password, CancellationToken cancellationToken)
+        public async Task<User> GetByCredentialsAsync(string loginOrEmail, string password, CancellationToken cancellationToken)
         {
             var sqlBuilder = new StringBuilder()
                 .Append("SELECT")
@@ -110,7 +120,7 @@ namespace SolucoesDefeitos.DataAccess.Repository
                 new { loginOrEmail, password },
                 transaction: _database.DbTransaction,
                 cancellationToken: cancellationToken);
-            return new ResponseDto<User>(true, await _database.DbConnection.QuerySingleAsync<User>(commandDefinition));
+            return await _database.DbConnection.QuerySingleAsync<User>(commandDefinition);
         }
 
         public async Task<User> GetByIdAsync(int keyValue, CancellationToken cancellationToken)
@@ -137,9 +147,70 @@ namespace SolucoesDefeitos.DataAccess.Repository
             return await _database.DbConnection.QuerySingleAsync<User>(commandDefinition);
         }
 
+        public async Task<bool> IsEmailAvailableAsync(string email, int? userId, CancellationToken cancellationToken)
+        {
+            var sqlBuilder = new StringBuilder()
+                .Append("SELECT")
+                .AppendLine("\tCOUNT(userId) AS RecordCount,")
+                .AppendLine("FROM")
+                .AppendLine("\tuser")
+                .AppendLine("WHERE")
+                .AppendLine("\temail = @email");
+            if (userId.HasValue)
+            {
+                sqlBuilder.AppendLine("\tAND userId <> @userId");
+            }
+
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                new { userId, email },
+                transaction: _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QuerySingleAsync<int>(commandDefinition) > 0;
+        }
+
+        public async Task<bool> IsLoginAvailableAsync(string login, int? userId, CancellationToken cancellationToken)
+        {
+            var sqlBuilder = new StringBuilder()
+                .Append("SELECT")
+                .AppendLine("\tCOUNT(userId) AS RecordCount,")
+                .AppendLine("FROM")
+                .AppendLine("\tuser")
+                .AppendLine("WHERE")
+                .AppendLine("\tlogin = @login");
+            if (userId.HasValue)
+            {
+                sqlBuilder.AppendLine("\tAND userId <> @userId");
+            }
+
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                new { userId, login },
+                transaction: _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            return await _database.DbConnection.QuerySingleAsync<int>(commandDefinition) > 0;
+        }
+
         public async Task UpdateAsync(User entity, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var sqlBuilder = new StringBuilder()
+                .Append("UPDATE")
+                .Append(" user")
+                .AppendLine("SET")
+                .Append("\tupdatedate = @updatedate,")
+                .Append("\tenabled = @enabled,")
+                .Append("\tname = @name,")
+                .Append("\tlogin = @login,")
+                .Append("\tpassword = @password,")
+                .Append("\temail = @email")
+                .AppendLine("WHERE")
+                .AppendLine("\t userid = @userid");
+            var commandDefinition = new CommandDefinition(
+                sqlBuilder.ToString(),
+                entity,
+                transaction: _database.DbTransaction,
+                cancellationToken: cancellationToken);
+            await _database.DbConnection.ExecuteAsync(commandDefinition);
         }
     }
 }

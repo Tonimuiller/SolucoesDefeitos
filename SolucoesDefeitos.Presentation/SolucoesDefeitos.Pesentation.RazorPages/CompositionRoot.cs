@@ -34,6 +34,7 @@ public static class CompositionRoot
         serviceCollection.AddScoped<IManufacturerService, ManufacturerService>();
         serviceCollection.AddScoped<IProductGroupService, ProductGroupService>();
         serviceCollection.AddScoped<IProductService, ProductService>();
+        serviceCollection.AddScoped<IUserService, UserService>();
     }
 
     private static void ConfigureUnitOfWork(IServiceCollection serviceCollection)
@@ -49,6 +50,7 @@ public static class CompositionRoot
         serviceCollection.AddScoped<IManufacturerRepository, ManufacturerRepository>();
         serviceCollection.AddScoped<IProductGroupRepository, ProductGroupRepository>();
         serviceCollection.AddScoped<IProductRepository, ProductRepository>();
+        serviceCollection.AddScoped<IUserRepository, UserRepository>();
     }
 
     private static void ConfigureDatabases(IServiceCollection serviceCollection)
