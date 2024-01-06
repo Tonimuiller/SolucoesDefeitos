@@ -120,7 +120,7 @@ namespace SolucoesDefeitos.DataAccess.Repository
                 new { loginOrEmail, password },
                 transaction: _database.DbTransaction,
                 cancellationToken: cancellationToken);
-            return await _database.DbConnection.QuerySingleAsync<User>(commandDefinition);
+            return await _database.DbConnection.QuerySingleOrDefaultAsync<User>(commandDefinition);
         }
 
         public async Task<User> GetByIdAsync(int keyValue, CancellationToken cancellationToken)

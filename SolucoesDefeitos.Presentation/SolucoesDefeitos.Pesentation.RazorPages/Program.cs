@@ -16,6 +16,7 @@ namespace SolucoesDefeitos.Pesentation.RazorPages
                 .AddRazorPagesOptions(options =>
                 {
                     options.Conventions.AuthorizeFolder("/");
+                    options.Conventions.AllowAnonymousToPage("/Identity/Account/Register");
                 });
 
             builder.Services.ConfigureApplicationDependencies();

@@ -1,0 +1,41 @@
+﻿@page
+@model SolucoesDefeitos.Pesentation.RazorPages.Pages.Identity.Account.RegisterModel
+@{
+    Layout = "./Shared/_Layout.cshtml";
+    ViewBag.Title = "Criar conta";
+}
+
+<form method="post">
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-4 mb-3">
+            <label class="form-label" for="txtName">Nome</label>
+            <input type="text" class="form-control" id="txtName" name="Name" value="@Model.Name" />
+        </div>
+    </div>
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-4 mb-3">
+            <label class="form-label" for="txtEmail">E-mail</label>
+            <input type="email" class="form-control" id="txtEmail" name="Email" value="@Model.Email" />
+        </div>
+    </div>
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-4 mb-3">
+            <label class="form-label" for="txtLogin">Login</label>
+            <input type="text" class="form-control" id="txtLogin" name="Login" value="@Model.Login" />
+        </div>
+    </div>
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-4 mb-3">
+            <label class="form-label" for="txtPassword">Senha</label>
+            <input type="password" class="form-control" id="txtPassword" name="Password" value="@Model.Password" />
+        </div>
+    </div>
+    <div class="row d-flex justify-content-center">
+        <div class="col-md-4 row">
+            <div class="btn-group">
+                <a href="/Identity/Account/Login" class="btn btn-danger w-50">Voltaro ao login</a>
+                <button type="submit" class="btn btn-primary w-50">Criar conta</button>
+            </div>
+        </div>
+    </div>
+</form>
