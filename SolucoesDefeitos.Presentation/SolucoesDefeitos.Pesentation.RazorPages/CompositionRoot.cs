@@ -5,6 +5,7 @@ using SolucoesDefeitos.BusinessImplementation.Service;
 using SolucoesDefeitos.DataAccess;
 using SolucoesDefeitos.DataAccess.Database;
 using SolucoesDefeitos.DataAccess.Repository;
+using SolucoesDefeitos.DataAccess.Seeders;
 using SolucoesDefeitos.Provider;
 
 namespace SolucoesDefeitos.Pesentation.RazorPages;
@@ -56,5 +57,6 @@ public static class CompositionRoot
     private static void ConfigureDatabases(IServiceCollection serviceCollection)
     {
         serviceCollection.AddScoped<IDatabase, SolucaoDefeitoMySqlDatabase>();
+        serviceCollection.AddScoped<ISeeder, UserSeeder>();
     }
 }

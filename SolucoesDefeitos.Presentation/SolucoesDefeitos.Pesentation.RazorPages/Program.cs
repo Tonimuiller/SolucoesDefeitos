@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
+using SolucoesDefeitos.BusinessDefinition;
 using SolucoesDefeitos.Pesentation.RazorPages.Api;
 
 namespace SolucoesDefeitos.Pesentation.RazorPages
@@ -31,6 +32,8 @@ namespace SolucoesDefeitos.Pesentation.RazorPages
                     options.AccessDeniedPath = "/Identity/Account/AccessDenied";
                 });
 
+            Seed(builder);
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -56,6 +59,17 @@ namespace SolucoesDefeitos.Pesentation.RazorPages
             app.MapApiGroups();
 
             app.Run();
+        }
+
+        private static void Seed(WebApplicationBuilder builder)
+        {
+            var serviceProvider = builder.Services.BuildServiceProvider();
+            var database = serviceProvider.GetRequiredService<IDatabase>();
+            var seeders = serviceProvider.GetRequiredService<IEnumerable<ISeeder>>();
+            foreach(var seeder in seeders)
+            {
+                seeder.Seed(database);
+            }
         }
     }
 }
