@@ -29,8 +29,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentatio
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SolucoesDefeitos.Pesentation.RazorPages", "SolucoesDefeitos.Presentation\SolucoesDefeitos.Pesentation.RazorPages\SolucoesDefeitos.Pesentation.RazorPages.csproj", "{BE625ACF-A2D8-4707-92A3-FC73A08CB19D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SolucoesDefeitos.Presentation.WebApi", "SolucoesDefeitos.Presentation\SolucoesDefeitos.Presentation.WebApi\SolucoesDefeitos.Presentation.WebApi.csproj", "{D39B5A7E-E752-47F8-8FB9-8E449C73ED77}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,10 +71,6 @@ Global
 		{BE625ACF-A2D8-4707-92A3-FC73A08CB19D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE625ACF-A2D8-4707-92A3-FC73A08CB19D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE625ACF-A2D8-4707-92A3-FC73A08CB19D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D39B5A7E-E752-47F8-8FB9-8E449C73ED77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D39B5A7E-E752-47F8-8FB9-8E449C73ED77}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D39B5A7E-E752-47F8-8FB9-8E449C73ED77}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D39B5A7E-E752-47F8-8FB9-8E449C73ED77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -91,7 +85,6 @@ Global
 		{A9A421D0-80DD-4CBD-90C7-F451F90FBCAE} = {10C14EAC-F756-4155-9008-E523A981A5A0}
 		{FB296C06-507A-4FC2-A82F-BEBEB9520206} = {D57094B6-FA67-43EB-8CA5-30421716E7BB}
 		{BE625ACF-A2D8-4707-92A3-FC73A08CB19D} = {1DD57BD1-F308-402B-B656-5C70C29CAD01}
-		{D39B5A7E-E752-47F8-8FB9-8E449C73ED77} = {1DD57BD1-F308-402B-B656-5C70C29CAD01}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4BBDCC66-C34E-4740-BE65-426DEF36585C}
