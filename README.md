@@ -28,6 +28,6 @@ O sistema foi desenvolvido como base de pesquisa e exploração de tecnologias d
 
 1. Crie um banco MySql no seu computador local ou no servidor que achar apropriado;
 2. Execute o script encontrado em Solucoes.Defeitos.DataAccess/Migrations/dump-solucaodefeito-202306291224.sql no banco criado;
-3. Ajuste a connection string com o banco contida em SolucoesDefaitos.Presentation/SolucoesDefaitos.Presentation.RazorPages/appsettings.Development.json
+3. Ajuste a connection string com o banco contida em SolucoesDefeitos.Presentation/SolucoesDefeitos.Presentation.RazorPages/appsettings.Development.json
 4. Execute o sistema utilizando preferencialmente o Visual Studio, Jetbrains Rider ou outra IDE/editor de sua preferência.
 5. Ao executar o sistema, se a tabela de usuários estiver vazia, será criado um usuário com o login "admin" e senha "12345" automaticamente. A gestão de usuários está em fase de desenvolvimento.
